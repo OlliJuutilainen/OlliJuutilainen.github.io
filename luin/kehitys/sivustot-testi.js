@@ -2,7 +2,8 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]
 // Tarkistaa: kaikki sivustot alussa; korit mukaan (tai saman rivin sisällä, ja rivien välillä), pois karsii pääkorin tai
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
-// vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
+// vaakavieritystä ja suodatus alle 400 px (supistettuna alle 200 px; rivit aihe, laji ja kieli supistettuina, nimi avaa, supistettuna
+// näkyvät vain valitut korit); ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
 // Haku-rivi: tekijä mukaan tai pois, asiasana. Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
@@ -25,16 +26,39 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await page.goto(U + 'luin/sivustot.html'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
   const nak = () => page.$$eval('ul.sivustot li:not([hidden])', l => l.length);
   const nimet = () => page.$$eval('ul.sivustot li:not([hidden]) > a:first-of-type', l => l.map(x => x.textContent.trim()));
-  const nappi = (f, v) => page.click('button.kori[data-f="' + f + '"][data-v="' + v + '"]');
+  // Koririvit aihe, laji ja kieli ovat supistettuina: nappi() avaa rivin ensin.
+  const rivi = f => page.click('button.ots[aria-controls="kk-' + f + '"]');
+  const auki = f => page.getAttribute('button.ots[aria-controls="kk-' + f + '"]', 'aria-expanded').then(x => x === 'true');
+  const nappi = async (f, v) => { if (f !== 'kentta' && !(await auki(f))) await rivi(f); await page.click('button.kori[data-f="' + f + '"][data-v="' + v + '"]'); };
   const kaikki = await page.$$eval('ul.sivustot li', l => l.length);
   t('alussa kaikki näkyvissä', await nak() === kaikki, String(kaikki));
   const m = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
-  t('360 px: suodatus ei vie koko ruutua, ei vaakavieritystä', m.korkeus < 400 && !m.vaaka, JSON.stringify(m));
+  t('360 px: supistettu suodatus matala, ei vaakavieritystä', m.korkeus < 200 && !m.vaaka, JSON.stringify(m));
+  const nakyvatKorit = f => page.$$eval('button.kori[data-f="' + f + '"]', l => l.filter(b => b.getClientRects().length).length);
+  t('aihe, laji ja kieli supistettuina, haku auki', !(await auki('aihe')) && !(await auki('laji')) && !(await auki('kieli')) &&
+    await nakyvatKorit('aihe') + await nakyvatKorit('laji') + await nakyvatKorit('kieli') === 0 && await nakyvatKorit('kentta') === 3);
+  await rivi('aihe');
+  const aiheKorit = await page.$$eval('button.kori[data-f="aihe"]', l => l.length);
+  t('rivin nimi avaa rivin', await auki('aihe') && await nakyvatKorit('aihe') === aiheKorit && await nakyvatKorit('laji') === 0, String(aiheKorit));
+  const m2 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
+  await rivi('laji'); await rivi('kieli');
+  const m3 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
+  t('360 px: kaikki auki alle 400 px, ei vaakavieritystä', m3.korkeus < 400 && !m3.vaaka && m2.korkeus < m3.korkeus, JSON.stringify([m2, m3]));
+  await rivi('laji'); await rivi('kieli'); await rivi('aihe');
 
   await nappi('aihe', 'filosofia');
   const filo = await nak(); t('filosofia mukaan', filo === 31, String(filo));
   await nappi('laji', 'alkuteksti'); await nappi('laji', 'kirjeet');
   t('filosofia × alkuteksti/kirjeet = 13', await nak() === 13, String(await nak()));
+  await rivi('aihe'); await rivi('laji');
+  t('supistetulla rivillä vain valitut korit', await nakyvatKorit('aihe') === 1 && await nakyvatKorit('laji') === 2 &&
+    await page.isVisible('button.kori[data-f="aihe"][data-v="filosofia"]') && await nak() === 13);
+  await page.click('button.kori[data-f="aihe"][data-v="filosofia"]');
+  t('valitun korin napautus supistetulla rivillä vaihtaa tilan', await page.getAttribute('button.kori[data-f="aihe"][data-v="filosofia"]', 'data-tila') === 'pois' &&
+    await nakyvatKorit('aihe') === 1);
+  await page.click('button.kori[data-f="aihe"][data-v="filosofia"]');
+  t('ennalleen palautettu kori katoaa supistetulta riviltä', await nakyvatKorit('aihe') === 0 && !(await auki('aihe')));
+  await nappi('aihe', 'filosofia');
   t('tyhjät kirjainryhmät piilossa ja kirjain himmeä', await page.evaluate(() => { const h = [...document.querySelectorAll('h2.kirjain')]; const piilo = h.filter(x => x.hidden);
     return piilo.length > 0 && piilo.every(x => document.querySelector('nav.aakkoset a[href="#' + x.id + '"]').classList.contains('tyhja')); }));
   await page.click('#s-tyhjenna');

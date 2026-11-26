@@ -104,7 +104,8 @@
      uudelleen pois (yliviivattu), kolmannen kerran ennalleen. Saman rivin mukaan-korit ovat tai, rivit keskenään ja; pois-kori
      karsii sivuston, jonka pääkori tai pääkieli se on. Luku on näkyvien sivustojen määrä korissa. Korit ovat Luinin sanasto
      (sama kuin luin.html:n LK_EHDOTUS): li-rivin data-aihe (pääkori ensin; yleiset = kaikkiruokainen sivusto tai yleinen
-     tietosanakirja, käyttäjän päätös), data-laji ja data-kieli. */
+     tietosanakirja, käyttäjän päätös), data-laji ja data-kieli. Rivit aihe, laji ja kieli ovat ladattaessa supistettuina
+     (käyttäjän päätös, ei muistia; haku-rivi aina auki): rivin nimi on nappi, ja supistetulla rivillä näkyvät vain valitut korit. */
   .suodatus { margin: 18px 0 0; font-size: .8rem; }
   .suodatus[hidden] { display: none; }
   .s-haku { margin: 0 0 10px; }
@@ -113,6 +114,13 @@
   .s-haku input:focus { outline: none; border-color: var(--harmaa); }
   .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
   .krivi .ots { font-style: italic; color: var(--harmaa); }
+  .krivi button.ots { justify-self: start; display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
+    font-size: inherit; text-align: left; }
+  /* Kulma kuten osumaryhmissä: oikealle, auki alas. */
+  .krivi button.ots::after { content: ''; flex: none; width: .36em; height: .36em; margin: 0 0 .1em .42em;
+    border: solid var(--harmaa); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
+  .krivi button.ots[aria-expanded="true"]::after { transform: translate(.04em, -.12em) rotate(45deg); }
+  .krivi button.ots[aria-expanded="false"] + .kk button.kori:not([data-tila]) { display: none; }
   .krivi .kk { display: flex; flex-wrap: wrap; gap: 0 .7em; }
   button.kori { border: 0; padding: 2px 0; min-height: 24px; font-size: inherit; color: var(--ruoste); }
   button.kori .n { font-size: .84em; color: var(--harmaa); margin-left: .2em; }
@@ -556,7 +564,8 @@
       return '<button type="button" class="kori" data-f="kentta" data-v="' + k + '" aria-pressed="false">' + k + '<span class="n"></span></button>';
     }).join('') + '</span></div>' +
     FASETIT.map(function (f) {
-      return '<div class="krivi"><span class="ots">' + f + '</span><span class="kk">' + korit[f].map(function (a) {
+      return '<div class="krivi"><button type="button" class="ots" aria-expanded="false" aria-controls="kk-' + f + '">' + f + '</button>' +
+        '<span class="kk" id="kk-' + f + '">' + korit[f].map(function (a) {
         return '<button type="button" class="kori" data-f="' + f + '" data-v="' + esc(a) + '" aria-pressed="false">' + esc(a) + '<span class="n"></span></button>';
       }).join('') + '</span></div>';
     }).join('') +
@@ -689,6 +698,7 @@
   el.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    if (b.classList.contains('ots')) { b.setAttribute('aria-expanded', b.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); return; }
     if (b.id === 's-tyhjenna') { tila = { aihe: {}, laji: {}, kieli: {}, kentta: {} }; haku = ''; document.getElementById('s-haku').value = ''; }
     else if (b.classList.contains('r-otsake')) { avaa(b.getAttribute('data-sivu'), b.getAttribute('aria-expanded') !== 'true'); return; }
     else if (b.classList.contains('r-lisaa')) { avaa(b.getAttribute('data-sivu'), true, 25); return; }
