@@ -162,6 +162,15 @@
   .selite { margin: 16px 37px 10px; padding-left: 26px; font-size: .84rem; line-height: 1.5;
     text-align: justify; hyphens: manual; }
   .selite .super svg { top: .2em; width: 15px; height: 15px; }
+  /* Selitteen merkki ja nimi ovat kytkin (käyttäjän pyyntö): vain Luinin sertifioimat sivustot, otsikkohaussa vain niiden osumat.
+     Kuten kori: ruoste, valittuna muste ja alleviivattu. Skripti tekee napin, joten ilman skriptiä selite on pelkkää tekstiä.
+     Nappi alkaa selitteen sisennyksestä (negatiivinen marginaali), joten merkki on samassa paikassa kuin ilman nappia ja
+     kohdistuskehys kiertää merkin ja nimen; ::after laajentaa kosketusalaa rivin korkeutta suuremmaksi siirtämättä rivejä. */
+  .selite button.sinetti { position: relative; margin: 0 0 0 -26px; padding: 0 0 0 26px; min-height: 0; border: 0;
+    font-size: inherit; color: var(--ruoste); text-align: left; }
+  .selite button.sinetti::after { content: ''; position: absolute; inset: -6px -4px; }
+  .selite button.sinetti[aria-pressed="true"] { color: var(--muste); text-decoration: underline; text-decoration-thickness: 2px;
+    text-underline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -171,7 +180,7 @@
   <p class="johdanto">Näille sivustoille lukimeen-lisäosalla on oma sovitteensa: työpöytäselaimessa artikkeli
     tulee <a href="latomo.html">latomoon</a> siistimpänä kuin yleisin keinoin, esimerkiksi alaviitteineen. Muiltakin
     sivuilta leikkaaminen yleensä onnistuu. Puuttuuko suosikkisi? <a href="palaute.html?mista=sivustot">Kerro</a>.</p>
-  <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>RUOS&shy;TEI&shy;NEN SAL&shy;MI&shy;AK&shy;KI uho&shy;aa ser&shy;ti&shy;fi&shy;oi&shy;van pe&shy;rä&shy;ti en&shy;sim&shy;mäi&shy;sen va&shy;li&shy;o&shy;luo&shy;kan
+  <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><span class="nimi">RUOS&shy;TEI&shy;NEN SAL&shy;MI&shy;AK&shy;KI</span> uho&shy;aa ser&shy;ti&shy;fi&shy;oi&shy;van pe&shy;rä&shy;ti en&shy;sim&shy;mäi&shy;sen va&shy;li&shy;o&shy;luo&shy;kan
     la&shy;to&shy;mus&shy;tu&shy;los&shy;ta. Pai&shy;na sa&shy;man&shy;nä&shy;köis&shy;tä <strong>Lu&shy;ki&shy;meen</strong>-sal&shy;mi&shy;ak&shy;kia se&shy;lai&shy;mes&shy;sa jon&shy;kun tä&shy;män si&shy;vus&shy;ton si&shy;säl&shy;tä&shy;män
     kir&shy;joi&shy;tuk&shy;sen ol&shy;les&shy;sa avat&shy;tu&shy;na, ja suk&shy;ka&shy;si saat&shy;ta&shy;vat pian pyö&shy;riä el&shy;lei jopa ir&shy;ro&shy;ta ja&shy;las&shy;ta.</p>
 
@@ -537,6 +546,7 @@
       sanat = sanat.concat(t[f]);
     });
     t.haku = norm(li.textContent + ' ' + sanat.join(' '));
+    t.super = !!li.querySelector('.super');
     return t;
   });
   if (!tiedot.length) return;
@@ -562,6 +572,17 @@
     }).join('') +
     '<div class="s-tila"><span id="s-nakyy"></span><button type="button" id="s-tyhjenna" hidden>tyhjennä</button></div>';
   el.hidden = false;
+  // Supersalmiakki (käyttäjän pyyntö): selitteen merkki ja nimi ovat kytkin, joka näyttää vain Luinin sertifioimat sivustot
+  // (tila.salmiakki). Kaksi tilaa, ei korin pois-tilaa: kolmas napautus ei saa olla ainoa tie takaisin kaikkiin.
+  var sinetti = null, selite = document.querySelector('.selite'), sMerkki = selite && selite.querySelector('.super'), sNimi = selite && selite.querySelector('.nimi');
+  if (sMerkki && sNimi) {
+    sinetti = document.createElement('button');
+    sinetti.type = 'button'; sinetti.className = 'sinetti'; sinetti.setAttribute('aria-pressed', 'false');
+    // Napin nimi on näkyvä nimi; merkin oma nimi ja vihje olisivat napissa kahdesti.
+    ['role', 'title', 'aria-label'].forEach(function (a) { sMerkki.removeAttribute(a); });
+    selite.insertBefore(sinetti, sMerkki); sinetti.appendChild(sMerkki); sinetti.appendChild(sNimi);
+    sinetti.addEventListener('click', function () { tila.salmiakki = !tila.salmiakki; piirra(); haeOtsikot(); });
+  }
   /* Hakukieli (käyttäjän päätös: perus-boolean): välilyönti tai AND = kaikkien pitää osua, OR = jonkin pitää osua, NOT = ei
      saa osua, sulut ryhmittävät, ja lainausmerkeissä on kokonainen sana tai peräkkäiset sanat ("paul", "st paul"); muuten
      hakusana on sanan alku. Operaattorit vain isoin kirjaimin (pienet ovat hakusanoja). OR sitoo tiukemmin kuin AND kuten
@@ -644,6 +665,7 @@
     return korilapi(t);
   }
   function korilapi(t) {
+    if (tila.salmiakki && !t.super) return false;
     return FASETIT.every(function (f) {
       var muk = [], pois = [];
       Object.keys(tila[f]).forEach(function (a) { (tila[f][a] === 'mukaan' ? muk : pois).push(a); });
@@ -682,7 +704,11 @@
       var a = document.querySelector('nav.aakkoset a[href="#' + h.id + '"]');
       if (a) { a.classList.toggle('tyhja', tyhja); if (tyhja) a.setAttribute('aria-disabled', 'true'); else a.removeAttribute('aria-disabled'); }
     });
-    var suodatettu = !!re || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
+    var suodatettu = !!re || !!tila.salmiakki || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
+    if (sinetti) {
+      sinetti.setAttribute('aria-pressed', tila.salmiakki ? 'true' : 'false');
+      sinetti.title = tila.salmiakki ? 'Näytä kaikki sivustot' : 'Näytä vain Luinin sertifioimat';
+    }
     document.getElementById('s-nakyy').textContent = suodatettu ? 'sivustoja näkyvissä ' + nak.length + ' / ' + tiedot.length : tiedot.length + ' sivustoa';
     document.getElementById('s-tyhjenna').hidden = !suodatettu && !Object.keys(tila.kentta).length;
   }
@@ -761,7 +787,7 @@
   // Merkinnän korit: omat aihekorit (tai sivuston, jos omia ei ole), sivuston laji ja oma kieli (tai sivuston).
   function fasetit(e) {
     if (e.f) return e.f;
-    var t = e.s.t || { aihe: [], laji: [], kieli: [] }, f = { laji: t.laji, lajiPaa: t.lajiPaa };
+    var t = e.s.t || { aihe: [], laji: [], kieli: [] }, f = { laji: t.laji, lajiPaa: t.lajiPaa, super: !!t.super };
     f.aihe = e.aihe.length ? e.aihe : t.aihe;
     f.aihePaa = f.aihe[0];
     f.kieli = e.kieli ? [kieliNimi(nimi(e.kieli))] : t.kieli;
@@ -813,7 +839,7 @@
     var muk = KENTAT.filter(function (k) { return tila.kentta[k] === 'mukaan'; });
     var sallittu = KENTAT.map(function (k) { return muk.length ? muk.indexOf(k) >= 0 : tila.kentta[k] !== 'pois'; });
     var karsii = KENTAT.map(function (k) { return tila.kentta[k] === 'pois'; });
-    var osumat = [], rajattu = FASETIT.some(function (f) { return Object.keys(tila[f]).length; }), kn = {}, karsi;
+    var osumat = [], rajattu = !!tila.salmiakki || FASETIT.some(function (f) { return Object.keys(tila[f]).length; }), kn = {}, karsi;
     // Ehdon osumat yhdellä läpikäynnillä; kenttä osumakohdasta (sana ei ylitä erotinta, koska se ei ole kirjain). Kun kentästä
     // löytyy kokonainen sana (tai kenttä on rajattu pois), haku hyppää seuraavaan kenttään: enintään kolme osumaa ehtoa kohden.
     // Pisteet: otsikossa 2, muualla 1, kokonainen sana +1. Pois rajattuun kenttään osuva ehto karsii merkinnän, paitsi NOT-ehto
