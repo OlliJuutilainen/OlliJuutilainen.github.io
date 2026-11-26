@@ -254,7 +254,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *laki ja lääketiede* (entinen jämäkori; kielet ja
   kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
-  *kaikkiruokainen*), *luonnontiede* (ei *tiede*: luonnontieteet, matematiikka ja tekniikka; suomen laaja *tiede* kattaisi myös
+  *kaikkiruokainen*), *luonnontieteet* (ei *tiede*: luonnontieteet, matematiikka ja tekniikka; suomen laaja *tiede* kattaisi myös
   filosofian ja historian), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
   tekijästä tai asiasanasta tusina-radan `hakemisto/korit.js`:ssä). Sivustolistassa fennomaanit on myös sivustoilla, joilla on piirin
   tekstejä (Gutenberg, Wikisource, Projekt Runeberg, Litteraturbanken; korin viimeisenä, joten se ei ole pääkori), koska Runebergilla
