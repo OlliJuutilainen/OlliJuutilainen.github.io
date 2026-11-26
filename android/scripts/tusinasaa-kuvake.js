@@ -1,10 +1,12 @@
-// Tusinasään kuvake (käyttäjän linjaukset 17.11.2026): musta kiekko, paksu kehä, sen ulkopuolella kellotaulun
-// paikoilla 12 ulospäin osoittavaa kolmiota irti kehästä, ja kehän sisällä babylonialainen luku 12 nuolenpääkirjoituksella:
-// kulmakiila (10) ja kaksi pystykiilaa (1 + 1). Kulmakiila täyttää kehän sisäympyrän vasemman puolikkaan (kärki ja
-// selän kulmat ympyrällä, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikean puolikkaan
-// keskellä, jolloin keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän ajatus). Kokeiltiin myös
-// kärkeen kapenevia, porrastettuja ja pienempiä ylös siirrettyjä pystykiiloja; käyttäjä palasi tähän 17.11.2026.
-// Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android); vain rajaus vaihtelee.
+// Tusinasään kuvake (käyttäjän päätös): musta kiekko, paksu kuusikulmainen kehä kärki ylhäällä ja alhaalla, sen ulkopuolella
+// kellotaulun paikoilla 12 ulospäin osoittavaa kolmiota kapean raon päässä kehästä, ja kehän sisällä babylonialainen luku 12
+// nuolenpääkirjoituksella: kulmakiila (10) ja kaksi pystykiilaa (1 + 1).
+// Rako on kaikille säteille sama, joten kuusikulmion kulmien kohdalla (klo 12, 2, 4, 6, 8, 10) säteen tyveen tulee kulman
+// muotoinen V-lovi; sivujen keskelle osuvien säteiden tyvi on sivun suuntainen. Kaikkien säteiden kärjet ovat samalla
+// ympyrällä. Kulmakiila täyttää kehän sisäalueen vasemman puolikkaan (kärki vasenta pystysivua vasten, selän kulmat vinoja
+// sivuja vasten, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikean puolikkaan keskellä, jolloin
+// keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän päätös).
+// Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android, sivujen logot); vain rajaus vaihtelee.
 //
 // Tuottaa:
 //   icons/tusinasaa.svg, -32.png         välilehden kuvake (32 px PNG Big Surin Safarille)
@@ -12,11 +14,12 @@
 //   icons/tusinasaa-192.png, -512.png    manifest.webmanifest, any
 //   icons/tusinasaa-maskable-512.png     manifest, maskable: kolmioiden kärjet maskin turva-alueen (säde 40 %) sisällä
 //   icons/tusinasaa-jako-N.png           linkin esikatselu (og:image; WhatsApp, Signal ym.), 600 × 600. Kun kuva muuttuu,
-//                                        nosta JAKO-numeroa ja päivitä og:image tusinapaja.html:ssä ja index.html:ssä:
-//                                        viestimet pitävät vanhan osoitteen kuvan välimuistissa.
-//   ?v=<SHA-1:n alku>                    index.html:n, tusinapaja.html:n ja manifestin kuvakeosoitteisiin (paitsi jako, jolla
-//                                        oma numero): selaimet pitävät välilehden kuvaketta muistissa osoitteen mukaan
-//                                        eivätkä hae uutta, vaikka palvelin antaisi (17.11.2026 Big Surin selaimessa)
+//                                        nosta JAKO-numeroa: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
+//                                        Skripti päivittää og:image-osoitteet ja poistaa vanhan numeron kuvan.
+//   ?v=<SHA-1:n alku>                    SIVUT-taulukon sivujen ja manifestin kuvakeosoitteisiin (paitsi jako, jolla oma
+//                                        numero): selaimet pitävät välilehden kuvaketta muistissa osoitteen mukaan
+//                                        eivätkä hae uutta, vaikka palvelin antaisi (Big Surin selaimet)
+//   <svg class="logo" viewBox="0 0 32 32"> SIVUT-taulukon sivuilla upotettu logo
 //   android/app/src/main/res/…           käynnistyskuvake: adaptiivinen (Android 8+), monokromi (13+ teemakuvake) ja
 //                                        Android 7:lle pyöreä layer-list
 //
@@ -28,52 +31,69 @@ const { chromium } = require('playwright');
 const JUURI = path.resolve(__dirname, '../..');
 const IKONIT = path.join(JUURI, 'icons');
 const RES = path.join(JUURI, 'android/app/src/main/res');
-const JAKO = 3;
+const JAKO = 4;
+const SIVUT = ['index.html', 'tusinapaja.html', 'oma-tusinasaa.html', 'minun-tusinasaa.html', 'tusinasaa-koodi.html', 'manifest.webmanifest'];
 
 // tusinapaja.html:n tumman teeman --color-bg ja --color-text.
 const POHJA = '#000000', MUSTE = '#e8e8e8';
 
-// Kangas 32 × 32, keskipiste 16: 32 px:n välilehdessä yksikkö on pikseli.
-const C = 16;
-const R = 8.1, KEHA = 2.2;                       // kehän säde viivan keskeltä ja viivan paksuus
-const RAKO = 1, KOLMIO_K = 5, KOLMIO_L = 4;      // kehästä kolmion kantaan, kolmion korkeus ja kanta
+// Kangas 32 × 32, keskipiste 16: 32 px:n välilehdessä yksikkö on pikseli. Muoto piirretään suunnitteluyksiköissä
+// keskipisteen ympärille, ja MITTA skaalaa sen niin, että säteiden kärjet ovat säteellä KARKI.
+const C = 16, KARKI = 15.2;
+const T30 = Math.tan(Math.PI / 6), S60 = Math.sin(Math.PI / 3);
+const R = 8.9, KEHA = 2.2;                       // kehän keskiviivan ympäryssäde ja kehän paksuus (sivua vastaan kohtisuoraan)
+const RAKO = .55, LEVEYS = 4, KULMA_PITUUS = 4.4; // kehästä säteiden tyveen; tyven leveys; kulmasäteen pituus tyven kulmista
 const VALI = .75;                                // kehän sisäreunasta merkkeihin
-const U = R - KEHA / 2 - VALI;                   // merkkien ympyrä
-// Kulmakiila: kärki vasemmalla ympyrällä, selkä x = SELKA (kulmat ympyrällä), lovi LOVI selästä sisään.
-const SELKA = -.4, LOVI = 1.5;
+const ULKO = R + KEHA / 2 / S60, SISA = R - KEHA / 2 / S60;   // kehän reunojen ympäryssäteet (terävät kulmat)
+const LOVI = ULKO + RAKO / S60;                  // kulmasäteen loven pohja: RAKO kummastakin kulman sivusta
+const KANTA_K = LOVI - LEVEYS / 2 * T30;         // kulmasäteen tyven kulmat
+const KANTA_S = ULKO * S60 + RAKO;               // sivusäteen tyvi (ULKO · cos 30° = kehän ulkoreunan sisäsäde)
+const KARKI_S = KANTA_K + KULMA_PITUUS;          // kärkien säde suunnitteluyksiköissä
+const MITTA = KARKI / KARKI_S;
+const U = SISA - VALI / S60;                     // merkkialueen (kuusikulmio) ympäryssäde
+// Kulmakiila: kärki vasenta pystysivua vasten, selkä x = SELKA (kulmat vinoilla sivuilla), lovi KIILA_LOVI selästä sisään.
+const SELKA = -.4, KIILA_LOVI = 1.5;
 // Pystykiilat: keskikohdat, koko korkeus, pään leveys ja korkeus, varren leveys (pyöreä pää). Pystysuunnassa keskellä.
 const PYST = [2, 4], PYST_K = 4.6, PAA = 1.7, PAA_K = 1.4, VARSI = .8;
-const KARKI = R + KEHA / 2 + RAKO + KOLMIO_K;    // kolmioiden kärkien säde (15,2)
 
 const n = x => +x.toFixed(3);
-const ymp = x => Math.sqrt(Math.max(0, U * U - x * x));   // merkkiympyrän puolikorkeus kohdassa x
+const p = (x, y) => `${n(C + x * MITTA)},${n(C + y * MITTA)}`;
+const reuna = x => U - Math.abs(x) * T30;       // merkkialueen yläreuna kohdassa x (vinojen sivujen kohdalla)
 
-function kolmiot() {
-  const kanta = R + KEHA / 2 + RAKO;
+// Kuusikulmio kärki ylhäällä; vastapäivään piirretty on reikä (nollasta poikkeava täyttösääntö, toimii myös Androidissa).
+function kuusikulmio(r, vastapaivaan) {
+  const k = vastapaivaan ? [0, 5, 4, 3, 2, 1] : [0, 1, 2, 3, 4, 5];
+  return 'M' + k.map(i => p(r * Math.sin(i * Math.PI / 3), -r * Math.cos(i * Math.PI / 3))).join('L') + 'Z';
+}
+
+// Säde t (0 = klo 12) paikallisina koordinaatteina [r ulos, s myötäpäivään].
+function sakara(t, pisteet) {
+  const a = t * Math.PI / 6, ux = Math.sin(a), uy = -Math.cos(a), vx = Math.cos(a), vy = Math.sin(a);
+  return 'M' + pisteet.map(([r, s]) => p(ux * r + vx * s, uy * r + vy * s)).join('L') + 'Z';
+}
+
+function sateet() {
+  const h = LEVEYS / 2;
   let d = '';
-  for (let t = 0; t < 12; t++) {
-    const a = t * Math.PI / 6;                 // 0 = klo 12
-    const ux = Math.sin(a), uy = -Math.cos(a); // ulos
-    const vx = Math.cos(a), vy = Math.sin(a);  // tangentti
-    const p = (r, s) => `${n(C + ux * r + vx * s)},${n(C + uy * r + vy * s)}`;
-    d += `M${p(kanta + KOLMIO_K, 0)}L${p(kanta, KOLMIO_L / 2)}L${p(kanta, -KOLMIO_L / 2)}Z`;
-  }
+  for (let t = 0; t < 12; t++) d += t % 2
+    ? sakara(t, [[KARKI_S, 0], [KANTA_S, h], [KANTA_S, -h]])
+    : sakara(t, [[KARKI_S, 0], [KANTA_K, h], [LOVI, 0], [KANTA_K, -h]]);
   return d;
 }
 
 function kiilat() {
-  const sy = ymp(SELKA);
-  let d = `M${n(C - U)},${C}L${n(C + SELKA)},${n(C - sy)}L${n(C + SELKA - LOVI)},${C}L${n(C + SELKA)},${n(C + sy)}Z`;
+  const sy = reuna(SELKA);
+  let d = `M${p(-U * S60, 0)}L${p(SELKA, -sy)}L${p(SELKA - KIILA_LOVI, 0)}L${p(SELKA, sy)}Z`;
+  const v = VARSI / 2, rv = n(v * MITTA);
   for (const x of PYST) {
-    const w = PAA / 2, v = VARSI / 2, yla = -PYST_K / 2, kaula = yla + PAA_K, ala = yla + PYST_K - v;
-    d += `M${n(C + x - w)},${n(C + yla)}H${n(C + x + w)}L${n(C + x + v)},${n(C + kaula)}V${n(C + ala)}` +
-      `A${v},${v} 0 0 1 ${n(C + x - v)},${n(C + ala)}V${n(C + kaula)}Z`;
+    const w = PAA / 2, yla = -PYST_K / 2, kaula = yla + PAA_K, ala = yla + PYST_K - v;
+    d += `M${p(x - w, yla)}L${p(x + w, yla)}L${p(x + v, kaula)}L${p(x + v, ala)}` +
+      `A${rv},${rv} 0 0 1 ${p(x - v, ala)}L${p(x - v, kaula)}Z`;
   }
   return d;
 }
 
-const KEHA_D = `M${C},${n(C - R)}A${R},${R} 0 1 1 ${C},${n(C + R)}A${R},${R} 0 1 1 ${C},${n(C - R)}Z`;
-const TAYTE = kolmiot() + kiilat();
+const TAYTE = kuusikulmio(ULKO) + kuusikulmio(SISA, true) + sateet() + kiilat();
 
 // tausta: 'kiekko' (välilehti) tai 'nelio' (koko viewBox; kotivalikko, manifest, esikatselu)
 function svg({ viewBox = '0 0 32 32', tausta = 'kiekko' } = {}) {
@@ -82,7 +102,6 @@ function svg({ viewBox = '0 0 32 32', tausta = 'kiekko' } = {}) {
     : `<rect x="${x}" y="${y}" width="${w}" height="${w}" fill="${POHJA}"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">
 ${t}
-<path fill="none" stroke="${MUSTE}" stroke-width="${KEHA}" d="${KEHA_D}"/>
 <path fill="${MUSTE}" d="${TAYTE}"/>
 </svg>
 `;
@@ -115,10 +134,6 @@ ${huom}<vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:scaleY="${n(S)}"
         android:translateX="${siirto}"
         android:translateY="${siirto}">
-        <path
-            android:pathData="${KEHA_D.replace(/ /g, ',')}"
-            android:strokeColor="@color/kuvake_muste"
-            android:strokeWidth="${KEHA}" />
         <path
             android:fillColor="@color/kuvake_muste"
             android:pathData="${TAYTE.replace(/ /g, ',')}" />
@@ -166,19 +181,23 @@ if (require.main === module) (async () => {
   await png(s, svg({ viewBox: MASKI, tausta: 'nelio' }), 512, path.join(IKONIT, 'tusinasaa-maskable-512.png'));
   await png(s, svg({ viewBox: ESIKATSELU, tausta: 'nelio' }), 600, path.join(IKONIT, `tusinasaa-jako-${JAKO}.png`));
   await b.close();
+  for (const f of fs.readdirSync(IKONIT)) if (/^tusinasaa-jako-\d+\.png$/.test(f) && f !== `tusinasaa-jako-${JAKO}.png`) fs.unlinkSync(path.join(IKONIT, f));
   android();
   versioi();
 })();
 
-// Kuvakeosoitteiden versiotunniste tiedoston sisällöstä: muuttuu vain, kun kuva muuttuu.
+// Kuvakeosoitteiden versiotunniste tiedoston sisällöstä: muuttuu vain, kun kuva muuttuu. Samalla og:image-numero ja
+// sivuille upotettu logo.
 function versioi() {
   const crypto = require('crypto');
-  for (const f of ['index.html', 'tusinapaja.html', 'manifest.webmanifest']) {
+  const logo = `<circle cx="16" cy="16" r="16" fill="#000"/><path fill="${MUSTE}" d="${TAYTE}"/>`;
+  for (const f of SIVUT) {
     const p = path.join(JUURI, f);
     const s = fs.readFileSync(p, 'utf8').replace(/icons\/(tusinasaa(?!-jako)[\w-]*\.(?:svg|png))(?:\?v=[0-9a-f]+)?"/g, (m, nimi) => {
       const v = crypto.createHash('sha1').update(fs.readFileSync(path.join(IKONIT, nimi))).digest('hex').slice(0, 8);
       return `icons/${nimi}?v=${v}"`;
-    });
+    }).replace(/icons\/tusinasaa-jako-\d+\.png/g, `icons/tusinasaa-jako-${JAKO}.png`)
+      .replace(/(<svg class="logo" viewBox="0 0 32 32"[^>]*>)[\s\S]*?(<\/svg>)/g, (m, alku, loppu) => alku + logo + loppu);
     fs.writeFileSync(p, s);
   }
 }
