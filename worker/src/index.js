@@ -45,7 +45,7 @@ function corsify(resp, { origin, requestHeaders, allowedOrigins = DEFAULT_ALLOWE
   const headers = new Headers(resp.headers);
   const allowOrigin = allowedOrigins.has(origin) ? origin : "null";
   headers.set("Access-Control-Allow-Origin", allowOrigin);
-  headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
+  headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
 
   if (requestHeaders && requestHeaders.trim()) {
     headers.set("Access-Control-Allow-Headers", requestHeaders);
@@ -289,6 +289,106 @@ async function handleLocUpdate(req, env, allowedOrigins) {
   }
   logEvent("updated");
   return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+}
+
+// Paalupuhe (minun-tusinasaa.html): lause on oikopolku hallintalinkkiin. Selain johtaa lauseesta PBKDF2:lla tunnuksen a,
+// salausavaimen ja kirjoitusavaimen; tietueessa "avain:<a>" on hallintalinkki {t, k, w} salattuna ja kirjoitusavaimen
+// tiiviste wh. Worker ei näe lausetta, hallintalinkkiä eikä koordinaatteja. Haku on rajoitettu osoitetta kohden, koska
+// ihmisen keksimän lauseen voi yrittää arvata toisin kuin satunnaisen tokenin.
+// GET /api/avain?a=… → {v, iv, ct}; PUT luo (kentällä wh) tai korvaa (kentällä w); DELETE (kentällä w) poistaa.
+const AVAIN_HAKU_MAARA = 10;
+
+async function handleAvain(req, env, allowedOrigins) {
+  const a = (new URL(req.url).searchParams.get("a") || "").trim();
+  if (!LOC_TOKEN_RE.test(a)) {
+    logEvent("avain_invalid_fields", { field: "a" });
+    return errorResponse("invalid_fields", 400);
+  }
+  if (!env.LOCATIONS || typeof env.LOCATIONS.get !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
+    return errorResponse("bad_payload", 500);
+  }
+  const avain = "avain:" + a;
+  const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
+  const lue = async () => {
+    const raw = await env.LOCATIONS.get(avain);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  };
+
+  if (req.method === "GET") {
+    if (!(await luinLaskuri(env, "osoite", ip, "avainhaku", { maara: AVAIN_HAKU_MAARA }))) {
+      logEvent("avain_rate_limited", { by: "address" });
+      return errorResponse("rate_limited", 429);
+    }
+    let data;
+    try { data = await lue(); } catch (e) {
+      logEvent("kv_error", { reason: "fetch_failed" });
+      return errorResponse("bad_payload", 500);
+    }
+    if (!data || typeof data.iv !== "string" || typeof data.ct !== "string") {
+      logEvent("avain_not_found");
+      return errorResponse("not_found", 404);
+    }
+    return jsonResponse({ v: 1, iv: data.iv, ct: data.ct }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  if (req.method !== "PUT" && req.method !== "DELETE") return errorResponse("method_not_allowed", 405);
+  if (!allowedOrigins.has(req.headers.get("Origin") || "")) {
+    logEvent("avain_bad_origin");
+    return errorResponse("forbidden", 403);
+  }
+  if (!(await luinLaskuri(env, "osoite", ip, "locmuutos", { maara: LOC_MUUTOS_MAARA }))) {
+    logEvent("avain_rate_limited", { by: "address" });
+    return errorResponse("rate_limited", 429);
+  }
+  let body;
+  try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
+  const w = body && typeof body.w === "string" ? body.w : "";
+  let stored;
+  try { stored = await lue(); } catch (e) {
+    logEvent("kv_error", { reason: "fetch_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+  // Olemassa olevaa tietuetta muuttaa tai poistaa vain lauseesta johdetun kirjoitusavaimen haltija.
+  if (stored) {
+    if (!LOC_W_RE.test(w) || typeof stored.wh !== "string" || !samatMerkit(await kirjoitusTiiviste(w), stored.wh)) {
+      logEvent("avain_wrong_key");
+      return errorResponse("wrong_key", 403);
+    }
+  }
+
+  if (req.method === "DELETE") {
+    if (!stored) return errorResponse("not_found", 404);
+    try { await env.LOCATIONS.delete(avain); } catch (e) {
+      logEvent("kv_error", { reason: "delete_failed" });
+      return errorResponse("bad_payload", 500);
+    }
+    logEvent("avain_deleted");
+    return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  const iv = body && typeof body.iv === "string" ? body.iv : "";
+  const ct = body && typeof body.ct === "string" ? body.ct : "";
+  const wh = stored ? stored.wh : (body && typeof body.wh === "string" ? body.wh : "");
+  if (!body || body.v !== 1 || iv.length !== 16 || !B64U_RE.test(iv) || ct.length < 44 || ct.length > LOC_CT_MAX
+      || !B64U_RE.test(ct) || !LOC_W_RE.test(wh)) {
+    logEvent("avain_invalid_fields");
+    return errorResponse("invalid_fields", 400);
+  }
+  if (!(await luinLaskuri(env, "paiva", ip, "locmuutos", { paivaMax: LOC_MUUTOS_PAIVA_MAX }))) {
+    logEvent("avain_rate_limited", { by: "day" });
+    return errorResponse("rate_limited", 429);
+  }
+  try {
+    await env.LOCATIONS.put(avain, JSON.stringify({ v: 1, iv, ct, wh }),
+      { metadata: { avain: 1, muutettu: new Date().toISOString().slice(0, 10) } });
+  } catch (e) {
+    logEvent("kv_error", { reason: "put_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+  logEvent(stored ? "avain_updated" : "avain_created");
+  return jsonResponse({ ok: true }, { status: stored ? 200 : 201, headers: { "Cache-Control": "no-store" } });
 }
 
 // Keikkasoitin (soitin/): keikan tiedot ovat KV:ssä avaimella "gig:<tunnus>".
@@ -982,6 +1082,13 @@ export default {
       }
       if (url.pathname === "/api/luin") {
         return corsify(await handleLuin(req, env), {
+          origin,
+          requestHeaders: acrHeaders,
+          allowedOrigins,
+        });
+      }
+      if (url.pathname === "/api/avain") {
+        return corsify(await handleAvain(req, env, allowedOrigins), {
           origin,
           requestHeaders: acrHeaders,
           allowedOrigins,

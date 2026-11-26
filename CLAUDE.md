@@ -37,7 +37,7 @@ Ohjelmien säännöt ovat omissa tiedostoissaan (käyttäjän päätös):
 
 Claude Code lataa tiedoston itse, kun luet tai muokkaat sen `paths`-kuvioihin osuvaa tiedostoa. Jos
 ohjelman työ alkaa muualta (esim. `worker/src/index.js`: reitit `/api/gig`, `/api/drive*` ja `/api/dropbox`
-ovat soittimen, `/api/luin` ja `/api/palaute` Luinin, `/api/loc` Tusinasään) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
+ovat soittimen, `/api/luin` ja `/api/palaute` Luinin, `/api/loc` ja `/api/avain` Tusinasään) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
 
 Mihin kirjataan: yhden ohjelman päätös sen omaan tiedostoon, kaikkia ohjelmia koskeva tähän. Kun huomaat
 opin, joka palvelisi koko Tusinasoftin kehitystä, ehdota käyttäjälle lyhyttä kirjausta tähän tiedostoon;

@@ -123,7 +123,7 @@ Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää ai
 kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
 `oppaat/tusinasaa-oma-paneeli-malli.html`.
 
-- Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, muutettu}`. `tusinapaja.html` tunnistaa
+- Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, avain?, muutettu}`. `tusinapaja.html` tunnistaa
   sen `pylvaat`-taulukosta ja näyttää valitun pylvään kuin tavallisen paketin. `lampo` on profiilin, ei pylvään.
   Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääpylvästä*.
 - **Kirjoitusavain `w` on vain hallintalinkissä** `minun-tusinasaa.html#t=…&k=…&w=…`, ei koskaan katselulinkissä: muuten
@@ -142,6 +142,27 @@ kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sula
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
   `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
+
+## Paalupuhe (lause hallintalinkin oikopolkuna)
+
+Paalupuhe avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
+
+- **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
+  hampaina) avaa näkymän, jossa on vain kenttä, *Arvo* ja i-nappi. Arvo vain, kun laitteella on paneeli. Kenttä on
+  kaksirivinen ja 16 px, jotta 52 merkkiä mahtuu puhelimen leveydelle eikä iOS suurenna sivua; Enter lähettää.
+- **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
+  kirjoitusavain (32). **Älä muuta näitä:** jokainen annettu lause lakkaisi toimimasta. Lauseen säännöt kuten lukimen
+  laatikkolauseessa (24–52 merkkiä, a–z, 0–9, `-`; isot kirjaimet pieniksi), ja Arvo on `luin/laatikkolause.js`.
+- **Worker** `/api/avain?a=…`: tietue `avain:<a>` on hallintalinkki `{t, k, w}` salattuna ja lauseesta johdetun
+  kirjoitusavaimen tiiviste `wh`. GET on rajoitettu (`avainhaku`, 10 minuutissa osoitetta kohden), koska ihmisen
+  keksimää lausetta voi yrittää arvata; PUT ja DELETE `locmuutos`-rajoin ja vain sallituista alkuperistä. Worker ei
+  näe lausetta, hallintalinkkiä eikä koordinaatteja.
+- **Profiilin `avain`-kenttä** on lause salattuna avaimella SHA-256(`tusinasaa-avain-lause:` + w): hallintalaitteet
+  näkevät nykyisen lauseen ja voivat irrottaa sen, katselulinkin haltija ei. Muut sivut ohittavat kentän; paneelin
+  `toProfile` säilyttää sen.
+- Lause kiinnittyy laitteen paneeliin, jos sitä ei löydy; ilman paneelia mitään ei luoda. Korvaus ja irrotus (tyhjä
+  kenttä) vaativat toisen Enterin. Lauseen muutos hakee ensin palvelun profiilin ja käyttää tuoreempaa pohjana, jotta
+  vanhentunut näkymä ei kumoa toisen laitteen muutosta.
 
 ## Android-sovellus ja koodi
 
