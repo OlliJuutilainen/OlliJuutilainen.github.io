@@ -116,7 +116,10 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
   asennuspaketin tekoa varten.
 - `tusinapaja.html` hakee sijainnin workerilta kaikkialla paitsi localhostissa, jotta oma verkkotunnus ei katkaise linkkejä.
 
-## Minun oma tusinasää (hallintapaneeli)
+## Minun oma tusinasää eli MOTS (hallintapaneeli)
+
+Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
+Sivuilla nimi kirjoitetaan auki.
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -138,8 +141,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 200 UTC-päivässä). Profiilin `ct`
   enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
-  (välit kuten mallissa). Virhe näkyy *Salkoni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Salkoni nyt* -otsikko
-  on linkki säätiedotukseen.
+  (välit kuten mallissa). Virhe näkyy *Salkoni*-rivin alla ja tarjoaa *yritä uudelleen*. Rivin otsake on *Salkoni:*, ei *Salkoni nyt*
+  (käyttäjän päätös), ja valitun salon nimi on linkki säätiedotukseen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
