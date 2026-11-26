@@ -435,15 +435,18 @@
         <p>Pinon nimikkeen oikealla puolella on valikkonappi
           <svg class="ik kolme" viewBox="0 0 17 7" aria-hidden="true"><path d="M2.5 0.4Q3.37 2.32 4.8 3.5Q3.37 4.68 2.5 6.6Q1.63 4.68 0.2 3.5Q1.63 2.32 2.5 0.4ZM8.5 0.4Q9.37 2.32 10.8 3.5Q9.37 4.68 8.5 6.6Q7.63 4.68 6.2 3.5Q7.63 2.32 8.5 0.4ZM14.5 0.4Q15.37 2.32 16.8 3.5Q15.37 4.68 14.5 6.6Q13.63 4.68 12.2 3.5Q13.63 2.32 14.5 0.4Z"/></svg>.
           Sen valikossa on kolme kohtaa, joista kukin avaa oman alavalikkonsa: leveällä ruudulla viereen, kapealla valikon
-          tilalle, ja ylärivin nuolesta pääsee takaisin. Kohdassa <span class="ui">EXPORTĀTIŌ</span> (vienti) ovat tekstin
+          tilalle, ja ylärivin nuolesta pääsee takaisin. Kohdat ovat samat pinossa, kellarin veivihyllystössä ja ö-mapissa.
+          Kohdassa <span class="ui">ULOSTUS</span> (vienti) ovat tekstin
           lähdeviite ja sen kopiointi, linkin kopiointi (verkosta avatulle tekstille), tekstin lataaminen Markdown-tiedostona
           (<span class="ui">Lataa .md</span>), merkintöjen vienti tekstitiedostoon (<span class="ui">Vie merkinnät</span>, samoin
           valinnoin kuin avoimen tekstin asetuksissa) ja <span class="ui">Huiluta laatikkoon</span>. Kohdassa
-          <span class="ui">LATOMO</span> ovat luokittelu (alla) sekä tietojen ja laitoksen muuttaminen. Kohdassa
-          <span class="ui">Luin.</span> ovat <span class="ui">Pois silmistä</span>, <span class="ui">Käsikirjastoon</span>, <span class="ui">Merkitse luetuksi</span>
+          <span class="ui">SISUSTUS</span> ovat luokittelu (alla) sekä tietojen ja laitoksen muuttaminen. Kohdassa
+          <span class="ui">HYLLYTYS</span> ovat tekstin siirrot, jotka riippuvat siitä, missä teksti on: pinossa <span class="ui">Hyllystä</span>
+          ja <span class="ui">Vie käsikirjastoon</span>. Lisäksi siellä ovat aina <span class="ui">Anna pölyyntyä</span>
           ja alimpana <span class="ui">Poista</span>. Poisto vie myös tekstin merkinnät, joten se kysyy vahvistuksen.</p>
-        <p><span class="ui">Merkitse luetuksi</span> jättää tekstin pinoon mutta himmentää sen nimikkeen hyvin haaleaksi ja
-          siirtää sen pinon pohjalle. Käsikirjastoon viety teksti ei ole luetuksi merkitty. Samasta kohdasta (<span class="ui">Merkitse lukemattomaksi</span>) sen saa entiselleen.</p>
+        <p><span class="ui">Anna pölyyntyä</span> himmentää tekstin nimikkeen hyvin haaleaksi ja siirtää sen pinon pohjalle.
+          Pöly säilyy, kun teksti siirtyy kellarin veivihyllystöön, ö-mappiin tai takaisin pinoon; vain käsikirjastoon siirretyltä
+          tekstiltä se lähtee. Samasta kohdasta (<span class="ui">Puhalla pölyt</span>) sen saa entiselleen.</p>
         <p>Jos tekstillä ei ole linkkiä, linkin paikalla on <span class="ui">Linkitä tiedostoon</span>. Lataa teksti,
           vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy
           linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen
@@ -462,26 +465,29 @@
           milloin luit tekstin ja (verkosta avatulle tekstille) mistä osoitteesta. Valinta muistetaan.</p>
         <p>Nimikkeen vasemmalla puolella oleva salmiakki valitsee tekstin, ja otsikkorivin salmiakki valitsee kaikki
           tai tyhjentää valinnan. Kun jotain on valittuna, otsikkorivin oikeaan reunaan tulee valittujen valikko samoin
-          kolmin kohdin: kohdassa <span class="ui">EXPORTĀTIŌ</span> lähdeviitteiden kopiointi ja <span class="ui">Vie merkinnät (zip)</span>,
-          kohdassa <span class="ui">LATOMO</span> luokittelu ja kohdassa <span class="ui">Luin.</span> siirrot,
-          <span class="ui">Merkitse luetuksi</span> ja poisto.
+          kolmin kohdin: kohdassa <span class="ui">ULOSTUS</span> lähdeviitteiden kopiointi ja <span class="ui">Vie merkinnät (zip)</span>,
+          kohdassa <span class="ui">SISUSTUS</span> luokittelu ja kohdassa <span class="ui">HYLLYTYS</span> siirrot,
+          <span class="ui">Anna pölyyntyä</span> ja poisto.
           Zip-paketissa on jokaisesta tekstistä sama Markdown-tiedosto kuin tekstin omassa merkintöjen viennissä,
           samoilla viennin valinnoilla (ne ovat avoimen tekstin asetuksissa).</p>
         <p>Pinosta ei tarvitse siivota: kun pinoon tulee kolmastoista teksti, pisimpään koskematon laskeutuu kellarin veivihyllystöön
-          itsestään. <span class="ui">Pois silmistä</span> vie tekstin sinne heti, kun sen aika on, vaikkapa siksi, että se on liian
-          kiinnostava ja työlistalla on muuta. Se kysyy vielä, nakataanko teksti <b>kellarin veivihyllystöön</b> (<span class="ui">Nakkaa</span>).
-          Kellarin veivihyllystöön pääsee pinon alla olevasta pienestä linkistä <span class="ui">kellarin veivihyllystöön</span>,
+          itsestään. <span class="ui">Hyllystä</span> vie tekstin <b>kellarin veivihyllystöön</b> heti, kun sen aika on, vaikkapa siksi,
+          että se on liian kiinnostava ja työlistalla on muuta. Se kysyy vielä varmuuden vuoksi: <i>Oletko aivan hylly?</i>
+          (<span class="ui">Olen</span> tai <span class="ui">En</span>).
+          Kellarin veivihyllystöön pääsee pinon alla olevasta pienestä linkistä <span class="ui">kellarin veivihyllystö</span>,
           joka näkyy, kun kellarin veivihyllystössä on jotain. Kellarin veivihyllystön tekstejä voi avata, valita ja
-          käsitellä kuten pinossa, mutta kohdan <span class="ui">Luin.</span> nimi on siellä <span class="ui">Hain.</span>, ja siirron paikalla on
-          <span class="ui">Poimi pinoon</span>: se nostaa tekstin takaisin pinon kärkeen. Merkinnät
+          käsitellä kuten pinossa, mutta kohdassa <span class="ui">HYLLYTYS</span> ovat siellä <span class="ui">Poimi pinoon</span>,
+          <span class="ui">Laita ö-mappiin</span> ja <span class="ui">Nosta käsikirjastoon</span>. <span class="ui">Poimi pinoon</span>
+          nostaa tekstin takaisin pinon kärkeen (pölyttyneen pinon pohjalle). Merkinnät
           ja lukukohta säilyvät kellarin veivihyllystössä. Teksti palaa pinoon myös, jos se lähetetään
           uudelleen postihuilulla tai latomosta. Kellarin veivihyllystöstä pääsee takaisin pinoon logosta tai vasemman alakulman linkistä
-          <span class="ui">pinoon</span>.</p>
+          <span class="ui">pino</span>.</p>
         <p>Kellarin veivihyllystöstä tekstin voi siirtää vielä syvemmälle, <b>ö-mappiin</b>
-          (<span class="ui">Ö-mappiin</span>). Sinne pääsee kellarin veivihyllystön alalaidan linkistä
-          <span class="ui">ö-mappiin</span>, joka näkyy, kun siellä on jotain.
-          <span class="ui">Poimi kellarin veivihyllystöön</span> tuo tekstin takaisin. Ö-mapista pääsee pinoon
-          logosta ja kellarin veivihyllystöön vasemman alakulman linkistä.</p>
+          (<span class="ui">Laita ö-mappiin</span>; vahvistus <i>Laitetaanko teksti mappiin ö?</i>, <span class="ui">Joo</span> tai <span class="ui">Öö ei</span>).
+          Sinne pääsee kellarin veivihyllystön alalaidan linkistä <span class="ui">ö-mappi</span>, joka näkyy, kun siellä on jotain.
+          Ö-mapissa kohdassa <span class="ui">HYLLYTYS</span> ovat <span class="ui">Poimi kellarin veivihyllystöön</span>, joka tuo tekstin takaisin,
+          ja <span class="ui">Poimi käsikirjastoon</span>. Ö-mapista pääsee pinoon logosta ja kellarin veivihyllystöön vasemman alakulman
+          linkistä <span class="ui">kellarin veivihyllystö</span>.</p>
         <p><span class="ui">Luokittele</span> antaa tekstille <b>asiasanoja</b> (esimerkiksi <i>filosofia</i> ja
           <i>psykologia</i>; teksti voi kuulua moneen), <b>ajoituksen</b> ja paikan <b>käsikirjastossa</b>. Asiasanan
           napautus tallentaa heti. Kenttään kirjoittaminen suodattaa jo käytettyjä sanoja, jotta sama asia saa saman sanan.
@@ -491,12 +497,12 @@
           julkaisuvuosi: Hegel-tutkimus Hegelin vuosille (<i>1807</i>), Septuaginta ennen ajanlaskun alkua (<i>250 eaa.</i>).
           Käsikirjasto on teksteille, joihin palataan aina uudelleen. Käsikirja ei ole koskaan pinossa: se on aina kellarin
           veivihyllystössä ylimpänä omana käsikirjastonaan järjestyksestä riippumatta, eikä sitä poimita pinoon eikä siirretä
-          ö-mappiin. Käsikirjastoon pääsee myös suoraan: pinosta ja kellarin veivihyllystöstä
-          <span class="ui">Käsikirjastoon</span> sekä ö-mapista <span class="ui">Poimi käsikirjastoon</span>. Ö-mapissa kohdan <span class="ui">Luin.</span> nimi on <span class="ui">Toin.</span>
+          ö-mappiin. Käsikirjastoon pääsee myös suoraan: pinosta <span class="ui">Vie käsikirjastoon</span>, kellarin veivihyllystöstä
+          <span class="ui">Nosta käsikirjastoon</span> ja ö-mapista <span class="ui">Poimi käsikirjastoon</span>.
           Kun otat sen pois käsikirjastosta, se palaa sinne, missä se oli (lukematon pinoon). Kun valitset monta tekstiä, valittujen valikon
           <span class="ui">Luokittele</span> antaa saman asiasanan, ajoituksen tai käsikirjaston kaikille.</p>
         <p>Pinossa ylimpänä on se teksti, jonka viimeksi avasit tai joka viimeksi tuli pinoon (myös Postihuilun kautta);
-          luetuksi merkityt ovat pohjalla. Luokittelu ei näy pinossa. Kellarin
+          pölyttyneet ovat pohjalla. Luokittelu ei näy pinossa. Kellarin
           veivihyllystössä otsikon alla vasemmalla on järjestyksen nappi (lajittelunuoli), jossa näkyy voimassa oleva
           järjestys. Sen napautus antaa valita: luetuksi merkitsemisen, tekijän (blogin, lehden tai
           hakuteoksen kirjoituksella julkaisu, muuten kirjoittaja), kirjoittajan (jokainen kirjoittaja omana ryhmänään), ajoituksen,
