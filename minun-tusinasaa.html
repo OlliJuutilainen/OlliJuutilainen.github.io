@@ -191,14 +191,15 @@
     color:var(--avain); line-height:0; transition:color .4s cubic-bezier(.3,.7,.2,1) }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
   .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
-  /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee (80 px), kahvan vasen reuna kentän vasemmassa reunassa
-     (sama pystylinja kuin kentällä ja Arvolla). Väri sivun kirkkain (--brand; käyttäjän päätös). Yläpuolelle enemmän
-     ilmaa kuin alle: avain painuu kohti kenttää. Napautus sulkee. */
+  /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
+     kokoinen (ulkoapoteema 20,45 px; avain 110 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
+     sisätyhjä 10 px), eli hieman kentän reunasta oikealle; ei linjausta logoon (käyttäjän päätös). Väri sivun kirkkain (--brand). Yläpuolelle enemmän ilmaa kuin alle:
+     avain painuu kohti kenttää. Napautus sulkee. */
   .avainPaikka{ display:flex; justify-content:flex-start; margin:0 0 14px }
-  .avainPaikka .avainNappi{ position:static; padding:8px; margin-left:-8px; color:var(--brand) }
+  .avainPaikka .avainNappi{ position:static; padding:8px; margin-left:3px; color:var(--brand) }
   .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--brand) }
   .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--text) }
-  .avainPaikka .avainNappi svg{ width:33.69px; height:80px }
+  .avainPaikka .avainNappi svg{ width:46.28px; height:109.89px }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
   .avainNakyma{ max-width:26rem; margin:36px auto 0 }
