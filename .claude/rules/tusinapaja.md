@@ -143,9 +143,9 @@ kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sula
 - Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
   `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
 
-## Paalupuhe (lause hallintalinkin oikopolkuna)
+## Salkosutkautus (lause hallintalinkin oikopolkuna)
 
-Paalupuhe avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
+Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
   hampaina) avaa näkymän, jossa on vain kenttä, *Arvo* ja i-nappi. Arvo vain, kun laitteella on paneeli. Kenttä on
