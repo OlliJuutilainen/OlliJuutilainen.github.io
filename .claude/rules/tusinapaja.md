@@ -150,8 +150,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
-  hampaina) avaa näkymän, jossa on vain kenttä, *Arvo* ja i-nappi. Arvo vain, kun laitteella on paneeli. Kenttä on
-  kaksirivinen ja 16 px, jotta 52 merkkiä mahtuu puhelimen leveydelle eikä iOS suurenna sivua; Enter lähettää.
+  hampaina) avaa näkymän, jossa on vain kenttä, *Arvo*, *Sutkauta* ja i-nappi. Arvo vain, kun laitteella on paneeli;
+  Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
+  mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
   kirjoitusavain (32). **Älä muuta näitä:** jokainen annettu lause lakkaisi toimimasta. Lauseen säännöt kuten lukimen
   laatikkolauseessa (24–52 merkkiä, a–z, 0–9, `-`; isot kirjaimet pieniksi), ja Arvo on `luin/laatikkolause.js`.
@@ -163,7 +164,7 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   näkevät nykyisen lauseen ja voivat irrottaa sen, katselulinkin haltija ei. Muut sivut ohittavat kentän; paneelin
   `toProfile` säilyttää sen.
 - Lause kiinnittyy laitteen paneeliin, jos sitä ei löydy; ilman paneelia mitään ei luoda. Korvaus ja irrotus (tyhjä
-  kenttä) vaativat toisen Enterin. Lauseen muutos hakee ensin palvelun profiilin ja käyttää tuoreempaa pohjana, jotta
+  kenttä) vaativat toisen lähetyksen. Lauseen muutos hakee ensin palvelun profiilin ja käyttää tuoreempaa pohjana, jotta
   vanhentunut näkymä ei kumoa toisen laitteen muutosta.
 
 ## Android-sovellus ja koodi
