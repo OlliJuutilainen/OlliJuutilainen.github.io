@@ -307,7 +307,7 @@
   li.valiots button.vo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; text-align: left;
     letter-spacing: inherit; text-transform: inherit; color: inherit; padding: 6px 0; margin: -6px 0; }
   li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
-  /* Merkitse luetuksi (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä, viivan värisenä (ei läpikuultavuutta). */
+  /* Pöly (Anna pölyyntyä, käyttäjän linjaus): nimike hyvin himmeänä, viivan värisenä (ei läpikuultavuutta), kaikissa näkymissä. */
   li.nimike.luettu-merk .n-ots, li.nimike.luettu-merk .n-ala, li.nimike.luettu-merk .n-tieto, li.nimike.luettu-merk .n-ots svg.merkitty { color: var(--viiva); }
   li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
   .n-ots { display: block; font-size: 1.1rem; letter-spacing: .05em; line-height: 1.3; overflow-wrap: anywhere; }
@@ -371,8 +371,8 @@
   #lista { --osiovali: 52px; }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
-  /* Pinon kellarilinkki päällekkäisinä riveinä KELLARIN / VEIVIHYLLYSTÖÖN (käyttäjän päätös). Rivikorkeus pysyy (kammen napa ja
-     alleviivaus mitattu sen mukaan); ylärivi vedetään lähemmäs reunuksella. Koko .64rem, pienempi kuin muut alalaidan linkit
+  /* Pinon kellarilinkki päällekkäisinä riveinä KELLARIN / VEIVIHYLLYSTÖ (käyttäjän päätös; alalaidan linkeissä ei
+     paikallissijoja). Rivikorkeus pysyy (kammen napa ja alleviivaus mitattu sen mukaan); ylärivi vedetään lähemmäs reunuksella. Koko .64rem, pienempi kuin muut alalaidan linkit
      (käyttäjän päätös: kaksirivisenä .74rem on liian iso); kampi, viiva ja nuoli seuraavat em:einä. */
   #lista .pino-ala .ark-linkki .kk-yla { display: block; margin-bottom: -.55em; }
   /* Kampi alarivin vasemmalla yhden tekstirivin kokoisena kuten ö-mapin paluulinkissä (käyttäjän päätös: tekstin ja merkin koko
@@ -389,7 +389,7 @@
   .pino-ala { margin-top: var(--osiovali); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 36px 16px; }
   .pino-ala:not(:has(> p:not([hidden]))) { display: none; }
   .huilu-soita { margin: 0; }
-  /* Ö-mappiin-linkki (käyttäjän nimi ja pyynnöt): kuten kellarilinkki, mutta kammen paikalla on Ö, mappisulkimen rengas, jonka
+  /* Ö-mappi-linkki (käyttäjän nimi ja pyynnöt): kuten kellarilinkki, mutta kammen paikalla on Ö, mappisulkimen rengas, jonka
      litteästä pohjasta alleviivaus jatkuu oikealle väkäseen. Rengas on viiva: pohjassa alleviivauksen paksuinen, kyljissä paksuin
      hiukan keskikohdan alapuolella, ja siitä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä: klassisemman
      kirjasimen tuntu); piikkien kärjet limittyvät hiukan, joten rengas on kiinni. Ö:n pisteet ovat renkaan pienoiskopioita. Iso Ö (käyttäjän valinta):
@@ -409,7 +409,7 @@
   .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: calc(.2651em - .0488em); width: .2813em; height: .0977em; fill: currentColor; }
   /* Paluu pinoon kellarin veivihyllystön alarivin vasemmassa laidassa (käyttäjän linjaus; ö-mapin paluu on oma design, .paluu).
      Ensin pinomerkki, sitten teksti, ja koko matkan vasemmalle osoittava nuoli, viiva koko tekstin mittainen (#ark-pinoon
-     svg.viivasto). Pinomerkki on ö-mappiin-linkin Ö:n kokoinen (käyttäjän päätös: vetää vertoja Ö:lle): se istuu viivalla kuten
+     svg.viivasto). Pinomerkki on ö-mappi-linkin Ö:n kokoinen (käyttäjän päätös: vetää vertoja Ö:lle): se istuu viivalla kuten
      Ö-rengas, alimman kirjan pohja on viiva, ja musteen laki on renkaan laen tasolla 1,6513 em viivan yläreunan yläpuolella
      (#om-linkin renkaan polusta: laki viewBoxissa 7,7204). Merkki on viivastossa, jotta pohja ja viiva ovat samassa
      koordinaatistossa. Nuolen kärki on .5 em merkin musteen vasemmalla, jottei sakara osu merkkiin (käyttäjän pyyntö), ja teksti
@@ -420,15 +420,15 @@
   .takaisin-linkki a { padding-bottom: 0; border-bottom: 0; }
   .takaisin-linkki a::before { display: none; }
   .takaisin-linkki a::after { display: none; }
-  /* Pinoon-linkissä viiva on koko tekstin mittainen (käyttäjän linjaus): N:n oikean musteen kohdalle (harvennus .14 em ja N:n
-     sivuväli; mitattu koilla 9–13,6 px, ei puhtaasti verrannollinen). */
-  #ark-pinoon svg.viivasto { width: calc(100% - .2543em + 1.23px); }
+  /* Pino-linkissä viiva on koko tekstin mittainen (käyttäjän linjaus): O:n oikean musteen kohdalle (harvennus .14 em ja O:n
+     sivuväli; mitattu koilla 9,5–21,3 px, ei puhtaasti verrannollinen). Jos teksti muuttuu, mittaa uudelleen. */
+  #ark-pinoon svg.viivasto { width: calc(100% - .2391em + 1.345px); }
   /* Tekstin alku: merkin musteen vasen reuna .5 em, musteen leveys 2,3206 em (polku 2,2229 em ja viiva) ja rako .4 em. */
   .takaisin-linkki a { padding-left: 3.2206em; }
   .ark-linkki svg.viivasto svg.pinom path { fill: none; stroke: currentColor; stroke-width: .0977em; vector-effect: non-scaling-stroke; }
   /* Paluu ö-mapista kellarin veivihyllystöön (käyttäjän design): kellarilinkki peilikuvana, nuoli vasemmalle ja kampi tekstin
-     oikealla puolella; teksti ei peilaudu. Nuolen mitat em:einä. Kampi on .32 em N:n jälkeisen harvennuksen takana (rako
-     .08 em etusivun linkkiä tiiviimpi, käyttäjän pyyntö), ja jatkeviiva ulottuu kaaren pohjaan (.32 + .894 em). */
+     oikealla puolella; teksti ei peilaudu. Nuolen mitat em:einä. Kampi on .16 em Ö:n jälkeisen harvennuksen takana (käyttäjän
+     pyyntö: tiivis hajurako; Ö:n musteesta kammen musteeseen .56 em), ja jatkeviiva ulottuu kaaren pohjaan (.16 + .894 em). */
   .ark-linkki.paluu { text-align: left; }
   .paluu a { border-bottom-color: transparent; }
   .paluu a::before { display: none; }
@@ -522,8 +522,6 @@
   .valikko button.p-ots svg.p-nuoli path, .valikko button.p-takaisin svg.p-nuoli path { vector-effect: non-scaling-stroke; }
   .valikko button.p-ots[aria-expanded="true"] svg.p-nuoli { stroke: currentColor; }
   .valikko .p-vers { font-size: .8rem; letter-spacing: .12em; }
-  .valikko .p-vers .mk { letter-spacing: 0; }
-  .valikko .p-kurs { font-style: italic; }
   .valikko button.p-takaisin { display: flex; align-items: center; gap: 10px; color: var(--harmaa); border-bottom: 1px solid var(--viiva);
     margin: -4px 0 4px; }
   .valikko button.p-takaisin svg.p-nuoli { stroke: var(--ruoste); }
@@ -1708,7 +1706,7 @@
   <p class="huilu-soita" id="huilu-soita" hidden><button type="button" class="laatikko" id="soita-postihuilua">Soita postihuilua</button></p>
   <!-- Kellarin veivihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi viivasto" aria-hidden="true"><rect class="viiva" width="100%" height=".0977em"/><svg y=".0488em" overflow="visible"><svg x="-.894em" y="-1.788em" width="1.788em" height="1.788em" viewBox="0 -.047 2 2" overflow="visible"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1.04 1.953H1A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></svg><svg x="100%" y=".0488em" overflow="visible"><svg class="karki" x="-.3076em" y="-.293em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></svg></svg><span class="kk-yla">kellarin</span> veivihyllystöön</a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi viivasto" aria-hidden="true"><rect class="viiva" width="100%" height=".0977em"/><svg y=".0488em" overflow="visible"><svg x="-.894em" y="-1.788em" width="1.788em" height="1.788em" viewBox="0 -.047 2 2" overflow="visible"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1.04 1.953H1A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></svg><svg x="100%" y=".0488em" overflow="visible"><svg class="karki" x="-.3076em" y="-.293em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></svg></svg><span class="kk-yla">kellarin</span> veivihyllystö</a></p>
   </div>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
        opas ei ole julkisessa repossa. -->
@@ -1720,11 +1718,11 @@
   </div>
   <!-- Alarivi: vasemmalla paluu (kellarista pinoon, ö-mapista kellarin veivihyllystöön), oikealla ö-mappiin. -->
   <div class="ala-linkit">
-  <p class="ark-linkki takaisin-linkki" id="ark-pinoon" hidden><a href="#"><svg class="viivasto" aria-hidden="true"><rect class="viiva" width="100%" height=".0977em"/><svg class="karki" x="-.0586em" y="-.2442em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg><svg class="pinom" x=".5488em" y="-1.6025em" width="2.2229em" height="1.6513em" viewBox="5 11.1 14 10.4" overflow="visible"><path d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg></svg>pinoon</a></p>
-  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="viivasto" aria-hidden="true"><rect class="viiva" x=".0781em" width="100%" height=".0977em"/><svg x="100%" overflow="visible"><rect class="viiva" width="1.214em" height=".0977em"/><svg x="1.214em" overflow="visible"><rect class="viiva" width=".0488em" height=".0977em"/></svg></svg><svg x="100%" y=".0488em" overflow="visible"><svg class="veivi-k" x=".32em" y="-1.788em" width="1.788em" height="1.788em" viewBox="0 -.047 2 2" overflow="visible"><g transform="translate(2 0) scale(-1 1)"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></g></svg></svg><svg y=".0488em" overflow="visible"><svg class="karki" x=".0195em" y="-.293em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg></svg></svg>kellarin veivihyllystöön</a></p>
+  <p class="ark-linkki takaisin-linkki" id="ark-pinoon" hidden><a href="#"><svg class="viivasto" aria-hidden="true"><rect class="viiva" width="100%" height=".0977em"/><svg class="karki" x="-.0586em" y="-.2442em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg><svg class="pinom" x=".5488em" y="-1.6025em" width="2.2229em" height="1.6513em" viewBox="5 11.1 14 10.4" overflow="visible"><path d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg></svg>pino</a></p>
+  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="viivasto" aria-hidden="true"><rect class="viiva" x=".0781em" width="100%" height=".0977em"/><svg x="100%" overflow="visible"><rect class="viiva" width="1.054em" height=".0977em"/><svg x="1.054em" overflow="visible"><rect class="viiva" width=".0488em" height=".0977em"/></svg></svg><svg x="100%" y=".0488em" overflow="visible"><svg class="veivi-k" x=".16em" y="-1.788em" width="1.788em" height="1.788em" viewBox="0 -.047 2 2" overflow="visible"><g transform="translate(2 0) scale(-1 1)"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></g></svg></svg><svg y=".0488em" overflow="visible"><svg class="karki" x=".0195em" y="-.293em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg></svg></svg>kellarin veivihyllystö</a></p>
   <!-- Ö-mappi (käyttäjän nimi): linkki kellarin veivihyllystön alalaidassa kuten kellarilinkki pinossa, vain kun siellä on
        jotain. Ö on mappisulkimen rengas, jonka litteästä pohjasta alleviivaus jatkuu nuoleen. -->
-  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappiin"><svg class="viivasto" aria-hidden="true"><rect class="viiva" x="-1.1242em" width="1.1242em" height=".0977em"/><rect class="viiva" width="100%" height=".0977em"/><svg class="orengas" x="-1.9784em" y="-2.4414em" width="1.7084em" height="2.5391em" viewBox="0 -.37 17.49 26" overflow="visible"><path d="M9.12 7.86C8.81 7.84 7.85 7.68 7.23 7.73C6.61 7.78 5.97 7.93 5.38 8.16C4.8 8.38 4.23 8.7 3.72 9.06C3.21 9.43 2.74 9.87 2.32 10.35C1.91 10.82 1.54 11.35 1.24 11.91C.94 12.46 .69 13.05 .49 13.65C.3 14.25 .17 14.88 .09 15.51C.02 16.13 0 16.78 .03 17.41C.06 18.04 .13 18.68 .28 19.29C.43 19.9 .64 20.51 .93 21.07C1.21 21.63 1.58 22.17 1.99 22.64C2.4 23.12 2.88 23.55 3.39 23.92C3.9 24.28 4.47 24.59 5.05 24.84C5.63 25.09 6.25 25.29 6.86 25.42C7.48 25.55 8.12 25.63 8.75 25.63C9.38 25.63 10.02 25.55 10.63 25.42C11.25 25.29 11.86 25.09 12.44 24.84C13.02 24.59 13.59 24.28 14.1 23.92C14.61 23.55 15.09 23.12 15.51 22.64C15.92 22.17 16.28 21.63 16.57 21.07C16.85 20.51 17.07 19.9 17.22 19.29C17.37 18.68 17.43 18.04 17.46 17.41C17.49 16.78 17.48 16.13 17.4 15.51C17.32 14.88 17.19 14.25 17 13.65C16.81 13.05 16.56 12.46 16.25 11.91C15.95 11.35 15.58 10.82 15.17 10.35C14.76 9.87 14.28 9.43 13.77 9.06C13.26 8.7 12.69 8.38 12.11 8.16C11.52 7.93 10.88 7.78 10.26 7.73C9.64 7.68 8.69 7.84 8.37 7.86L8.38 7.94C8.62 8 9.39 8.11 9.86 8.29C10.33 8.47 10.8 8.71 11.21 9C11.63 9.28 12.02 9.63 12.36 10C12.71 10.37 13.02 10.79 13.28 11.22C13.55 11.65 13.77 12.12 13.96 12.59C14.14 13.06 14.29 13.56 14.39 14.06C14.5 14.55 14.57 15.06 14.6 15.57C14.63 16.08 14.62 16.59 14.59 17.1C14.56 17.61 14.49 18.11 14.4 18.62C14.32 19.12 14.22 19.62 14.08 20.11C13.94 20.6 13.79 21.09 13.57 21.55C13.36 22.01 13.11 22.47 12.79 22.86C12.47 23.25 12.09 23.62 11.67 23.89C11.25 24.16 10.75 24.35 10.27 24.48C9.78 24.6 9.25 24.63 8.75 24.63C8.24 24.63 7.71 24.6 7.23 24.48C6.74 24.35 6.24 24.16 5.82 23.89C5.4 23.62 5.02 23.25 4.7 22.86C4.39 22.47 4.13 22.01 3.92 21.55C3.7 21.09 3.55 20.6 3.41 20.11C3.28 19.62 3.18 19.12 3.09 18.62C3.01 18.11 2.94 17.61 2.9 17.1C2.87 16.59 2.86 16.08 2.9 15.57C2.93 15.06 2.99 14.55 3.1 14.06C3.21 13.56 3.35 13.06 3.54 12.59C3.72 12.12 3.95 11.65 4.21 11.22C4.48 10.79 4.78 10.37 5.13 10C5.47 9.63 5.86 9.28 6.28 9C6.7 8.71 7.16 8.47 7.63 8.29C8.11 8.11 8.87 8 9.12 7.94ZM4.3 .31C4.19 .29 3.84 .18 3.61 .19C3.38 .19 3.13 .25 2.92 .34C2.71 .43 2.5 .57 2.32 .73C2.15 .88 2 1.07 1.87 1.27C1.75 1.47 1.66 1.7 1.59 1.92C1.53 2.15 1.5 2.39 1.5 2.62C1.49 2.86 1.52 3.1 1.57 3.33C1.63 3.56 1.71 3.78 1.83 3.99C1.94 4.19 2.09 4.39 2.26 4.55C2.42 4.72 2.62 4.86 2.83 4.97C3.03 5.09 3.26 5.17 3.48 5.23C3.71 5.29 3.95 5.32 4.19 5.32C4.42 5.32 4.66 5.29 4.89 5.23C5.12 5.17 5.34 5.09 5.55 4.97C5.75 4.86 5.95 4.72 6.12 4.55C6.28 4.39 6.43 4.19 6.55 3.99C6.66 3.78 6.75 3.56 6.8 3.33C6.86 3.1 6.88 2.86 6.88 2.62C6.87 2.39 6.84 2.15 6.78 1.92C6.72 1.7 6.62 1.47 6.5 1.27C6.38 1.07 6.22 .88 6.05 .73C5.88 .57 5.67 .43 5.46 .34C5.24 .25 5 .19 4.77 .19C4.54 .18 4.19 .29 4.07 .31L4.07 .34C4.14 .37 4.34 .43 4.46 .5C4.58 .57 4.7 .66 4.8 .75C4.89 .85 4.98 .96 5.06 1.08C5.13 1.2 5.19 1.33 5.24 1.46C5.29 1.59 5.32 1.73 5.34 1.86C5.37 2 5.38 2.14 5.38 2.28C5.39 2.42 5.38 2.56 5.36 2.7C5.35 2.84 5.33 2.98 5.3 3.11C5.26 3.25 5.23 3.39 5.17 3.51C5.11 3.64 5.04 3.77 4.95 3.87C4.85 3.96 4.73 4.05 4.6 4.09C4.47 4.14 4.33 4.15 4.19 4.15C4.05 4.15 3.9 4.14 3.77 4.09C3.65 4.05 3.52 3.96 3.43 3.87C3.33 3.77 3.26 3.64 3.2 3.51C3.15 3.39 3.11 3.25 3.08 3.11C3.05 2.98 3.03 2.84 3.01 2.7C3 2.56 2.99 2.42 2.99 2.28C3 2.14 3.01 2 3.03 1.86C3.05 1.73 3.09 1.59 3.14 1.46C3.19 1.33 3.25 1.2 3.32 1.08C3.39 .96 3.48 .85 3.58 .75C3.68 .66 3.79 .57 3.91 .5C4.03 .43 4.24 .37 4.3 .34ZM13.42 .31C13.31 .29 12.96 .18 12.73 .19C12.5 .19 12.25 .25 12.04 .34C11.82 .43 11.62 .57 11.44 .73C11.27 .88 11.12 1.07 10.99 1.27C10.87 1.47 10.78 1.7 10.71 1.92C10.65 2.15 10.62 2.39 10.62 2.62C10.61 2.86 10.64 3.1 10.69 3.33C10.75 3.56 10.83 3.78 10.95 3.99C11.06 4.19 11.21 4.39 11.38 4.55C11.54 4.72 11.74 4.86 11.94 4.97C12.15 5.09 12.38 5.17 12.6 5.23C12.83 5.29 13.07 5.32 13.31 5.32C13.54 5.32 13.78 5.29 14.01 5.23C14.24 5.17 14.46 5.09 14.67 4.97C14.87 4.86 15.07 4.72 15.24 4.55C15.4 4.39 15.55 4.19 15.67 3.99C15.78 3.78 15.87 3.56 15.92 3.33C15.98 3.1 16 2.86 16 2.62C15.99 2.39 15.96 2.15 15.9 1.92C15.84 1.7 15.74 1.47 15.62 1.27C15.5 1.07 15.34 .88 15.17 .73C15 .57 14.79 .43 14.57 .34C14.36 .25 14.12 .19 13.89 .19C13.65 .18 13.31 .29 13.19 .31L13.19 .34C13.26 .37 13.46 .43 13.58 .5C13.7 .57 13.82 .66 13.91 .75C14.01 .85 14.1 .96 14.17 1.08C14.25 1.2 14.31 1.33 14.36 1.46C14.4 1.59 14.44 1.73 14.46 1.86C14.49 2 14.5 2.14 14.5 2.28C14.5 2.42 14.5 2.56 14.48 2.7C14.47 2.84 14.45 2.98 14.42 3.11C14.38 3.25 14.35 3.39 14.29 3.51C14.23 3.64 14.16 3.77 14.07 3.87C13.97 3.96 13.85 4.05 13.72 4.09C13.59 4.14 13.44 4.15 13.31 4.15C13.17 4.15 13.02 4.14 12.89 4.09C12.77 4.05 12.64 3.96 12.55 3.87C12.45 3.77 12.38 3.64 12.32 3.51C12.26 3.39 12.23 3.25 12.2 3.11C12.17 2.98 12.15 2.84 12.13 2.7C12.12 2.56 12.11 2.42 12.11 2.28C12.11 2.14 12.13 2 12.15 1.86C12.17 1.73 12.21 1.59 12.26 1.46C12.3 1.33 12.36 1.2 12.44 1.08C12.51 .96 12.6 .85 12.7 .75C12.8 .66 12.91 .57 13.03 .5C13.15 .43 13.36 .37 13.42 .34Z"/></svg><svg x="100%" overflow="visible"><svg class="karki" x="-.3217em" y="-.2442em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></svg></svg><span aria-hidden="true"><span class="oyv"><svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"><rect width="1" height="1"/></svg></span>mappii<span class="vika">n</span></span></a></p>
+  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappi"><svg class="viivasto" aria-hidden="true"><rect class="viiva" x="-1.1242em" width="1.1242em" height=".0977em"/><rect class="viiva" width="100%" height=".0977em"/><svg class="orengas" x="-1.9784em" y="-2.4414em" width="1.7084em" height="2.5391em" viewBox="0 -.37 17.49 26" overflow="visible"><path d="M9.12 7.86C8.81 7.84 7.85 7.68 7.23 7.73C6.61 7.78 5.97 7.93 5.38 8.16C4.8 8.38 4.23 8.7 3.72 9.06C3.21 9.43 2.74 9.87 2.32 10.35C1.91 10.82 1.54 11.35 1.24 11.91C.94 12.46 .69 13.05 .49 13.65C.3 14.25 .17 14.88 .09 15.51C.02 16.13 0 16.78 .03 17.41C.06 18.04 .13 18.68 .28 19.29C.43 19.9 .64 20.51 .93 21.07C1.21 21.63 1.58 22.17 1.99 22.64C2.4 23.12 2.88 23.55 3.39 23.92C3.9 24.28 4.47 24.59 5.05 24.84C5.63 25.09 6.25 25.29 6.86 25.42C7.48 25.55 8.12 25.63 8.75 25.63C9.38 25.63 10.02 25.55 10.63 25.42C11.25 25.29 11.86 25.09 12.44 24.84C13.02 24.59 13.59 24.28 14.1 23.92C14.61 23.55 15.09 23.12 15.51 22.64C15.92 22.17 16.28 21.63 16.57 21.07C16.85 20.51 17.07 19.9 17.22 19.29C17.37 18.68 17.43 18.04 17.46 17.41C17.49 16.78 17.48 16.13 17.4 15.51C17.32 14.88 17.19 14.25 17 13.65C16.81 13.05 16.56 12.46 16.25 11.91C15.95 11.35 15.58 10.82 15.17 10.35C14.76 9.87 14.28 9.43 13.77 9.06C13.26 8.7 12.69 8.38 12.11 8.16C11.52 7.93 10.88 7.78 10.26 7.73C9.64 7.68 8.69 7.84 8.37 7.86L8.38 7.94C8.62 8 9.39 8.11 9.86 8.29C10.33 8.47 10.8 8.71 11.21 9C11.63 9.28 12.02 9.63 12.36 10C12.71 10.37 13.02 10.79 13.28 11.22C13.55 11.65 13.77 12.12 13.96 12.59C14.14 13.06 14.29 13.56 14.39 14.06C14.5 14.55 14.57 15.06 14.6 15.57C14.63 16.08 14.62 16.59 14.59 17.1C14.56 17.61 14.49 18.11 14.4 18.62C14.32 19.12 14.22 19.62 14.08 20.11C13.94 20.6 13.79 21.09 13.57 21.55C13.36 22.01 13.11 22.47 12.79 22.86C12.47 23.25 12.09 23.62 11.67 23.89C11.25 24.16 10.75 24.35 10.27 24.48C9.78 24.6 9.25 24.63 8.75 24.63C8.24 24.63 7.71 24.6 7.23 24.48C6.74 24.35 6.24 24.16 5.82 23.89C5.4 23.62 5.02 23.25 4.7 22.86C4.39 22.47 4.13 22.01 3.92 21.55C3.7 21.09 3.55 20.6 3.41 20.11C3.28 19.62 3.18 19.12 3.09 18.62C3.01 18.11 2.94 17.61 2.9 17.1C2.87 16.59 2.86 16.08 2.9 15.57C2.93 15.06 2.99 14.55 3.1 14.06C3.21 13.56 3.35 13.06 3.54 12.59C3.72 12.12 3.95 11.65 4.21 11.22C4.48 10.79 4.78 10.37 5.13 10C5.47 9.63 5.86 9.28 6.28 9C6.7 8.71 7.16 8.47 7.63 8.29C8.11 8.11 8.87 8 9.12 7.94ZM4.3 .31C4.19 .29 3.84 .18 3.61 .19C3.38 .19 3.13 .25 2.92 .34C2.71 .43 2.5 .57 2.32 .73C2.15 .88 2 1.07 1.87 1.27C1.75 1.47 1.66 1.7 1.59 1.92C1.53 2.15 1.5 2.39 1.5 2.62C1.49 2.86 1.52 3.1 1.57 3.33C1.63 3.56 1.71 3.78 1.83 3.99C1.94 4.19 2.09 4.39 2.26 4.55C2.42 4.72 2.62 4.86 2.83 4.97C3.03 5.09 3.26 5.17 3.48 5.23C3.71 5.29 3.95 5.32 4.19 5.32C4.42 5.32 4.66 5.29 4.89 5.23C5.12 5.17 5.34 5.09 5.55 4.97C5.75 4.86 5.95 4.72 6.12 4.55C6.28 4.39 6.43 4.19 6.55 3.99C6.66 3.78 6.75 3.56 6.8 3.33C6.86 3.1 6.88 2.86 6.88 2.62C6.87 2.39 6.84 2.15 6.78 1.92C6.72 1.7 6.62 1.47 6.5 1.27C6.38 1.07 6.22 .88 6.05 .73C5.88 .57 5.67 .43 5.46 .34C5.24 .25 5 .19 4.77 .19C4.54 .18 4.19 .29 4.07 .31L4.07 .34C4.14 .37 4.34 .43 4.46 .5C4.58 .57 4.7 .66 4.8 .75C4.89 .85 4.98 .96 5.06 1.08C5.13 1.2 5.19 1.33 5.24 1.46C5.29 1.59 5.32 1.73 5.34 1.86C5.37 2 5.38 2.14 5.38 2.28C5.39 2.42 5.38 2.56 5.36 2.7C5.35 2.84 5.33 2.98 5.3 3.11C5.26 3.25 5.23 3.39 5.17 3.51C5.11 3.64 5.04 3.77 4.95 3.87C4.85 3.96 4.73 4.05 4.6 4.09C4.47 4.14 4.33 4.15 4.19 4.15C4.05 4.15 3.9 4.14 3.77 4.09C3.65 4.05 3.52 3.96 3.43 3.87C3.33 3.77 3.26 3.64 3.2 3.51C3.15 3.39 3.11 3.25 3.08 3.11C3.05 2.98 3.03 2.84 3.01 2.7C3 2.56 2.99 2.42 2.99 2.28C3 2.14 3.01 2 3.03 1.86C3.05 1.73 3.09 1.59 3.14 1.46C3.19 1.33 3.25 1.2 3.32 1.08C3.39 .96 3.48 .85 3.58 .75C3.68 .66 3.79 .57 3.91 .5C4.03 .43 4.24 .37 4.3 .34ZM13.42 .31C13.31 .29 12.96 .18 12.73 .19C12.5 .19 12.25 .25 12.04 .34C11.82 .43 11.62 .57 11.44 .73C11.27 .88 11.12 1.07 10.99 1.27C10.87 1.47 10.78 1.7 10.71 1.92C10.65 2.15 10.62 2.39 10.62 2.62C10.61 2.86 10.64 3.1 10.69 3.33C10.75 3.56 10.83 3.78 10.95 3.99C11.06 4.19 11.21 4.39 11.38 4.55C11.54 4.72 11.74 4.86 11.94 4.97C12.15 5.09 12.38 5.17 12.6 5.23C12.83 5.29 13.07 5.32 13.31 5.32C13.54 5.32 13.78 5.29 14.01 5.23C14.24 5.17 14.46 5.09 14.67 4.97C14.87 4.86 15.07 4.72 15.24 4.55C15.4 4.39 15.55 4.19 15.67 3.99C15.78 3.78 15.87 3.56 15.92 3.33C15.98 3.1 16 2.86 16 2.62C15.99 2.39 15.96 2.15 15.9 1.92C15.84 1.7 15.74 1.47 15.62 1.27C15.5 1.07 15.34 .88 15.17 .73C15 .57 14.79 .43 14.57 .34C14.36 .25 14.12 .19 13.89 .19C13.65 .18 13.31 .29 13.19 .31L13.19 .34C13.26 .37 13.46 .43 13.58 .5C13.7 .57 13.82 .66 13.91 .75C14.01 .85 14.1 .96 14.17 1.08C14.25 1.2 14.31 1.33 14.36 1.46C14.4 1.59 14.44 1.73 14.46 1.86C14.49 2 14.5 2.14 14.5 2.28C14.5 2.42 14.5 2.56 14.48 2.7C14.47 2.84 14.45 2.98 14.42 3.11C14.38 3.25 14.35 3.39 14.29 3.51C14.23 3.64 14.16 3.77 14.07 3.87C13.97 3.96 13.85 4.05 13.72 4.09C13.59 4.14 13.44 4.15 13.31 4.15C13.17 4.15 13.02 4.14 12.89 4.09C12.77 4.05 12.64 3.96 12.55 3.87C12.45 3.77 12.38 3.64 12.32 3.51C12.26 3.39 12.23 3.25 12.2 3.11C12.17 2.98 12.15 2.84 12.13 2.7C12.12 2.56 12.11 2.42 12.11 2.28C12.11 2.14 12.13 2 12.15 1.86C12.17 1.73 12.21 1.59 12.26 1.46C12.3 1.33 12.36 1.2 12.44 1.08C12.51 .96 12.6 .85 12.7 .75C12.8 .66 12.91 .57 13.03 .5C13.15 .43 13.36 .37 13.42 .34Z"/></svg><svg x="100%" overflow="visible"><svg class="karki" x="-.3217em" y="-.2442em" width=".3662em" height=".5859em" viewBox="0 0 5 8" overflow="visible"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></svg></svg><span aria-hidden="true"><span class="oyv"><svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"><rect width="1" height="1"/></svg></span>mapp<span class="vika">i</span></span></a></p>
     </div>
   <p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
@@ -2213,7 +2211,7 @@
 
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
-  // Käsikirjaan luetuksi merkitseminen ei kuulu (käyttäjän päätös): merkki pois myös silloin, kun se on jäänyt.
+  // Käsikirjalla ei ole pölyä (Anna pölyyntyä; käyttäjän päätös): pöly pois myös silloin, kun se on jäänyt.
   lista.forEach(function (e) { if (e.kasikirja) delete e.merkLuettu; });
   var nyt = null;      // { e, doc, blocks, txt, cum, total, merk }
   var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0, asetteluja: 0, asetteluMs: 0 };
@@ -2230,10 +2228,11 @@
      (sijainti kuten luetulla, kellarissa()) ja merkin e.laskeutui, jotta tietorivi sanoo laskeutui eikä luettu; pinoon
      palatessa kumpikin poistuu. Laskeutuneet kerrotaan viestillä. */
   var TUSINA = 12;
-  function pinoonTuli(e) { delete e.luettu; delete e.laskeutui; delete e.omappi; delete e.merkLuettu; e.pinoon = Date.now(); }
+  // Pöly (e.merkLuettu) säilyy pinoon tullessa (käyttäjän päätös: pöly säilyy kaikissa näkymissä).
+  function pinoonTuli(e) { delete e.luettu; delete e.laskeutui; delete e.omappi; e.pinoon = Date.now(); }
   // Viimeisin kosketus: pinoon tulo (latomo, linkki, Postihuilun kautta kantautunut, kellarista poimittu) tai avaus.
   function pinoAika(e) { return Math.max(e.pinoon || e.added || 0, e.opened || 0); }
-  /* Pinon järjestys (käyttäjän päätös): luetuksi merkityt pohjalla, muuten viimeksi koskettu ensin (pinoAika(): avaus ja
+  /* Pinon järjestys (käyttäjän päätös): pölyiset (Anna pölyyntyä) pohjalla, muuten viimeksi koskettu ensin (pinoAika(): avaus ja
      pinoon tulo, myös Postihuilun kautta, ovat samanarvoisia). Lajittelu on vakaa, joten tasatilanteessa lista ratkaisee. */
   function pinoJarj(a) {
     return a.slice().sort(function (x, y) { return (x.merkLuettu ? 1 : 0) - (y.merkLuettu ? 1 : 0) || pinoAika(y) - pinoAika(x); });
@@ -3106,7 +3105,7 @@
     document.title = om ? 'Ö-mappi – Luin' : ark ? 'Kellarin veivihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
     $('#tyhja').textContent = om ? 'Ö-mappi on tyhjä. Teksti tulee tänne kellarin veivihyllystöstä.'
-      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
+      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne pinosta (Hyllystä).'
       : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
     haePinoon();
@@ -3145,7 +3144,7 @@
     // Kellarin veivihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
     if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [(e.asiasanat || []).join(', ')]);
     tieto = tieto.filter(Boolean).join(' · ');
-    return '<li class="nimike' + (e.merkLuettu && pinossa(e) ? ' luettu-merk' : '') + '"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
+    return '<li class="nimike' + (e.merkLuettu && !e.kasikirja ? ' luettu-merk' : '') + '"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
       '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
       '<span class="n-ots">' + nimiMerkein(e) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
       '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
@@ -3626,10 +3625,10 @@
     var e = lista.filter(function (x) { return x.id === b.dataset.id; })[0];
     if (!e) return;
     var url = jakoLinkki(e);
-    // Porrasvalikko (käyttäjän linjaus): Exportātiō, Latomo ja Luin. Lähdeviite on Exportātiōn ylimpänä, Luin.-alavalikossa
+    // Porrasvalikko (käyttäjän linjaus): ULOSTUS, SISUSTUS ja HYLLYTYS. Lähdeviite on ULOSTUKSEN ylimpänä, HYLLYTYKSESSÄ
     // siirrot ja alimpana punainen Poista. Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon.
     naytaPorras(b.getBoundingClientRect(), '', [
-      { k: 'vienti', nimi: VIENTI, html: '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
+      { k: 'vienti', nimi: ULOSTUS, html: '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
         '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'Lisää: luettu HTML-versiona</button></div>' +
         '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
         (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="Merkinnät eivät siirry jaettavassa linkissä">Kopioi linkki</button>'
@@ -3638,11 +3637,9 @@
         '<button type="button" data-k="viemerk">Vie merkinnät</button>' +
         // Huiluta laatikkoon: tekstin runko toisten laitteiden pinoihin (huiluta()).
         '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
-      { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
+      { k: 'latomo', nimi: SISUSTUS, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
         '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
-      // Pääkohdan nimi sijainnin mukaan (käyttäjän nimet): pinossa Luin., kellarin veivihyllystössä (käsikirja mukaan lukien)
-      // Hain., ö-mapissa Toin.
-      { k: 'luin', nimi: omapissa(e) ? 'Toin.' : kellarissa(e) ? 'Hain.' : 'Luin.', html: luinKohdat([e]) }
+      { k: 'luin', nimi: HYLLYTYS, html: luinKohdat([e]) }
     ], function (k, nappi) {
       var lt = luinToiminto(k, nappi, [e], b);
       if (lt !== undefined) return lt;
@@ -3775,17 +3772,17 @@
     $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
     paivitaValinta();
   });
-  // Valittujen valikko samoin portain kuin nimikkeen: Exportātiō (lähdeviitteet, merkintöjen vienti zip-pakettina), Latomo
-  // (Luokittele) ja Luin. (siirrot, Merkitse luetuksi, Poista; luinKohdat()).
+  // Valittujen valikko samoin portain kuin nimikkeen: ULOSTUS (lähdeviitteet, merkintöjen vienti zip-pakettina), SISUSTUS
+  // (Luokittele) ja HYLLYTYS (siirrot, pöly, Poista; luinKohdat()).
   $('#val-valikko').addEventListener('click', function () {
     var b = this, es = valitutEt();
     if (!es.length) return;
     var n = es.length;
     naytaPorras(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>', [
-      { k: 'vienti', nimi: VIENTI, html: '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
+      { k: 'vienti', nimi: ULOSTUS, html: '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
         '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' },
-      { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' },
-      { k: 'luin', nimi: 'Luin.', html: luinKohdat(es) }
+      { k: 'latomo', nimi: SISUSTUS, html: '<button type="button" data-k="luokittele">Luokittele</button>' },
+      { k: 'luin', nimi: HYLLYTYS, html: luinKohdat(es) }
     ], function (k, nappi) {
       var lt = luinToiminto(k, nappi, es, b);
       if (lt !== undefined) return lt;
@@ -3798,27 +3795,27 @@
       }
     });
   });
-  /* Luin.-alavalikko (käyttäjän linjaus) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
-     pinossa Pois silmistä, Käsikirjastoon ja Merkitse luetuksi; kellarin veivihyllystössä Poimi pinoon,
-     Ö-mappiin ja Käsikirjastoon (vahvistusnapit ovat Vie/Siirrä-muotoisia); ö-mapissa Poimi kellarin veivihyllystöön ja Poimi käsikirjastoon (suunnat: pinosta
-     viedään, kellarissa siirretään, ö-mapista poimitaan). Alimpana aina punainen Poista
-     (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei siirtoja: se lähtee käsikirjastosta
-     luokittelemalla. Sekavalinnalle (pino ja kellari) vain käsikirjasto ja poisto. */
+  /* HYLLYTYS-alavalikko (käyttäjän nimet) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
+     pinossa Hyllystä, Vie käsikirjastoon; kellarin veivihyllystössä Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon;
+     ö-mapissa Poimi kellarin veivihyllystöön, Poimi käsikirjastoon (suunnat: pinosta viedään, kellarissa nostetaan, ö-mapista
+     poimitaan; sekavalinnalle siirretään, kkSana()). Kaikissa näkymissä Anna pölyyntyä tai Puhalla pölyt (pöly säilyy siirroissa,
+     käyttäjän päätös) ja alimpana punainen Poista (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei
+     siirtoja eikä pölyä: se lähtee käsikirjastosta luokittelemalla. */
   function luinKohdat(es) {
     var kk = es.some(function (e) { return e.kasikirja; }), h = '';
     var pin = es.every(pinossa), kel = es.every(function (e) { return kellarissa(e) && !e.kasikirja; }), om = es.every(omapissa);
     if (!kk) {
-      // Pois silmistä (käyttäjän linjaus): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi
-      // ottaa pois silmistä heti, kun on sen aika; kellarin veivihyllystö mainitaan vasta vahvistuksessa.
-      if (pin) h += '<button type="button" data-k="luin">Pois silmistä</button>';
+      // Hyllystä (käyttäjän nimi): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi ottaa pois
+      // silmistä heti, kun on sen aika; vahvistus kysyy leikillisesti *Oletko aivan hylly?*.
+      if (pin) h += '<button type="button" data-k="luin">Hyllystä</button>';
       if (kel) h += '<button type="button" data-k="luin">Poimi pinoon</button><button type="button" data-k="omappi">' + OM_VALIKKO + '</button>';
       if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
       h += '<button type="button" data-k="kasikirja">' + kkSana(es)[2] + '</button>';
-      if (pin) h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Merkitse lukemattomaksi' : 'Merkitse luetuksi') + '</button>';
+      h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Puhalla pölyt' : 'Anna pölyyntyä') + '</button>';
     }
     return h + '<button type="button" data-k="poista" class="vaara">Poista</button>';
   }
-  // Luin.-alavalikon toiminnot. Palauttaa undefined, jos k ei ole sen; true pitää valikon auki, false sulkee.
+  // HYLLYTYS-alavalikon toiminnot. Palauttaa undefined, jos k ei ole sen; true pitää valikon auki, false sulkee.
   function luinToiminto(k, nappi, es, b) {
     var n = es.length;
     if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
@@ -3835,21 +3832,22 @@
       return false;
     }
   }
-  /* Merkitse luetuksi (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä (li.luettu-merk, e.merkLuettu = aika). Sama kohta
-     palauttaa kaikkien valittujen ollessa merkittyjä (Merkitse lukemattomaksi). Merkki lähtee, kun teksti siirtyy kellarin
-     veivihyllystöön, käsikirjastoon tai palaa pinoon (pinoonTuli()). Merkitty on pinon pohjalla (pinoJarj()); tusinan
-     järjestykseen se ei vaikuta. */
+  /* Anna pölyyntyä (käyttäjän nimi): nimike himmenee hyvin haaleaksi (li.luettu-merk, e.merkLuettu = aika; vanhat nimet).
+     Sama kohta palauttaa kaikkien valittujen ollessa pölyisiä (Puhalla pölyt). Pöly säilyy kaikissa näkymissä ja siirroissa
+     (käyttäjän päätös): pois vain puhaltamalla ja käsikirjastoon siirtyessä (käsikirjalla ei ole pölyä). Pölyinen on pinon
+     pohjalla (pinoJarj()); kellarin järjestykseen ja tusinaan se ei vaikuta. */
   function merkitseLuetuksi(es) {
     var pois = es.every(function (e) { return e.merkLuettu; }), t = Date.now();
     es.forEach(function (e) { if (pois) delete e.merkLuettu; else e.merkLuettu = t; });
     tallennaLista();
     piirraNimikkeet();
   }
-  // Käsikirjaston kohta suunnan mukaan (käyttäjän linjaus): pinosta viedään, kellarissa siirretään, ö-mapista poimitaan;
-  // sekavalinnalle siirretään. [vahvistusnappi, kysymyksen alku, valikon kohta (pinosta ja kellarista pelkkä kohde)]
+  // Käsikirjaston kohta suunnan mukaan (käyttäjän nimet): pinosta viedään, kellarissa nostetaan, ö-mapista poimitaan;
+  // sekavalinnalle siirretään. [vahvistusnappi, kysymyksen alku, valikon kohta]
   function kkSana(es) {
-    return es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö', 'Käsikirjastoon'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko', 'Poimi käsikirjastoon']
-      : ['Siirrä käsikirjastoon', 'Siirretäänkö', 'Käsikirjastoon'];
+    var k = es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko']
+      : es.every(kellarissa) ? ['Nosta käsikirjastoon', 'Nostetaanko'] : ['Siirrä käsikirjastoon', 'Siirretäänkö'];
+    return [k[0], k[1], k[0]];
   }
   // Käsikirjastoon vienti, siirto ja poiminta kysyvät vahvistuksen kuten muut siirrot. Käsikirja lähtee pinosta ja ö-mapista kellarin
   // veivihyllystön käsikirjastoon kuten luokittelussa; pois siitä luokittelemalla.
@@ -3866,17 +3864,17 @@
       viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin veivihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin veivihyllystöön.');
     }, 'oikea');
   }
-  // Pois silmistä (vahvistus Nakkaa) ja Poimi pinoon kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  // Hyllystä ja Poimi pinoon kysyvät vahvistuksen. Hyllystä-kohdan kysymys ja vastaukset ovat käyttäjän: *Oletko aivan hylly?*
+  // (Olen / En), sama monelle tekstille.
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
-    var kys = ark ? (n === 1 ? 'Poimitaanko teksti pinoon?' : 'Poimitaanko ' + n + ' tekstiä pinoon?')
-      : (n === 1 ? 'Nakataanko kellarin veivihyllystöön?' : 'Nakataanko ' + n + ' tekstiä kellarin veivihyllystöön?');
+    var kys = ark ? (n === 1 ? 'Poimitaanko teksti pinoon?' : 'Poimitaanko ' + n + ' tekstiä pinoon?') : 'Oletko aivan hylly?';
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
-      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi pinoon' : 'Nakkaa') + '</button>' +
-      '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi pinoon' : 'Olen') + '</button>' +
+      '<button type="button" data-k="ei" class="ei">' + (ark ? 'älä!' : 'En') + '</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
-      es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; delete e.merkLuettu; } });
+      es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; } });
       // Kellarin veivihyllystöstä nostettu teksti nousee pinon kärkeen.
       if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
       if (ark) tusina(es);
@@ -3889,16 +3887,17 @@
   }
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin veivihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
-     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
+     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllystä ja Poimi. Kellarista: *Laita ö-mappiin*,
+     *Laitetaanko teksti mappiin ö?*, *Joo* / *Öö ei* (käyttäjän sanat). */
   // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
-  var OM_SISAAN = 'Vie ö-mappiin', OM_VALIKKO = 'Ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';
+  var OM_SISAAN = 'Joo', OM_VALIKKO = 'Laita ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
     var kys = om ? (n === 1 ? 'Poimitaanko teksti kellarin veivihyllystöön?' : 'Poimitaanko ' + n + ' tekstiä kellarin veivihyllystöön?')
-      : (n === 1 ? 'Viedäänkö teksti ö-mappiin?' : 'Viedäänkö ' + n + ' tekstiä ö-mappiin?');
+      : (n === 1 ? 'Laitetaanko teksti mappiin ö?' : 'Laitetaanko ' + n + ' tekstiä mappiin ö?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (om ? OM_POIS : OM_SISAAN) + '</button>' +
-      '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
+      '<button type="button" data-k="ei" class="ei">' + (om ? 'älä!' : 'Öö ei') + '</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now();
       es.forEach(function (e) { if (om) delete e.omappi; else e.omappi = t; delete valitut[e.id]; });
@@ -3923,7 +3922,7 @@
     sijoitaPop();
   }
   /* ---------- porrasvalikko (käyttäjän linjaus) ----------
-     Nimikkeen ja valittujen valikossa pääkohdat (Exportātiō, Latomo, Luin.) avaavat alavalikon. Leveällä ruudulla se avautuu
+     Nimikkeen ja valittujen valikossa pääkohdat (ULOSTUS, SISUSTUS, HYLLYTYS) avaavat alavalikon. Leveällä ruudulla se avautuu
      pääkohtien vasemmalle samaan laatikkoon (rinnakkain), kapealla pääkohtien tilalle, ja ylärivi nuolineen palaa (sisäkkäin).
      Tapa mitataan (porrasTapa()): rinnakkain vain, kun pääkohdat ja levein alavalikko mahtuvat vierekkäin ruudulle. Se mitataan
      uudelleen vain ikkunan leveyden muuttuessa, ei sisällön (valikko ei vaihda tapaa kesken käytön). Kaikki on #pop-elementissä,
@@ -3931,11 +3930,10 @@
      napin puoleisen reunan paikallaan (popPaikka.reuna): napin alla avautunut kasvaa alaspäin, yllä avautunut ylöspäin, eikä
      laatikko hyppää napin toiselle puolelle. Hiirellä pääkohta avautuu myös viipymällä (PORRAS_MS); napautus vain avaa, ei
      sulje, jottei viipymällä avattu sulkeudu samaan napautukseen. */
-  // Pääkohtien nimet (käyttäjän linjaus): EXPORTĀTIŌ ja LATOMO versaalina, EXPORTĀTIŌ lisäksi kursiivina; Luin. ennallaan.
-  // Harvennus voi irrottaa yhdistyvän makronin kirjaimestaan (kursiivi), joten makronillisilla kirjaimilla ei ole harvennusta
-  // (span.mk), ja välin tekee ohut väli U+2009 (Literatassa .125 em, harvennus .12 em): tekstinä se saa alleviivauksen, marginaali ei.
-  var VIENTI = '<span class="p-vers p-kurs" lang="la">EXPORT<span class="mk">A\u0304\u2009</span>TI<span class="mk">O\u0304\u2009</span></span>';
-  var LATOMO = '<span class="p-vers">LATOMO</span>';
+  // Pääkohtien nimet (käyttäjän nimet): ULOSTUS, SISUSTUS ja HYLLYTYS versaalina, samat kaikissa näkymissä (pino, kellarin
+  // veivihyllystö, ö-mappi); näkymän mukaan vaihtelevat vain HYLLYTYKSEN kohdat (luinKohdat()). Koodin avaimet (vienti, latomo,
+  // luin) ovat vanhoja nimiä.
+  var ULOSTUS = '<span class="p-vers">ULOSTUS</span>', SISUSTUS = '<span class="p-vers">SISUSTUS</span>', HYLLYTYS = '<span class="p-vers">HYLLYTYS</span>';
   // Alavalikon merkki: yksinkertainen natsanuoli eli ohut kulmaviiva (käyttäjän linjaus), osoittaa oikealle.
   var P_NUOLI = '<svg class="p-nuoli" viewBox="0 0 5 9" aria-hidden="true"><path d="M1 1L4 4.5L1 8"/></svg>';
   // porrasLukko: hiiren paikka alavalikon vaihtuessa. Viipymäavaus odottaa, että hiiri oikeasti liikkuu siitä, jottei hiiren
@@ -8406,7 +8404,7 @@
     viesti('Ladattu: ' + a.download + ' (' + lkm(tiedostot.length, 'teksti', 'tekstiä') + ')' +
       (tyhjat ? '. Ilman vietäviä merkintöjä: ' + lkm(tyhjat, 'teksti', 'tekstiä') + '.' : '.'));
   }
-  /* Vie merkinnät pinosta (nimikkeen valikon EXPORTĀTIŌ, käyttäjän linjaus): asetusten viennin tapaan laatikko, jossa otsikko,
+  /* Vie merkinnät pinosta (nimikkeen valikon ULOSTUS, käyttäjän linjaus): asetusten viennin tapaan laatikko, jossa otsikko,
      valinnat (samat aset.vieAl ym. kuin asetuksissa, joten ne muistetaan yhdessä), merkintöjen määrät ja Vie. Ei asetusten pitkää
      selitystä. Tiedosto on sama kuin avoimen tekstin viennissä. */
   function vieMerkPinosta(e, rect) {
