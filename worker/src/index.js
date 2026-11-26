@@ -291,7 +291,7 @@ async function handleLocUpdate(req, env, allowedOrigins) {
   return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
 }
 
-// Paalupuhe (minun-tusinasaa.html): lause on oikopolku hallintalinkkiin. Selain johtaa lauseesta PBKDF2:lla tunnuksen a,
+// Salkosutkautus (minun-tusinasaa.html): lause on oikopolku hallintalinkkiin. Selain johtaa lauseesta PBKDF2:lla tunnuksen a,
 // salausavaimen ja kirjoitusavaimen; tietueessa "avain:<a>" on hallintalinkki {t, k, w} salattuna ja kirjoitusavaimen
 // tiiviste wh. Worker ei näe lausetta, hallintalinkkiä eikä koordinaatteja. Haku on rajoitettu osoitetta kohden, koska
 // ihmisen keksimän lauseen voi yrittää arvata toisin kuin satunnaisen tokenin.
