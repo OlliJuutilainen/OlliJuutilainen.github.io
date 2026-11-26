@@ -68,6 +68,11 @@ Maa jäässä plussalla (käyttäjän päätös):
   koordinaattien SHA-256-tiivisteen alku, arvona pisteen järjestysnumero, ei koordinaatteja. Epäonnistunutta
   hakua ei talleteta. **Jos muutat renkaita tai suuntien järjestystä, vaihda tiivisteen etuliite `maaruutu-1`**,
   muuten talletetut numerot osoittavat vääriin pisteisiin.
+- **Kaukainen maaruutu** (yli 5 km; käyttäjän päätös): hiutaleen oikeaan yläkulmaan pieni varoituskolmio
+  (`groundFlakeHtml`). Osoitus hiirellä tai napautus näyttää huomautuksen epäluotettavuudesta; napautus kiinnittää,
+  napautus muualle tai Esc sulkee. Kolmio ei kasvata leveyttä (marginaalit kumoavat sen), koska kaksinumeroinen
+  lukema, hiutale ja kolmio eivät muuten mahdu sarakkeeseen. Merkki toistuu jokaisella hiutalerivillä; tapa
+  keventää sitä on avoinna (tusina-rata).
 - Käänteistä sulamerkkiä (lukema miinuksella, maa sula) ei tehdä (käyttäjän päätös).
 
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
