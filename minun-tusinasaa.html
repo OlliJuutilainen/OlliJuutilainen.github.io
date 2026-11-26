@@ -9,10 +9,19 @@
 <link rel="icon" href="icons/tusinasaa.svg?v=66320e0d" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=116fe9d6">
 <style>
-  /* Minun oma tusinasää: salkoprofiilin hallintapaneeli. Ulkoasu mallista (tusina-rata, oppaat/tusinasaa-oma-paneeli):
-     leipäteksti IBM Plex Sans (isännöity itse, vendor/ibm-plex-sans, OFL), tummassa teemassa ei hohdetta. */
+  /* Minun oma tusinasää: etusivu ja salkoprofiilin hallintapaneeli. Ulkoasu mallista (tusina-rata,
+     oppaat/tusinasaa-oma-paneeli): leipäteksti IBM Plex Sans, etusivun esimerkkinäkymä Source Sans 3 (molemmat
+     isännöity itse, vendor/, OFL), tummassa teemassa ei hohdetta. */
   @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:400; font-display:swap;
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-normal.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:600; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-600-normal.woff2) format('woff2') }
+  @font-face{ font-family:'Source Sans 3'; font-style:normal; font-weight:400; font-display:swap;
+    src:url(vendor/source-sans-3/source-sans-3-latin-400-normal.woff2) format('woff2') }
+  @font-face{ font-family:'Source Sans 3'; font-style:normal; font-weight:700; font-display:swap;
+    src:url(vendor/source-sans-3/source-sans-3-latin-700-normal.woff2) format('woff2') }
+  @font-face{ font-family:'Source Sans 3'; font-style:italic; font-weight:400; font-display:swap;
+    src:url(vendor/source-sans-3/source-sans-3-latin-400-italic.woff2) format('woff2') }
   @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:700; font-display:swap;
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-normal.woff2) format('woff2') }
   @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:300; font-display:swap;
@@ -22,13 +31,13 @@
   @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:700; font-display:swap;
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-italic.woff2) format('woff2') }
   :root{
-    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --dim:#4b545c; --avain:#6a757e; --border:#2a3036;
+    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --soft:#7f8a93; --dim:#4b545c; --avain:#6a757e; --border:#2a3036;
     --field:#0f1113; --err:#ff6b6b;
     --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
     color-scheme:dark;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df;
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --soft:#68737e; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df;
       --field:#fff; --err:#c34242; color-scheme:light }
   }
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
@@ -53,6 +62,53 @@
   .quote b{ text-transform:uppercase; font-size:1.04em }
   @media (max-width:400px){ .quote{ padding-left:90.7px; font-size:16px; letter-spacing:.05em } .quote .q2{ letter-spacing:.025em } }
   @media (max-width:375px){ .quote{ font-size:15px; letter-spacing:.035em } .quote .q2{ letter-spacing:.02em } }
+
+  /* Etusivu: logo on kuin anfangi, kolmen rivin korkuinen: yläreuna ensimmäisen rivin versaalikorkeudella ja alareuna
+     kolmannen rivin perusviivalla (logo 68,7 px, teksti 17 px, riviväli 28 px, logon yläväli 7,6 px). Leveällä koko
+     sisältö samassa palstassa logon oikealla; logo jää marginaaliin. Paneelissa logo vie etusivulle. */
+  .top.eka{ align-items:flex-start; gap:0; margin-bottom:18px }
+  .top.eka .logoBox{ font-size:19px; margin:7.6px 1.15em 0 0; cursor:default }
+  .top.eka .logo{ width:3.616em; height:3.616em }
+  .top.eka .toptext{ flex:1; min-width:0 }
+  /* Oikean yläkulman avainmerkki: ensimmäinen pala ei saa ulottua sen alle (muuten 500–521 px:n leveydellä osuu). */
+  .top.eka .toptext > .seg:first-child{ padding-right:18px }
+  .toptext{ margin:0; font-size:17px; line-height:28px }
+  @media (min-width:480px){ #etusivu > *{ margin-left:90.5px } }
+  /* Nimi kuin ohjelman otsikkorivillä: lihava, pienempi ja harvennettu; täysvalkoinen vain ensimmäinen. */
+  .nimi{ font-weight:700; font-size:.84em; letter-spacing:.07em; color:var(--brand) }
+  .second .nimi{ color:inherit }
+  .second{ font-size:17px; line-height:1.5; margin:36px 0 30px }
+  .lede2{ font-size:17px; line-height:1.5; margin:0 0 18px }
+  .lede2 b{ font-weight:600 }
+  /* Rivinvaihdot ehdotettuihin kohtiin: pala pysyy yhdessä, jos mahtuu, ja rivittyy sisältä vain tarvittaessa. */
+  .seg{ display:inline-block; text-wrap:balance }
+  .lede2.leadin{ margin:34px 0 0; font-size:15.5px; line-height:1.5 }
+  /* Kaksitoista tuntia riittää: aikataulu kuin ohjelman aikasarake (pieni versaali, ohut pystyviiva). */
+  .enough{ display:grid; grid-template-columns:auto 1fr; gap:18px 14px; margin:18px 0 46px; align-items:baseline }
+  .enough dt{ font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); text-align:right;
+    padding-right:12px; border-right:1px solid var(--border); line-height:1.9 }
+  .enough dd{ margin:0; font-size:15.5px; line-height:1.5 }
+  /* Datalähderivin vasen reuna asetetaan JS:llä esimerkkirivien klo-sanan kohdalle (alignCredit). */
+  .credit{ font-size:13px; line-height:1.4; color:var(--muted); margin:10px 0 0; padding:0 14px }
+  .credit a{ text-underline-offset:2px }
+  .toOwn{ margin:36px 0 0 }
+  /* Esimerkkinäkymä: mallin tallennetut rivit ohjelman ilmeellä. */
+  .screen{ border:1px solid var(--border); border-radius:18px; padding:14px 10px 6px; background:var(--bg);
+    font-family:'Source Sans 3', Arial, system-ui, sans-serif }
+  .screen .pt{ font-weight:700; font-size:12px; letter-spacing:.4px; color:var(--title); text-transform:uppercase; margin:0 4px 6px }
+  .dh, .dr{ display:grid; grid-template-columns:46px 28px minmax(0, 1fr) 40px 62px; gap:6px; align-items:center }
+  .dh{ font-size:10px; letter-spacing:.3px; color:var(--muted); padding:0 0 4px }
+  .dh span:nth-child(4){ text-align:center }
+  .dr{ font-size:14px; padding:6px 0; border-bottom:1px solid var(--border); min-height:44px }
+  .dr:last-child{ border-bottom:0 }
+  .dr > span:first-child{ border-right:1px solid var(--border); padding-right:7px; text-align:right }
+  .dr .s{ color:var(--soft) } .dr .w{ color:var(--text) }
+  .dr .mini{ font-size:10px; letter-spacing:.3px; display:block; line-height:1.2 }
+  .dr .main{ display:block; font-size:12px; letter-spacing:.2px; line-height:1.25 }
+  /* Kuten ohjelmassa: hämärä- ja aurinkotekstit kursiivilla, värisanat ja » pystyssä. */
+  .dr > span:nth-child(3) .main, .dr > span:nth-child(3) .mini{ font-style:italic }
+  .dr span:nth-child(4){ text-align:center }
+  .dr .dir{ display:block; font-size:10px }
 
   h2{ font-size:12px; font-weight:400; letter-spacing:.3px; text-transform:uppercase; color:var(--muted);
     margin:26px 0 10px; padding-top:10px; border-top:1px solid var(--border) }
@@ -183,7 +239,7 @@
   .btn.pieni{ font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; padding:7px 10px; color:var(--text); white-space:nowrap }
   a.btn{ display:inline-block; text-decoration:none }
   @media (max-width:340px){ .btn.pieni{ font-size:11px; letter-spacing:.4px; padding:7px 8px } }
-  .app + .foot{ margin-top:36px }
+  #paneeli + .foot{ margin-top:36px }
   /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Harvinaisen
      tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
      taustaan yli 3); kirkastuu osoitettaessa --textiin, ei --brandiin: avauksen värisiirtymä lähtee osoitetusta väristä
@@ -238,7 +294,8 @@
 
 <div class="wrap">
   <div class="top">
-    <span class="logoBox"><svg class="logo" viewBox="0 0 32 32" role="img" aria-label="TUSINASÄÄ 12"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></span>
+    <a class="logoBox" id="logo" href="minun-tusinasaa.html" aria-label="TUSINASÄÄ 12, etusivu"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></a>
+    <p class="toptext" id="toptext" hidden><span class="seg"><span class="nimi">TUSINASÄÄ 12</span> on&nbsp;henkilökohtainen sääsalkosi.</span> <span class="seg">Se välittää säästä (i)&nbsp;olennaisen ja (ii)&nbsp;nopeasti. Näin aikaa jää myös taivaalle katsomiseen.</span></p>
     <p class="quote" id="quote"><span><span class="q1"><b>Minun oma tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
     <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M16.9 5.6L14.45 1.36L9.55 1.36L7.1 5.6L9.55 9.84L14.45 9.84ZM12 9.84V27.44"/></svg></button>
   </div>
@@ -263,6 +320,25 @@
         </div>
       </form>
     </section>
+    <!-- Etusivu: kävijälle, jonka laitteella ei ole paneelia; palaava pääsee tänne logosta. -->
+    <section class="etusivu" id="etusivu" aria-label="Etusivu" hidden>
+      <p class="lede2"><span class="seg">Sovellus kertoo oman salon sijainnissa</span> <span class="seg"><b>seuraavan tusinan tunnin</b> (12&nbsp;h) sään.</span></p>
+      <p class="lede2 leadin">Kaksitoista tuntia riittää:</p>
+      <dl class="enough">
+        <dt>illalla</dt><dd>seuraavan aamun sääennusteen tarkastamiseen</dd>
+        <dt>aamulla</dt><dd>päivän koko ennusteen katsomiseen</dd>
+      </dl>
+      <div class="screen" role="img" aria-label="Esimerkki: TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI">
+        <div class="pt">TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI</div>
+        <div class="dh"><span></span><span></span><span></span><span>SADE</span><span>TUULEE</span></div>
+        <div id="demo"></div>
+      </div>
+      <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin (mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>) avoimesta datasta.</p>
+      <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
+      <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
+      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun oma tusinasää</button></p>
+    </section>
+    <div id="paneeli">
     <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
     <div id="ui" hidden>
       <div class="stage" id="stage" aria-label="Salot">
@@ -319,6 +395,7 @@
         </details>
       </div>
     </details>
+    </div>
     <p class="foot">© TUSINASOFT 2026</p>
   </main>
 </div>
@@ -370,6 +447,39 @@ addEventListener('resize', fitQuote);
 if (document.fonts){
   document.fonts.ready.then(fitQuote);
   if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitQuote);
+}
+
+/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit (seitsemän ensimmäistä, nyt-rivi mukaan lukien). --- */
+const DEMO = [
+  ['13:30', '0°', ['sinistä'], '—', '4 m/s', 'luoteesta', 1],
+  ['klo 14', '0°', ['sangen sinistä'], '—', '4 m/s', 'pohjoisesta', 0],
+  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0],
+  ['klo 16', '-1°', ['NAUTTINEN HÄMÄRÄ (16:23)'], '—', '5 m/s', 'pohjoisesta', 0],
+  ['klo 17', '-1°', ['ASTRONOMINEN HÄMÄRÄ (17:17)'], '—', '5 m/s', 'pohjoisesta', 0],
+  ['klo 18', '-1°', ['SÄKKIPIMEÄ (18:08)'], '—', '4 m/s', 'pohjoisesta', 0],
+  ['klo 19', '-1°', ['»'], '—', '4 m/s', 'luoteesta', 0]
+];
+$('demo').innerHTML = DEMO.map(([t, temp, desc, rain, w, dir, white]) => {
+  const time = t.startsWith('klo') ? `<span class="mini">klo</span>${t.slice(4)}` : t;
+  const kind = x => /[A-ZÄÖ]{2}/.test(x) && x === x.toUpperCase() ? 'main' : (desc.length > 1 ? 'mini' : '');
+  const d = desc.map(x => kind(x) ? `<span class="${kind(x)}">${x}</span>` : x).join('');
+  const c = white ? 'w' : 's';
+  return `<div class="dr"><span class="${c}">${time}</span><span class="${c}">${temp}</span><span class="s">${d}</span><span class="s">${rain}</span><span class="s">${w}<span class="dir">${dir}</span></span></div>`;
+}).join('');
+/* Datalähderivin vasen reuna esimerkkirivien klo-sanan musteen kohdalle, oikea palstan reunaan. */
+function alignCredit(){
+  const c = $('credit'), rows = document.querySelectorAll('#demo .dr');
+  if (!rows.length || c.offsetParent === null) return;
+  c.style.paddingLeft = '0px'; c.style.paddingRight = '0px';
+  const cb = c.getBoundingClientRect(), ext = (el, f) => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()].map(f); };
+  const klo = [...rows].slice(1).map(r => r.children[0].querySelector('.mini')).filter(Boolean);
+  const kloLeft = Math.min(...klo.flatMap(m => ext(m, x => x.left)));
+  c.style.paddingLeft = Math.max(0, kloLeft - cb.left) + 'px';
+}
+addEventListener('resize', alignCredit);
+if (document.fonts){
+  document.fonts.ready.then(alignCredit);
+  if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', alignCredit);
 }
 
 /* --- Salaus: AES-GCM 256 kuten generaattori.html ja oma-tusinasaa.html --- */
@@ -460,6 +570,13 @@ function setTila(text, kind, retry){
   }
 }
 
+/* Palvelun päivärajat nollautuvat 00:00 UTC (worker: daily_limit); kellonaika tämän laitteen ajassa. */
+function rajaAukeaa(){
+  const d = new Date(); d.setUTCHours(24, 0, 0, 0);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+const virhekoodi = async res => (await res.clone().json().catch(() => ({}))).error;
+
 /* --- Tallennus: koko profiili salataan uudelleen samalla avaimella; worker tarkistaa kirjoitusavaimen. --- */
 async function lahetaProfiili(obj){
   const enc = await salaa(obj);
@@ -479,7 +596,9 @@ async function lahetaProfiili(obj){
       : e === 'not_editable' ? 'Tämän linkin salkoja ei voi muuttaa.' : 'Tallennus estettiin.');
   }
   if (res.status === 404) throw new Error('Salkoja ei löytynyt tallennuspalvelusta.');
-  if (res.status === 429) throw new Error('Muutoksia on tehty juuri nyt liian monta. Yritä hetken päästä uudelleen.');
+  if (res.status === 429) throw new Error(await virhekoodi(res) === 'daily_limit'
+    ? `Palvelun tämän päivän muutoskiintiö on täynnä. Salkoja voi taas muuttaa klo ${rajaAukeaa()}.`
+    : 'Muutoksia on tehty juuri nyt liian monta. Yritä hetken päästä uudelleen.');
   if (!res.ok) throw new Error(`Tallennus epäonnistui (virhekoodi ${res.status}).`);
   try { localStorage.setItem(KOPIO_KEY, JSON.stringify({ t: creds.t, iv: enc.iv, ct: enc.ct })); } catch {}
   state.muutettu = Math.max(state.muutettu, obj.muutettu || 0);
@@ -512,7 +631,9 @@ async function luoProfiili(){
   } catch (err) {
     throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
   }
-  if (res.status === 429) throw new Error('Salkoja on paalutettu juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+  if (res.status === 429) throw new Error(await virhekoodi(res) === 'daily_limit'
+    ? `Palvelun tämän päivän paalutuskiintiö on täynnä. Uusia salkoja voi paaluttaa taas klo ${rajaAukeaa()}.`
+    : 'Salkoja on paalutettu juuri nyt liian monta. Yritä myöhemmin uudelleen.');
   if (!res.ok) throw new Error(`Paalutus epäonnistui (virhekoodi ${res.status}).`);
   const { t } = await res.json().catch(() => ({}));
   if (typeof t !== 'string' || !t) throw new Error('Tallennuspalvelun vastaus oli virheellinen.');
@@ -523,7 +644,7 @@ async function luoProfiili(){
     localStorage.setItem(KOPIO_KEY, JSON.stringify({ t, iv: enc.iv, ct: enc.ct }));
   } catch {}
   /* Osoiterivillä on nyt hallintalinkki: sen voi tallentaa kirjanmerkiksi. */
-  history.replaceState(null, '', '#' + frag);
+  history.replaceState(history.state, '', '#' + frag);
 }
 
 /* --- Paneeli --- */
@@ -639,7 +760,7 @@ $('clear').addEventListener('click', e => {
 async function jataPaalupaikka(){
   await jono;
   try { localStorage.removeItem(PANEELI_KEY); localStorage.removeItem(KOPIO_KEY); } catch {}
-  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
   creds = null; keyBytes = null;
   state.confirmLeave = false;
   fromProfile({ pylvaat: [] });
@@ -896,10 +1017,50 @@ $('melt').addEventListener('click', async e => {
   }
 });
 
+/* --- Etusivu ja paneeli: sama sivu, kaksi näkymää. Kävijä, jonka laitteella ei ole paneelia, aloittaa etusivulta;
+   palaava (paneeli laitteella) aloittaa paneelista ja pääsee etusivulle logosta. Palaavan etusivulla paalutuskehotuksen
+   tilalla on nappi takaisin paneeliin. Näkymä on historiassa, jotta Takaisin palaa edelliseen näkymään. --- */
+let sivu = 'paneeli';
+function naytaSivu(s, uusi){
+  sivu = s === 'etusivu' ? 'etusivu' : 'paneeli';
+  const etu = sivu === 'etusivu', palaava = !!creds;
+  $('etusivu').hidden = !etu;
+  $('paneeli').hidden = etu;
+  $('toptext').hidden = !etu;
+  $('quote').hidden = etu;
+  document.querySelector('.top').classList.toggle('eka', etu);
+  $('etuPaalutus').hidden = palaava;
+  $('aloita').hidden = palaava;
+  $('toOwn').hidden = !palaava;
+  if (etu) alignCredit();
+  if (uusi){ history.pushState({ sivu }, '', location.href); window.scrollTo(0, 0); }
+}
+$('aloita').addEventListener('click', () => {
+  /* Ilman paneelia paneelinäkymä on aina ensipaalutus, myös jos osoitteen linkki näytti virheen. */
+  if (!creds && !$('viesti').hidden){ fromProfile({ pylvaat: [] }); renderPanel(); }
+  naytaSivu('paneeli', true);
+});
+$('omaan').addEventListener('click', () => naytaSivu('paneeli', true));
+addEventListener('popstate', e => {
+  if (!nakyma.hidden) suljeNakyma();
+  naytaSivu(e.state?.sivu);
+});
+
 /* --- Käynnistys --- */
 async function lataa(){
   const hp = new URLSearchParams(location.hash.replace(/^#/, ''));
   const t = hp.get('t'), k = hp.get('k'), w = hp.get('w');
+  if (t && k && w) creds = { t, k, w };
+  else if (!(t || k || w)){
+    try {
+      const s = new URLSearchParams(localStorage.getItem(PANEELI_KEY) || '');
+      if (s.get('t') && s.get('k') && s.get('w')) creds = { t: s.get('t'), k: s.get('k'), w: s.get('w') };
+    } catch {}
+  }
+  /* Uudelleenlatauksessa historiaan tallennettu näkymä; muuten paneeli, jos osoitteessa on linkki tai laitteella paneeli. */
+  const alku = ['etusivu', 'paneeli'].includes(history.state?.sivu) ? history.state.sivu : (t || k || w || creds) ? 'paneeli' : 'etusivu';
+  history.replaceState({ sivu: alku }, '', location.href);
+  naytaSivu(alku);
   if (t || k || w){
     if (!t || !k){ viesti('Linkistä puuttuu osia. Tarkista, että kopioit koko hallintalinkin.', 'err'); return; }
     if (!w){
@@ -907,13 +1068,7 @@ async function lataa(){
       viesti('', '', `Tällä linkillä näkee sään, mutta salkoja voi muuttaa vain hallintalinkillä.<br><a href="${href}">Avaa säätiedotus</a>`);
       return;
     }
-    creds = { t, k, w };
     try { localStorage.setItem(PANEELI_KEY, new URLSearchParams(creds).toString()); } catch {}
-  } else {
-    try {
-      const s = new URLSearchParams(localStorage.getItem(PANEELI_KEY) || '');
-      if (s.get('t') && s.get('k') && s.get('w')) creds = { t: s.get('t'), k: s.get('k'), w: s.get('w') };
-    } catch {}
   }
   if (!creds){ fromProfile({ pylvaat: [] }); renderPanel(); return; }
   await avaaProfiili();
@@ -994,7 +1149,9 @@ async function avainPyynto(method, a, body){
   } catch (err) {
     throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
   }
-  if (res.status === 429) throw new Error('Yrityksiä on juuri nyt liian monta. Odota hetki ja yritä uudelleen.');
+  if (res.status === 429) throw new Error(await virhekoodi(res) === 'daily_limit'
+    ? `Palvelun tämän päivän muutoskiintiö on täynnä. Yritä uudelleen klo ${rajaAukeaa()}.`
+    : 'Yrityksiä on juuri nyt liian monta. Odota hetki ja yritä uudelleen.');
   return res;
 }
 /* Profiilin tallennus jonon kautta niin, että virhe palaa kutsujalle eikä jää jonoon. */
@@ -1067,12 +1224,18 @@ function suljeNakyma(){
     document.querySelector('main').classList.remove('avainAuki');
     nakyma.hidden = true;
     avainNappi.setAttribute('aria-expanded', 'false');
-  }, [$('viesti'), $('ui'), $('appPaneeli')]);
+  }, [$('etusivu'), $('paneeli')]);
   $('avainOhje').hidden = true;
   $('avainInfo').setAttribute('aria-expanded', 'false');
 }
 avainNappi.addEventListener('click', () => { if (nakyma.hidden) avaaNakyma(); else suljeNakyma(); });
-document.querySelector('.logoBox').addEventListener('click', () => { if (!nakyma.hidden) suljeNakyma(); });
+/* Logo: avainnäkymässä sulkee sen (käyttäjän päätös), paneelissa vie etusivulle. */
+$('logo').addEventListener('click', e => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+  e.preventDefault();
+  if (!nakyma.hidden) suljeNakyma();
+  else if (sivu !== 'etusivu') naytaSivu('etusivu', true);
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nakyma.hidden) suljeNakyma(); });
 $('avainInfo').addEventListener('click', () => {
   const auki = $('avainOhje').hidden;
@@ -1133,8 +1296,9 @@ async function avaaTaiKiinnita(lause){
     creds = { t: hl.t, k: hl.k, w: hl.w };
     try { localStorage.setItem(PANEELI_KEY, new URLSearchParams(creds).toString()); } catch {}
     /* Osoiterivin hallintalinkki voi olla toisen paneelin: pois, jotta uudelleenlataus avaa tämän. */
-    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
     avainTila(''); suljeNakyma();
+    if (sivu === 'etusivu') naytaSivu('paneeli', true);
     await avaaProfiili();
     return;
   }

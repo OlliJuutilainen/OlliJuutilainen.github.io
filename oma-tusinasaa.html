@@ -384,7 +384,14 @@ makeBtn.addEventListener('click', async () => {
     } catch (err) {
       throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
     }
-    if (res.status === 429) throw new Error('Linkkejä on tehty juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+    if (res.status === 429){
+      /* Päiväraja (daily_limit) nollautuu 00:00 UTC; kellonaika tämän laitteen ajassa. */
+      const e = (await res.clone().json().catch(() => ({}))).error;
+      const d = new Date(); d.setUTCHours(24, 0, 0, 0);
+      const klo = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      throw new Error(e === 'daily_limit' ? `Palvelun tämän päivän linkkikiintiö on täynnä. Uusia linkkejä voi tehdä taas klo ${klo}.`
+        : 'Linkkejä on tehty juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+    }
     if (!res.ok) throw new Error(`Tallennus epäonnistui (virhekoodi ${res.status}).`);
     const { t } = await res.json();
     if (typeof t !== 'string' || !t) throw new Error('Tallennuspalvelun vastaus oli virheellinen.');

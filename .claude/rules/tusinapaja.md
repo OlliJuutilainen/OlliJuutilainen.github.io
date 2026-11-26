@@ -107,8 +107,10 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
   paneelissa (alla, *Android-sovellus ja koodi*). Jo asennettu sovellus ottaa paikan myös avaamalla `tusinasaa://`-linkin.
 - **Tallennettua ei voi muuttaa:** worker ei tunne avainta eikä siis omistajaa. Ei ylikirjoitusta; uusi paikka on uusi linkki.
   Poikkeus on Minun oma tusinasää -profiili (alla), jonka muuttamiseen tarvitaan kirjoitusavain.
-- **Rajat:** `LuinRaja`-luokka omana oliona `loc` (5 pyyntöä minuutissa osoitetta kohden, 50 uutta sijaintia UTC-päivässä),
-  vain sallituista alkuperistä. Julkisesti luodun KV-avaimen metatiedoissa on `julkinen: 1`.
+- **Rajat:** `LuinRaja`-luokka omana oliona `loc` (5 pyyntöä minuutissa osoitetta kohden, 150 uutta sijaintia UTC-päivässä),
+  vain sallituista alkuperistä. Julkisesti luodun KV-avaimen metatiedoissa on `julkinen: 1`. Päivärajat jakavat ilmaistason
+  KV:n 1000 kirjoitusta päivässä (Luin 500, uudet sijainnit 150, muutokset 300, 50 varalla); älä nosta yhtä laskematta summaa.
+  Päivärajan 429 on `daily_limit` ja minuuttirajan `rate_limited`: sivut kertovat päivärajasta nollautumisajan (00:00 UTC laitteen ajassa).
 - **Muisti:** `tusinapaja.html` tallentaa onnistuneesti puretun `#t=…&k=…`-linkin laitteen localStorageen
   (`tusinasaa.linkki`), ja `index.html` (verkkosovelluksen `start_url`) avaa sen, kun #-osaa ei ole. Android-perusversio
   tallentaa linkin omiin asetuksiinsa ja avaa sen ilman linkkiä käynnistettäessä; jos linkkiä ei ole, se avaa koodisivun.
@@ -138,7 +140,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   -hallintapaneeli*. Generaattori olemassa olevalla TOKENilla ja K:lla muuttaa vanhan linkin profiiliksi paikallaan:
   jaetut linkit, QR-koodit ja sijaintiversion APK (esim. Haakis) seuraavat paneelia ilman vaihtoa. Generaattori ei
   edelleenkään lähetä mitään verkkoon, eikä `w` päädy one-paste-komentoon (vain `wh`).
-- Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 200 UTC-päivässä). Profiilin `ct`
+- Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 300 UTC-päivässä). Profiilin `ct`
   enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
   (välit kuten mallissa). Virhe näkyy *Salkoni*-rivin alla ja tarjoaa *yritä uudelleen*. Rivin otsake on *Salkoni:*, ei *Salkoni nyt*
@@ -148,8 +150,21 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - *Pura paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Jätä paalupaikka* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
   (esim. Haakis) hallintalinkin avannut laite pääsee siitä eroon kaatamatta kaverin salkoja. Älä yhdistä näitä.
-- Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
-  `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
+- Leipäteksti IBM Plex Sans ja etusivun esimerkkinäkymä Source Sans 3 isännöitynä itse (`vendor/`, Fontsource, OFL,
+  latin-osajoukko), tummassa teemassa pohja `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
+
+## Etusivu (MOTSin näkymä)
+
+`minun-tusinasaa.html` on myös Tusinasään julkinen etusivu: laite, jolla ei ole paneelia eikä osoitteessa linkkiä, aloittaa
+siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynnistä salkosanastolla.
+
+- Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää* -nappi, eikä
+  sovellusosiota ole etusivulla (käyttäjän päätökset).
+- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa. Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
+  dataan ja yr.no:hon (käyttäjän päätös).
+- Logo sulkee avainnäkymän, jos se on auki; muuten paneelissa se vie etusivulle. Näkymä on historiassa (`history.state.sivu`),
+  joten Takaisin palaa edelliseen näkymään; osoiterivin `replaceState`-kutsut säilyttävät tilan.
+- Ylätekstin ensimmäinen pala varaa 18 px oikean yläkulman avainmerkille: ilman sitä teksti osuu avaimeen 500–521 px:n leveydellä.
 
 ## Salkosutkautus (lause hallintalinkin oikopolkuna)
 
