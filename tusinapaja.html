@@ -330,11 +330,11 @@ async function fetchAndDecryptLocation(token, keyB64u){
     throw bilingualError('sijaintitiedon sisältö on virheellinen.', 'argūmentum nōtitiae locī vitiōsum est.');
   }
 
-  /* Minun oma tusinasää -profiili (minun-tusinasaa.html): näytetään valittu pylväs; lämpötilavalinta on profiilin yhteinen. */
+  /* Minun oma tusinasää -profiili (minun-tusinasaa.html): näytetään valittu salko; lämpötilavalinta on profiilin yhteinen. */
   if (parsed && Array.isArray(parsed.pylvaat)){
     const p = parsed.pylvaat[parsed.valittu] || parsed.pylvaat[0];
     if (!p || typeof p !== 'object'){
-      throw bilingualError('tähän linkkiin ei ole paalutettu sääpylvästä.', 'huic nexuī nūlla columna tempestātis dēfīxa est.');
+      throw bilingualError('tähän linkkiin ei ole paalutettu sääsalkoa.', 'huic nexuī nūlla pertica tempestātis dēfīxa est.');
     }
     parsed = { lat: p.lat, lon: p.lon, z: p.z, title: p.title, lampo: parsed.lampo };
   }

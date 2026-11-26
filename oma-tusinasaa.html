@@ -94,9 +94,9 @@
 <p class="note">Valittu oma sijainti salataan tässä selaimessa. Palvelimelle tallentuu vain salattu paketti, ja linkissä
   ei ole itse pakettia: vain sen avain. Paikkahaun hakusana käy OpenStreetMap-palvelun kautta.</p>
 
-<h2>Sääpylvään sijainti</h2>
+<h2>Sääsalon sijainti</h2>
 <form id="searchForm" class="row" autocomplete="off">
-  <input id="query" type="search" placeholder="Osoite, paikka tai koordinaatit" aria-label="Sääpylvään sijainti" required>
+  <input id="query" type="search" placeholder="Osoite, paikka tai koordinaatit" aria-label="Sääsalon sijainti" required>
   <button id="searchBtn" type="submit">Hae</button>
 </form>
 <p class="note" style="margin-top:6px">Hae osoitteella tai muulla paikan nimellä (OpenStreetMap).<br>Reippaat voivat valita
@@ -177,7 +177,7 @@ function showResults(places){
     radio.addEventListener('change', () => { if (radio.checked) choose(place); });
     place.label = label;
     const span = document.createElement('span');
-    span.textContent = place.name || 'Sääpylväs';
+    span.textContent = place.name || 'Sääsalko';
     const small = document.createElement('small');
     small.textContent = place.rest;
     if (place.rest) span.append(small);
@@ -353,8 +353,8 @@ makeBtn.addEventListener('click', async () => {
   if (!chosen){
     const picked = results.querySelector('input:checked');
     setStatus(makeStatus,
-      !results.children.length ? 'Hae ensin sääpylvään sijainti.'
-      : !picked ? 'Valitse ensin sääpylvään sijainti hakutuloksista.'
+      !results.children.length ? 'Hae ensin sääsalon sijainti.'
+      : !picked ? 'Valitse ensin sääsalon sijainti hakutuloksista.'
       : checking ? 'Hetki: ennustetta tarkistetaan vielä.'
       : 'Valittu sijainti ei kelpaa; katso ilmoitus sijainnin alla.', 'err');
     return;

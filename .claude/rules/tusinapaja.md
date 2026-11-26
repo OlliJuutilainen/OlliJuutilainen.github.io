@@ -118,16 +118,18 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 
 ## Minun oma tusinasää (hallintapaneeli)
 
-`minun-tusinasaa.html` hallitsee pylväsprofiilia: enintään kuusi pylvästä, valittu pylväs ja yhteinen lämpötilavalinta.
-Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun pylvään, joten paneelin valinta ohjaa
-kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
+`minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
+Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
+kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (salko, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
 `oppaat/tusinasaa-oma-paneeli-malli.html`.
+Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsalko*, *salon*, *salkoa*, *salot*), ei *pylväs*
+(käyttäjän päätös). Profiilin avain `pylvaat` ja koodin tunnisteet säilyvät, koska tallennetut profiilit ja muut sivut lukevat niitä.
 
 - Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, avain?, muutettu}`. `tusinapaja.html` tunnistaa
-  sen `pylvaat`-taulukosta ja näyttää valitun pylvään kuin tavallisen paketin. `lampo` on profiilin, ei pylvään.
-  Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääpylvästä*.
+  sen `pylvaat`-taulukosta ja näyttää valitun salon kuin tavallisen paketin. `lampo` on profiilin, ei salon.
+  Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääsalkoa*.
 - **Kirjoitusavain `w` on vain hallintalinkissä** `minun-tusinasaa.html#t=…&k=…&w=…`, ei koskaan katselulinkissä: muuten
-  esim. mökin QR-koodin lukija voisi muuttaa pylväitä. KV-tietueessa on `wh` = SHA-256(w:n UTF-8-merkkijono), ja
+  esim. mökin QR-koodin lukija voisi muuttaa salkoja. KV-tietueessa on `wh` = SHA-256(w:n UTF-8-merkkijono), ja
   `PUT /api/loc?t=…` vertaa siihen. GET ei palauta `wh`:ta. Worker ei näe k:ta eikä koordinaatteja tässäkään.
 - Profiilin luo paneelin ensipaalutus (`POST /api/loc` kentällä `wh`) tai generaattorin valinta *Minun oma tusinasää
   -hallintapaneeli*. Generaattori olemassa olevalla TOKENilla ja K:lla muuttaa vanhan linkin profiiliksi paikallaan:
@@ -136,7 +138,7 @@ kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sula
 - Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 200 UTC-päivässä). Profiilin `ct`
   enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
-  (välit kuten mallissa). Virhe näkyy *Pylvääni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Pylvääni nyt* -otsikko
+  (välit kuten mallissa). Virhe näkyy *Salkoni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Salkoni nyt* -otsikko
   on linkki säätiedotukseen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.

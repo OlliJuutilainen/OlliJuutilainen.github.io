@@ -56,8 +56,8 @@
 <p class="note">Lämpötilasarake näyttää FMI:n tuntuu kuin -arvon (paketin kenttä <code>lampo</code>).</p>
 
 <label><input id="profiili" type="checkbox"> Minun oma tusinasää -hallintapaneeli</label>
-<p class="note">Sijainnista tulee ensimmäinen pylväs profiiliin, jota voi muuttaa hallintalinkillä (<code>minun-tusinasaa.html</code>).
-  Katselulinkit (web, Android, QR) seuraavat paneelissa valittua pylvästä. Olemassa olevalla TOKENilla ja K:lla vanha linkki
+<p class="note">Sijainnista tulee ensimmäinen salko profiiliin, jota voi muuttaa hallintalinkillä (<code>minun-tusinasaa.html</code>).
+  Katselulinkit (web, Android, QR) seuraavat paneelissa valittua salkoa. Olemassa olevalla TOKENilla ja K:lla vanha linkki
   muuttuu profiiliksi, eikä jaettuja linkkejä tai sovellusta tarvitse vaihtaa.</p>
 
 <label for="existingToken">Olemassa oleva TOKEN (valinnainen — ylikirjoita vanha sijainti)</label>
@@ -141,8 +141,8 @@ function buildLinks(token, k, w) {
 `Web: https://ollijuutilainen.github.io/tusinapaja.html#${frag}`,
 `Android: tusinasaa://open/v1#${frag}`
   ];
-  // Hallintalinkissä on kirjoitusavain w: sen haltija voi muuttaa pylväitä. Katselulinkeissä sitä ei ole.
-  if (w) lines.push(``, `# Hallintalinkki vain pylväiden omistajalle`, `Hallinta: https://ollijuutilainen.github.io/minun-tusinasaa.html#${frag}&w=${w}`);
+  // Hallintalinkissä on kirjoitusavain w: sen haltija voi muuttaa salkoja. Katselulinkeissä sitä ei ole.
+  if (w) lines.push(``, `# Hallintalinkki vain salkojen omistajalle`, `Hallinta: https://ollijuutilainen.github.io/minun-tusinasaa.html#${frag}&w=${w}`);
   return lines.join('\n');
 }
 
@@ -214,7 +214,7 @@ generateBtn.addEventListener('click', async () => {
     if (Number.isInteger(zoom)) payloadObject.z = zoom;
     if (feelsInput.checked) payloadObject.lampo = 'tuntuu';
 
-    // Profiilissa pylväs on listan ensimmäinen ja lämpötilavalinta profiilin yhteinen (minun-tusinasaa.html).
+    // Profiilissa salko on listan ensimmäinen ja lämpötilavalinta profiilin yhteinen (minun-tusinasaa.html).
     let w = null, wh = null;
     let packageObject = payloadObject;
     if (profiiliInput.checked) {
