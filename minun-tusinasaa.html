@@ -156,6 +156,7 @@
   .clear .link{ color:var(--muted) }
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
+  .clearNote{ display:block; font-size:11.5px; margin:4px 0 0 }
   .full{ text-align:center; font-size:13px; color:var(--muted); margin:4px 0 0 }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
   details.app{ margin:48px 0 0; font-size:13px; line-height:1.5; color:var(--muted); max-width:46ch }
@@ -396,7 +397,7 @@ async function pura(iv, ct, kb = keyBytes){
 let creds = null;   // { t, k, w }
 let uid = 0;
 /* avainLz: profiilin avain-kenttä (salkosutkautus salattuna kirjoitusavaimesta johdetulla avaimella), lause: sama purettuna. */
-const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false, avainLz: null, lause: null, muutettu: 0 };
+const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false, confirmLeave: false, avainLz: null, lause: null, muutettu: 0 };
 const nameOf = p => {
   const t = typeof p.title === 'string' ? p.title.trim() : '';
   return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄSALKO');
@@ -579,9 +580,15 @@ function renderPanel(){
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;
   $('appPaneeli').hidden = first || !creds;
+  /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; jätä vain unohtaa paneelin tältä laitteelta. */
   $('clear').innerHTML = state.confirmClear
     ? `Kaadetaanko kaikki salot? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
-    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]</span>`;
+    : state.confirmLeave
+    ? `Jätetäänkö paalupaikka? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">JÄTETÄÄN</button> · <button class="link" type="button" id="clearNo">peru</button>` +
+      `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
+        : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
+    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]` +
+      (creds ? ` [<button class="link" type="button" id="leaveAsk">jätä paalupaikka</button>]` : '') + `</span>`;
   syncPick();
   renderMelt();
 }
@@ -615,13 +622,28 @@ stage.addEventListener('click', e => {
 $('clear').addEventListener('click', e => {
   const id = e.target.closest('button')?.id;
   if (id === 'clearAsk'){ state.confirmClear = true; renderPanel(); }
-  if (id === 'clearNo'){ state.confirmClear = false; renderPanel(); }
+  if (id === 'leaveAsk'){ state.confirmLeave = true; renderPanel(); }
+  if (id === 'clearNo'){ state.confirmClear = false; state.confirmLeave = false; renderPanel(); }
+  if (id === 'leaveYes') jataPaalupaikka();
   if (id === 'clearYes'){
     state.slots = []; state.active = null; state.melting = null; state.confirmClear = false;
     tallenna();
     renderPanel();
   }
 });
+/* Paneeli pois tältä laitteelta: muisti ja osoiterivin hallintalinkki tyhjiksi, palvelun profiiliin ei kosketa.
+   Kesken oleva tallennus ajetaan ensin loppuun vanhoilla tunnuksilla. */
+async function jataPaalupaikka(){
+  await jono;
+  try { localStorage.removeItem(PANEELI_KEY); localStorage.removeItem(KOPIO_KEY); } catch {}
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  creds = null; keyBytes = null;
+  state.confirmLeave = false;
+  fromProfile({ pylvaat: [] });
+  kentta.value = ''; vahvistus = null; avainTila('');
+  renderPanel();
+  setTila('Paalupaikka on jätetty. Salot ovat edelleen pystyssä.');
+}
 document.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () => {
   if (state.lampo === o.dataset.lampo) return;
   state.lampo = o.dataset.lampo; syncPick(); tallenna();
