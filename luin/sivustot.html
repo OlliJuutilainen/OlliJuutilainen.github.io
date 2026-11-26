@@ -20,7 +20,8 @@
   välilehteen (käyttäjän pyyntö 13.11.2026: oma sivu, ei ponnahdus, koska lista kasvaa). Kun leike.js saa uuden
   sovitteen, lisää sivusto listaan #sivustot yhtenä li-rivinä koreineen (data-aihe pääkori ensin, data-laji, data-kieli; sanasto
   CSS:n kommentissa *Haku ja korit*); järjestyksen, kirjainhakemiston, haun ja korisuodattimet tekee skripti (suomen
-  aakkosjärjestys, Intl.Collator). Ilman skriptiä lista näkyy sellaisenaan. Testi luin/kehitys/sivustot-testi.js. Tyylit kuten tietosuoja.html:ssä.
+  aakkosjärjestys, Intl.Collator). Otsikkohaun luettelo hakemisto/otsikot.txt tehdään skriptillä, ei käsin (ks. .claude/rules/luin.md).
+  Ilman skriptiä lista näkyy sellaisenaan. Testi luin/kehitys/sivustot-testi.js. Tyylit kuten tietosuoja.html:ssä.
 -->
 <script>
   try {
@@ -122,6 +123,17 @@
     text-decoration-color: var(--viiva); text-underline-offset: 3px; }
   .s-tila button[hidden] { display: none; }
   ul.sivustot li[hidden], h2.kirjain[hidden], ul.sivustot[hidden] { display: none; }
+  /* Otsikkohaku (käyttäjän päätös: tarkka verkko, ei raskainta hakua): sama kenttä etsii myös kerätyistä otsikoista
+     (hakemisto/otsikot.txt, ladataan vasta ensimmäisellä haulla). Osumat sivuston listan yläpuolella, korisuodattimet koskevat
+     niitäkin. */
+  .otsikot { margin: 14px 0 0; }
+  .otsikot[hidden], .otsikot button[hidden] { display: none; }
+  .o-tila { margin: 0 0 8px; font-size: .8rem; color: var(--harmaa); }
+  ol.osumat { list-style: none; padding: 0; margin: 0 0 6px; font-size: .95rem; line-height: 1.4; }
+  ol.osumat li { margin: 0 0 9px; }
+  ol.osumat .mika { display: block; font-size: .8rem; color: var(--harmaa); }
+  .otsikot button { border: 0; padding: 3px 0; min-height: 26px; font-size: .8rem; color: var(--ruoste); text-decoration: underline;
+    text-decoration-color: var(--viiva); text-underline-offset: 3px; }
   nav.aakkoset a.tyhja { color: var(--viiva); pointer-events: none; }
   /* Supersalmiakki (käyttäjän pyyntö 15.11.2026, logoksi ja vasemmalle 16.11.2026): Luinin sertifioima eli käyttäjän itse
      siedettävästi läpikäymä sovite. Merkki on Luinin ja Lukimeen-lisäosan logo (luin/kuvakkeet/kuvake.svg) ruosteella.
@@ -511,7 +523,7 @@
   });
   var esc = function (x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
   var el = document.getElementById('suodatus');
-  el.innerHTML = '<div class="s-haku"><input type="search" id="s-haku" aria-label="Etsi sivustoa" placeholder="Etsi sivustoa: nimi, aihe tai kieli" ' +
+  el.innerHTML = '<div class="s-haku"><input type="search" id="s-haku" aria-label="Etsi sivustoa tai otsikkoa" placeholder="Etsi sivustoa tai otsikkoa" ' +
       'enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>' +
     FASETIT.map(function (f) {
       return '<div class="krivi"><span class="ots">' + f + '</span><span class="kk">' + korit[f].map(function (a) {
@@ -524,6 +536,9 @@
     return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u'); }); };
   function lapi(t, re) {
     if (!re.every(function (r) { return r.test(t.haku); })) return false;
+    return korilapi(t);
+  }
+  function korilapi(t) {
     return FASETIT.every(function (f) {
       var muk = [], pois = [];
       Object.keys(tila[f]).forEach(function (a) { (tila[f][a] === 'mukaan' ? muk : pois).push(a); });
@@ -531,16 +546,23 @@
       return pois.indexOf(t[f + 'Paa']) < 0;
     });
   }
-  function piirra() {
-    var re = q(), nak = tiedot.filter(function (t) { return lapi(t, re); });
-    tiedot.forEach(function (t) { t.li.hidden = nak.indexOf(t) < 0; });
+  var nak = tiedot;
+  // Korin luku: näkyvät sivustot korissa, otsikkohaun aikana näkyvät otsikko-osumat.
+  function luvut() {
+    var joukko = OTS.sanat && OTS.tila === 'valmis' ? OTS.osumat.map(function (x) { return fasetit(x.e); }) : nak;
     [].forEach.call(el.querySelectorAll('button.kori'), function (b) {
-      var f = b.getAttribute('data-f'), v = b.getAttribute('data-v'), n = nak.filter(function (t) { return t[f].indexOf(v) >= 0; }).length;
+      var f = b.getAttribute('data-f'), v = b.getAttribute('data-v'), n = joukko.filter(function (t) { return t[f].indexOf(v) >= 0; }).length;
       b.querySelector('.n').textContent = n;
       b.classList.toggle('nolla', n === 0 && !tila[f][v]);
       if (tila[f][v]) b.setAttribute('data-tila', tila[f][v]); else b.removeAttribute('data-tila');
       b.setAttribute('aria-pressed', tila[f][v] === 'mukaan' ? 'true' : tila[f][v] === 'pois' ? 'mixed' : 'false');
     });
+  }
+  function piirra() {
+    var re = q();
+    nak = tiedot.filter(function (t) { return lapi(t, re); });
+    tiedot.forEach(function (t) { t.li.hidden = nak.indexOf(t) < 0; });
+    luvut();
     [].forEach.call(document.querySelectorAll('h2.kirjain'), function (h) {
       var ul = h.nextElementSibling, tyhja = !ul.querySelector('li:not([hidden])');
       h.hidden = tyhja; ul.hidden = tyhja;
@@ -548,20 +570,115 @@
       if (a) { a.classList.toggle('tyhja', tyhja); if (tyhja) a.setAttribute('aria-disabled', 'true'); else a.removeAttribute('aria-disabled'); }
     });
     var suodatettu = !!re.length || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
-    document.getElementById('s-nakyy').textContent = suodatettu ? 'näkyvissä ' + nak.length + ' / ' + tiedot.length : tiedot.length + ' sivustoa';
+    document.getElementById('s-nakyy').textContent = suodatettu ? 'sivustoja näkyvissä ' + nak.length + ' / ' + tiedot.length : tiedot.length + ' sivustoa';
     document.getElementById('s-tyhjenna').hidden = !suodatettu;
   }
   el.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
     if (b.id === 's-tyhjenna') { tila = { aihe: {}, laji: {}, kieli: {} }; haku = ''; document.getElementById('s-haku').value = ''; }
+    else if (b.id === 'o-lisaa') { OTS.n += 25; piirraOtsikot(); return; }
     else if (b.classList.contains('kori')) {
       var f = b.getAttribute('data-f'), a = b.getAttribute('data-v'), nyt = tila[f][a];
       if (!nyt) tila[f][a] = 'mukaan'; else if (nyt === 'mukaan') tila[f][a] = 'pois'; else delete tila[f][a];
     }
-    piirra();
+    piirra(); haeOtsikot();
   });
-  document.getElementById('s-haku').addEventListener('input', function () { haku = this.value; piirra(); });
+  var ajastin;
+  document.getElementById('s-haku').addEventListener('input', function () {
+    haku = this.value;
+    if (!hakusanat()) { OTS.sanat = null; piirraOtsikot(); }
+    piirra();
+    clearTimeout(ajastin); ajastin = setTimeout(haeOtsikot, 250);
+  });
+
+  // Otsikkohaku kerätystä luettelosta (muoto ja purku: tusina-radan hakemisto/julkaise.js). Kaikkien hakusanojen on osuttava
+  // otsikon tai tekijän sanan alkuun; täysi sana ja osuma otsikossa nostavat, lyhyempi otsikko ensin.
+  var OTS = { tila: 'ei', m: [], osumat: [], n: 25 }, sivuTiedot = {};
+  tiedot.forEach(function (t) { var a = t.li.querySelector('a'); if (a) sivuTiedot[a.textContent] = t; });
+  var lohko = document.createElement('section');
+  lohko.className = 'otsikot'; lohko.id = 'otsikot'; lohko.hidden = true;
+  lohko.innerHTML = '<p class="o-tila" id="o-tila" aria-live="polite"></p><ol class="osumat" id="osumat"></ol>' +
+    '<button type="button" id="o-lisaa" hidden>näytä lisää</button>';
+  el.appendChild(lohko);
+  var slug = function (s) { return norm(s.replace(/…$/, '')).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); };
+  function jasenna(teksti) {
+    var rivit = teksti.split('\n'), korit = [], sivu = null, ed = '', edT = '';
+    for (var i = 0; i < rivit.length; i++) {
+      var p = rivit[i].split('\t');
+      if (p.length === 2 && p[0] === '!korit') korit = p[1].split('|');
+      else if (p.length === 3 && p[0].charAt(0) === '#') { sivu = { nimi: p[0].slice(1), alku: p[1], loppu: p[2], t: sivuTiedot[p[0].slice(1)] }; ed = edT = ''; }
+      else if (p.length === 5 && sivu) {
+        ed = ed.slice(0, p[2].charCodeAt(0) - 48) + p[2].slice(1);
+        if (p[1] !== '"') edT = p[1];
+        OTS.m.push({ o: p[0], t: edT, k: ed, s: sivu, aihe: p[3].split('').map(function (c) { return korit[c.charCodeAt(0) - 97]; }),
+          kieli: p[4], h: norm(p[0]) + '\u0002' + norm(edT) });
+      }
+    }
+  }
+  function lataa() {
+    OTS.tila = 'lataa'; piirraOtsikot();
+    fetch('hakemisto/otsikot.txt').then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (x) { jasenna(x); OTS.tila = 'valmis'; haeOtsikot(); })
+      .catch(function () { OTS.tila = 'virhe'; piirraOtsikot(); });
+  }
+  // Merkinnän korit: omat aihekorit (tai sivuston, jos omia ei ole), sivuston laji ja oma kieli (tai sivuston).
+  function fasetit(e) {
+    if (e.f) return e.f;
+    var t = e.s.t || { aihe: [], laji: [], kieli: [] }, f = { laji: t.laji, lajiPaa: t.lajiPaa };
+    f.aihe = e.aihe.length ? e.aihe : t.aihe.filter(function (a) { return a !== 'kaikkiruokainen'; });
+    f.aihePaa = f.aihe[0];
+    f.kieli = e.kieli ? [kieliNimi(nimi(e.kieli))] : t.kieli;
+    f.kieliPaa = f.kieli[0];
+    return (e.f = f);
+  }
+  // Otsikkohaku alkaa kolmesta kirjaimesta.
+  function hakusanat() {
+    var sanat = norm(haku).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    return sanat.join('').length >= 3 ? sanat : null;
+  }
+  function haeOtsikot() {
+    var sanat = OTS.sanat = hakusanat();
+    OTS.n = 25;
+    if (!OTS.sanat) { piirraOtsikot(); return; }
+    if (OTS.tila === 'ei') { lataa(); return; }
+    if (OTS.tila !== 'valmis') return;
+    var re = sanat.map(function (w) { return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([\\p{L}\\p{N}]?)', 'u'); });
+    var osumat = [];
+    for (var i = 0; i < OTS.m.length; i++) {
+      var e = OTS.m[i], pisteet = 0, j;
+      for (j = 0; j < sanat.length; j++) if (e.h.indexOf(sanat[j]) < 0) break;
+      if (j < sanat.length) continue;
+      for (j = 0; j < re.length; j++) {
+        var x = re[j].exec(e.h);
+        if (!x) break;
+        pisteet += (x.index + x[1].length < e.h.indexOf('\u0002') ? 2 : 1) + (x[2] ? 0 : 1);
+      }
+      if (j < re.length || !korilapi(fasetit(e))) continue;
+      osumat.push({ p: pisteet, e: e });
+    }
+    osumat.sort(function (a, b) { return b.p - a.p || a.e.o.length - b.e.o.length; });
+    OTS.osumat = osumat;
+    piirraOtsikot();
+  }
+  function piirraOtsikot() {
+    luvut();
+    lohko.hidden = !OTS.sanat;
+    if (!OTS.sanat) return;
+    var tilaEl = document.getElementById('o-tila'), ol = document.getElementById('osumat'), lisaa = document.getElementById('o-lisaa');
+    ol.textContent = ''; lisaa.hidden = true;
+    if (OTS.tila === 'lataa') { tilaEl.textContent = 'ladataan otsikkoluetteloa…'; return; }
+    if (OTS.tila === 'virhe') { tilaEl.textContent = 'otsikkoluettelo ei latautunut'; return; }
+    var o = OTS.osumat;
+    tilaEl.textContent = o.length ? 'otsikoissa ' + o.length + (o.length === 1 ? ' osuma' : ' osumaa') : 'ei osumia otsikoissa';
+    o.slice(0, OTS.n).forEach(function (x) {
+      var e = x.e, li = document.createElement('li'), a = document.createElement('a'), m = document.createElement('span');
+      a.href = e.s.alku + e.k.replace('\u0001', slug(e.o)) + e.s.loppu; a.target = '_blank'; a.rel = 'noopener'; a.textContent = e.o;
+      m.className = 'mika'; m.textContent = (e.t ? e.t + ' · ' : '') + e.s.nimi;
+      li.appendChild(a); li.appendChild(m); ol.appendChild(li);
+    });
+    lisaa.hidden = o.length <= OTS.n;
+  }
   piirra();
 })();
 </script>

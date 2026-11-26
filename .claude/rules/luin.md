@@ -210,6 +210,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Ensyklopedia Logos ja Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`). Älä lisää sitä kysymättä.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on.
+- **Otsikkohaku** (käyttäjän päätös: tarkka verkko, ei raskainta hakua): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
+  sovitesivustoilta kerätyistä otsikoista. Luettelo `luin/hakemisto/otsikot.txt` on tusina-radan `hakemisto/julkaise.js`:n tuote, ei
+  käsin muokattava: aja se uudelleen, kun hakemisto pestään tai listan nimiä muutetaan (otsake on sivuston nimi täsmälleen kuten listassa).
+  Ei Project Gutenbergia, Faded Pagea eikä PROPYLÄENiä. Sivu lataa luettelon vasta ensimmäisellä otsikkohaulla, ja `robots.txt` kieltää kansion.
+  Korit rajaavat osumia (merkinnän omat aihekorit ja kieli, muuten sivuston), ja korin luku on otsikkohaun aikana otsikko-osumien määrä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi pinossa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `android/luin/` (opas 7.6): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa
   `luin.html`:n verkosta; `luin.html` tietää sovelluksesta vain `window.LuinApp`in olemassaolon (`NAPIT_AINA`: sivunkäännön tavat saa
@@ -834,7 +839,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]`: tuettujen sivustojen haku ja korisuodattimet.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]`: tuettujen sivustojen haku, korisuodattimet ja otsikkohaku.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
