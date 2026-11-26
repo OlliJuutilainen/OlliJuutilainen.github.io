@@ -213,14 +213,14 @@ const polyinen = (page, id) => page.evaluate((id) => {
     tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'HYLLYTYS: poista=Poista');
     tulos('kellari: pöly näkyy', await polyinen(page, 'p-t3'));
     tulos('kellari: pölyiselle Puhalla pölyt', (await luinKohdat(page, 'p-t3')).includes('merk=Puhalla pölyt'));
-    // Laita ö-mappiin (Laitetaanko teksti mappiin ö?, Joo / Öö ei): pöly säilyy.
+    // Laita ö-mappiin (Laitetaanko mappiin ö?, Joo / Öö ei): pöly säilyy.
     await page.click('#nimikkeet button.jako[data-id="p-t3"]');
     await page.click('#pop button[data-k="ali:luin"]');
     await page.click('#pop button[data-k="omappi"]');
     const om = await kysely(page);
     await page.click('#pop button[data-k="ok"]');
     const e5 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t3'));
-    tulos('Laita ö-mappiin: Laitetaanko teksti mappiin ö? (Joo / Öö ei), pöly säilyy', om.k === 'Laitetaanko teksti mappiin ö?' && om.ok === 'Joo' && om.ei === 'Öö ei' &&
+    tulos('Laita ö-mappiin: Laitetaanko mappiin ö? (Joo / Öö ei), pöly säilyy', om.k === 'Laitetaanko mappiin ö?' && om.ok === 'Joo' && om.ei === 'Öö ei' &&
       e5.omappi > 0 && e5.merkLuettu > 0, JSON.stringify(om));
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
     tulos('ö-mappi: pääkohdat samat', (await paakohdat(page, 'p-omappi')) === 'ULOSTUS | SISUSTUS | HYLLYTYS');
