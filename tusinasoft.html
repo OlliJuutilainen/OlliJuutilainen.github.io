@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tusinasoft</title>
+<meta name="description" content="Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.">
+<meta property="og:title" content="TUSINASOFT">
+<meta property="og:description" content="Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.">
+<style>
+  @font-face { font-family: Literata; src: url(luin/fontit/literata.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(luin/fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; }
+  :root {
+    color-scheme: light dark;
+    --bg: #fbf7f0; --fg: #1e1913; --muted: #6e6253; --line: #dfd5c5;
+    --serif: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+    --sans: Arial, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15110d; --fg: #eee5d7; --muted: #a89a87; --line: #3b3329; }
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 400 1.0625rem/1.55 var(--serif); -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 38rem; margin: 0 auto; padding: 4.5rem 16px 0; }
+
+  /* 1. Mainoslause isolla, tavoite sen alla */
+  .lause {
+    margin: 0; font-weight: 500; font-size: clamp(2.1rem, 7.2vw, 3.3rem); line-height: 1.12;
+    letter-spacing: -.01em; text-wrap: balance; overflow-wrap: break-word; hyphens: manual;
+  }
+  .tavoite { margin: 1.4rem 0 0; font-size: 1.2rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
+
+  /* Väliotsikot hiljaisina kuten muissa ohjelmissa */
+  h2 {
+    margin: 3.6rem 0 1.4rem; padding-top: .9rem; border-top: 1px solid var(--line);
+    font: 400 .75rem/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  }
+
+  /* 2. Ohjelmat pienemmällä */
+  .ohjelmat { list-style: none; margin: 0; padding: 0; }
+  .ohjelmat li { margin: 0 0 1.7rem; }
+  .ohjelmat li:last-child { margin-bottom: 0; }
+  .ohjelmat a {
+    font: 700 1rem/1.3 var(--sans); letter-spacing: .06em; color: var(--fg);
+    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .25em;
+    text-decoration-color: var(--line);
+  }
+  .ohjelmat a:hover, .ohjelmat a:focus-visible { text-decoration-color: currentColor; }
+  .ohjelmat p { margin: .35rem 0 0; text-wrap: pretty; }
+
+  /* 3. Yhteys */
+  .yhteys p { margin: 0; }
+
+  .foot { margin: 4.5rem 0 0; padding: 0 16px 24px; text-align: center; color: var(--muted); opacity: .6;
+    font: 300 11px/1.4 var(--sans); letter-spacing: .14em; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 class="lause">Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.</h1>
+    <p class="tavoite">Tusinasoft tavoittelee digitaalista maailmaa, jossa vietetyllä ajalla olisi painoarvoa, ja vietetty aika
+      olisi ylimalkaan vähäisempi.</p>
+  </header>
+
+  <section aria-labelledby="uuni">
+    <h2 id="uuni">Tusinasoftin uunista tullutta</h2>
+    <ul class="ohjelmat">
+      <li>
+        <a href="oma-tusinasaa.html">TUSINASÄÄ 12</a>
+        <p>Pystytä oma sääseiväs ja näe säästä vain oleellinen.</p>
+      </li>
+      <li>
+        <a href="luin.html">LUiN.HTML</a>
+        <p>Internetin pitkien tekstien lukemisen mukavuus e-kirjan tasolle.</p>
+      </li>
+      <li>
+        <a href="soitin/ohje.html">KEICK•WALK</a>
+        <p>Jaa omia konserttitaltiointeja. Ääni tulee yhdestä pitkästä mp3:sta Dropboxin tai Google Driven kansiosta:
+          KEICK•WALK jäsentää biisivaihdot ym. osiot siististi aikajanalle.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="yhteys" aria-labelledby="yhteys">
+    <h2 id="yhteys">Ota yhteyttä</h2>
+    <p>Sähköposti: ollijuutilainen ät mailbox piste org</p>
+  </section>
+</main>
+<p class="foot">© TUSINASOFT 2026</p>
+</body>
+</html>
