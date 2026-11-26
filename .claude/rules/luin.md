@@ -258,7 +258,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   ei *pinolle*), samoin kellarin veivihyllystö (*kellarin veivihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
   `tila.arkisto`, reitti `#arkisto`) ovat vanhoja nimiä; älä nimeä niitä uudelleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *uumenta*, *hyllyä*,
   *pölyhyllyä* eikä *arkistohyllyä* (käyttäjän nimeämiä poikkeuksia ovat *kellarin veivihyllystö* ja porrasvalikon *HYLLYTYS*,
-  *Hyllystä* ja *Oletko aivan hylly?*).
+  *Hyllytä* ja *Oletko aivan hylly?*).
 - **Kellarin veivihyllystö ja valinta**: luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin veivihyllystöön on himmeänä ja vain, kun siellä on jotain.
@@ -318,7 +318,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   ylhäällä paluutekstiä eikä merkkiä (yllä); kellarista pinoon vie myös alalaidan *pino*.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
-- **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Hyllystä*, *Laita ö-mappiin* ja *Nosta käsikirjastoon* ovat käyttäjän
+- **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Hyllytä*, *Laita ö-mappiin* ja *Nosta käsikirjastoon* ovat käyttäjän
   poikkeuksia): Luin on maailman ydin ja pino lähinnä sitä. Ydintä kohti liike on *poimimista* (verkosta lukimeen, kellarista pinoon,
   ö-mapista kellariin), siitä pois *viemistä* (merkinnät pinosta, pinosta käsikirjastoon). Uudet siirtonimet seuraavat tätä.
 - **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *ULOSTUS*, *SISUSTUS* ja
@@ -328,7 +328,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
   asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. SISUSTUS: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. HYLLYTYS (`luinKohdat()`, sijainnin mukaan, käyttäjän nimet):
-  pinossa *Hyllystä* (pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota; vahvistus *Oletko aivan hylly?*,
+  pinossa *Hyllytä* (pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota; vahvistus *Oletko aivan hylly?*,
   *Olen* / *En*, sama monelle tekstille) ja *Vie käsikirjastoon*; kellarin veivihyllystössä *Poimi pinoon*, *Laita ö-mappiin* ja *Nosta käsikirjastoon*;
   ö-mapissa *Poimi kellarin veivihyllystöön* ja *Poimi käsikirjastoon*; sekavalinnalle *Siirrä käsikirjastoon* (`kkSana()`; käsikirjaston
   vahvistusnappi on sama kuin valikon kohta, kysymys *Viedäänkö/Nostetaanko/Poimitaanko/Siirretäänkö*); kaikissa näkymissä
@@ -495,7 +495,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
 - **Sanat ovat käyttäjän**: *kirjaus* (alleviivaukseen liitetty muistiinpano; käyttöliittymässä aina tämä sana),
   *Sisälmys* eikä *Sisällys* tai *sisällysluettelo* (ensisijainen nimi navissa, tekstin alun otsikossa ja ohjeiden otsikoissa; asetuksissa *Sisällysluettelo*, koska *Sisälmys* ei toimi yksin ilman kontekstia; ohjeiden juoksevassa tekstissä *sisällysluettelo* käy vaihteluna, ja vieraan sivuston sisällysluettelo on sisällysluettelo). Peruutusnappi on *älä!* (pienellä, huutomerkillä, kursiivi,
-  `--harmaa`), ei *Ei*; poikkeuksina käyttäjän leikilliset parit *Olen* / *En* (Hyllystä) ja *Joo* / *Öö ei* (Laita ö-mappiin). Latomon tyhjennyksen vahvistus on pelkkä *Oletko aivan varma?* ilman lainausmerkkejä ja sanojan
+  `--harmaa`), ei *Ei*; poikkeuksina käyttäjän leikilliset parit *Olen* / *En* (Hyllytä) ja *Joo* / *Öö ei* (Laita ö-mappiin). Latomon tyhjennyksen vahvistus on pelkkä *Oletko aivan varma?* ilman lainausmerkkejä ja sanojan
   nimeä (ei sitaattivitsejä; älä palauta). Latomon pääpainike on *Avaa lukimessa*.
 - **iA Writer -pohjasta (`luin/ia-writer/`) on luovuttu**, koska se ei toimi käyttäjän iA Writerissä: älä tarjoa
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa

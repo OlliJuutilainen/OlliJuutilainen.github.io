@@ -3107,7 +3107,7 @@
     document.title = om ? 'Ö-mappi – Luin' : ark ? 'Kellarin veivihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
     $('#tyhja').textContent = om ? 'Ö-mappi on tyhjä. Teksti tulee tänne kellarin veivihyllystöstä.'
-      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne pinosta (Hyllystä).'
+      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne pinosta (Hyllytä).'
       : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
     haePinoon();
@@ -3798,7 +3798,7 @@
     });
   });
   /* HYLLYTYS-alavalikko (käyttäjän nimet) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
-     pinossa Hyllystä, Vie käsikirjastoon; kellarin veivihyllystössä Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon;
+     pinossa Hyllytä, Vie käsikirjastoon; kellarin veivihyllystössä Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon;
      ö-mapissa Poimi kellarin veivihyllystöön, Poimi käsikirjastoon (suunnat: pinosta viedään, kellarissa nostetaan, ö-mapista
      poimitaan; sekavalinnalle siirretään, kkSana()). Kaikissa näkymissä Anna pölyyntyä tai Puhalla pölyt (pöly säilyy siirroissa,
      käyttäjän päätös) ja alimpana punainen Poista (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei
@@ -3807,9 +3807,9 @@
     var kk = es.some(function (e) { return e.kasikirja; }), h = '';
     var pin = es.every(pinossa), kel = es.every(function (e) { return kellarissa(e) && !e.kasikirja; }), om = es.every(omapissa);
     if (!kk) {
-      // Hyllystä (käyttäjän nimi): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi ottaa pois
+      // Hyllytä (käyttäjän nimi): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi ottaa pois
       // silmistä heti, kun on sen aika; vahvistus kysyy leikillisesti *Oletko aivan hylly?*.
-      if (pin) h += '<button type="button" data-k="luin">Hyllystä</button>';
+      if (pin) h += '<button type="button" data-k="luin">Hyllytä</button>';
       if (kel) h += '<button type="button" data-k="luin">Poimi pinoon</button><button type="button" data-k="omappi">' + OM_VALIKKO + '</button>';
       if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
       h += '<button type="button" data-k="kasikirja">' + kkSana(es)[2] + '</button>';
@@ -3866,7 +3866,7 @@
       viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin veivihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin veivihyllystöön.');
     }, 'oikea');
   }
-  // Hyllystä ja Poimi pinoon kysyvät vahvistuksen. Hyllystä-kohdan kysymys ja vastaukset ovat käyttäjän: *Oletko aivan hylly?*
+  // Hyllytä ja Poimi pinoon kysyvät vahvistuksen. Hyllytä-kohdan kysymys ja vastaukset ovat käyttäjän: *Oletko aivan hylly?*
   // (Olen / En), sama monelle tekstille.
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
@@ -3889,7 +3889,7 @@
   }
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin veivihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
-     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllystä ja Poimi. Kellarista: *Laita ö-mappiin*,
+     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllytä ja Poimi. Kellarista: *Laita ö-mappiin*,
      *Laitetaanko mappiin ö?*, *Joo* / *Öö ei* (käyttäjän sanat). */
   // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
   var OM_SISAAN = 'Joo', OM_VALIKKO = 'Laita ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';

@@ -4,8 +4,8 @@
 // Poista HYLLYTYKSEN alimpana punaisena); kohdat isolla alkukirjaimella ilman loppupistettä; leveällä rinnakkain (pääkohdat eivät liiku,
 // laatikon leveys ei muutu alavalikkoa vaihdettaessa, aukko väliviivassa, hiirellä viipymäavaus), napin yllä avautunut kasvaa ylöspäin
 // pääkohtien pysyessä; kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; HYLLYTYS pinossa,
-// kellarin veivihyllystössä, ö-mapissa ja käsikirjalle; Anna pölyyntyä himmentää ja Puhalla pölyt palauttaa; pöly säilyy Hyllystä-,
-// ö-mappi- ja pinoon poiminnan siirroissa ja lähtee käsikirjastoon nostettaessa; Vie ja Nosta käsikirjastoon, Hyllystä ja Laita
+// kellarin veivihyllystössä, ö-mapissa ja käsikirjalle; Anna pölyyntyä himmentää ja Puhalla pölyt palauttaa; pöly säilyy Hyllytä-,
+// ö-mappi- ja pinoon poiminnan siirroissa ja lähtee käsikirjastoon nostettaessa; Vie ja Nosta käsikirjastoon, Hyllytä ja Laita
 // ö-mappiin vahvistuksin; valittujen valikko; nimikkeen kolme salmiakkia.
 const http = require('http');
 const fs = require('fs');
@@ -120,8 +120,8 @@ const polyinen = (page, id) => page.evaluate((id) => {
     tulos('avoimen pääkohdan napautus pitää sen auki', (await tila(page)).ali === 'latomo');
     await page.click('#pop button[data-k="ali:luin"]');
     let t3 = await tila(page);
-    tulos('HYLLYTYS pinossa: Hyllystä, Vie käsikirjastoon, Anna pölyyntyä, Poista', t3.kohdat.join(' | ') ===
-      'luin=Hyllystä | kasikirja=Vie käsikirjastoon | merk=Anna pölyyntyä | poista=Poista', t3.kohdat.join(' | '));
+    tulos('HYLLYTYS pinossa: Hyllytä, Vie käsikirjastoon, Anna pölyyntyä, Poista', t3.kohdat.join(' | ') ===
+      'luin=Hyllytä | kasikirja=Vie käsikirjastoon | merk=Anna pölyyntyä | poista=Poista', t3.kohdat.join(' | '));
     const vaara = await page.$eval('#pop button[data-k="poista"]', b => b.classList.contains('vaara') && !b.nextElementSibling);
     tulos('Poista alimpana punaisena', vaara);
     const kaikki = await page.$$eval('#pop button[data-k]:not(.p-ots):not(.p-takaisin):not(.h-viit)', bs => bs.map(b => b.textContent));
@@ -168,7 +168,7 @@ const polyinen = (page, id) => page.evaluate((id) => {
     const m2 = await page.evaluate(() => ({ l: document.querySelector('#nimikkeet button.jako[data-id="p-t2"]').closest('li').className, e: JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t2') }));
     tulos('Puhalla pölyt palauttaa', mk === 'Puhalla pölyt' && m2.l === 'nimike' && !m2.e.merkLuettu, mk + ' ' + m2.l);
 
-    // Hyllystä (vahvistus Oletko aivan hylly?, Olen / En): pöly säilyy.
+    // Hyllytä (vahvistus Oletko aivan hylly?, Olen / En): pöly säilyy.
     await page.click('#nimikkeet button.jako[data-id="p-t3"]');
     await page.click('#pop button[data-k="ali:luin"]');
     await page.click('#pop button[data-k="merk"]');
@@ -178,7 +178,7 @@ const polyinen = (page, id) => page.evaluate((id) => {
     const kys = await kysely(page);
     await page.click('#pop button[data-k="ok"]');
     const e3 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t3'));
-    tulos('Hyllystä: Oletko aivan hylly? (Olen / En), kellariin, pöly säilyy', kys.k === 'Oletko aivan hylly?' && kys.ok === 'Olen' && kys.ei === 'En' && e3.luettu > 0 && e3.merkLuettu > 0, JSON.stringify(kys));
+    tulos('Hyllytä: Oletko aivan hylly? (Olen / En), kellariin, pöly säilyy', kys.k === 'Oletko aivan hylly?' && kys.ok === 'Olen' && kys.ei === 'En' && e3.luettu > 0 && e3.merkLuettu > 0, JSON.stringify(kys));
     // Vie käsikirjastoon (pinosta viedään).
     await page.click('#nimikkeet button.jako[data-id="p-t4"]');
     await page.click('#pop button[data-k="ali:luin"]');
@@ -200,7 +200,7 @@ const polyinen = (page, id) => page.evaluate((id) => {
     const vl = (await tila(page)).kohdat;
     tulos('valittujen valikko: otsikko, pääkohdat, ULOSTUS ja HYLLYTYS', vp.join() === '2 tekstiä valittu,ali:vienti,ali:latomo,ali:luin' &&
       vv.join(' | ') === 'viitteet=Kopioi lähdeviitteet | zip=Vie merkinnät (zip)' &&
-      vl.join(' | ') === 'luin=Hyllystä | kasikirja=Vie käsikirjastoon | merk=Anna pölyyntyä | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
+      vl.join(' | ') === 'luin=Hyllytä | kasikirja=Vie käsikirjastoon | merk=Anna pölyyntyä | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
     await page.click('#pop button[data-k="poista"]');
     tulos('valittujen Poista: vahvistus kahdelle', await page.textContent('#pop button[data-k="poista"]') === 'Vahvista: poista 2 tekstiä merkintöineen');
     await page.keyboard.press('Escape'); await page.evaluate(() => { document.getElementById('pop').hidden = true; });
