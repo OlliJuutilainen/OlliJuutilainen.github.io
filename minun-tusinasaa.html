@@ -199,6 +199,9 @@
   .avainRivi{ display:flex; align-items:center; gap:10px; margin:10px 0 0 }
   /* Sutkauta on näkymän pääasiallinen toiminto (täytetty); näkyy vain, kun lähettämisellä on vaikutus. */
   .avainRivi .btn.sutkauta{ color:var(--bg) }
+  /* Arvo on sivutoiminto: himmeä teksti, kirkastuu osoitettaessa. */
+  .avainRivi #arvo{ color:var(--muted) }
+  .avainRivi #arvo:hover, .avainRivi #arvo:focus-visible{ color:var(--text) }
   .iNappi{ margin-left:auto; background:none; border:0; padding:4px; cursor:pointer; color:var(--muted); line-height:0 }
   .iNappi svg{ width:22px; height:22px }
   .iNappi:hover, .iNappi:focus-visible, .iNappi[aria-expanded="true"]{ color:var(--text) }
