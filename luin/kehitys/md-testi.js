@@ -140,6 +140,10 @@ sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.l
 }
 sama('tutkielma: tiedot', [k.title, k.sub, k.author, k.year].join(' | '), 'KANT JA ELÄINETIIKKA | Muulajisten arvokkuutta etsimässä | Olli Juutilainen | 2026');
 sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
+// Juokseva otsikko: numeroitu sarja on kohtia, toistuva sama numero (näytelmän puhuja V. EBERKOPF, EN I FLOKKEN) ei.
+const ajoLkm = md => M.parse(md).kohdat.filter(x => x.ajo).length;
+sama('juokseva otsikko: Corollary 1–3 kohtia', ajoLkm('# T\n\n**Corollary 1.** a b c.\n\n**Corollary 2.** d e f.\n\n**Corollary 3.** g h.\n'), 3);
+sama('juokseva otsikko: toistuva puhuja ei kohta', ajoLkm('# T\n\n**V. EBERKOPF** a b.\n\n**PEER** x.\n\n**V. EBERKOPF** d e.\n\n**EN I FLOKKEN** g.\n\n**EN I FLOKKEN** h.\n'), 0);
 const o = M.parse('# Opas\n\n- Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma).');
 tulos('HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
 

@@ -30,7 +30,8 @@
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
   Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()),
   samoin pisteeseen päättyvä enintään kolmen sanan otsikoksi tai allekirjoitukseksi merkitty kappale (merkittyLyhyt()).
-  Juokseva otsikko: numeroitu lihavoitu kappaleen alku sarjana (**Corollary 1: …** …) on kohta (res.kohdat, ajo), ei otsikko.
+  Juokseva otsikko: numeroitu lihavoitu kappaleen alku sarjana (**Corollary 1: …** …) on kohta (res.kohdat, ajo), ei otsikko;
+  sarjassa on oltava ainakin kaksi eri numeroa (toistuva **V. EBERKOPF** on näytelmän puhuja).
   Artikkeli (artikkeli()): kaksitasoisen artikkelin otsikot ovat osioita ja kohtia, eivät lukuja.
   Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella (Table 1., Fig. 2, Taulukko 3), on p.kuvateksti
   (kuvateksti()); tunniste span.kt-nimi.
@@ -2789,9 +2790,11 @@
     html += render(tokens.slice(t0), false);
     valiJakso();
     if (!ylaKohdat) {
-      var ajoLkm = {};
-      ajoEhd.forEach(function (k) { ajoLkm[k.sana] = (ajoLkm[k.sana] || 0) + 1; });
-      var ajoKohdat = ajoEhd.filter(function (k) { return ajoLkm[k.sana] >= 2; });
+      var ajoLkm = {}, ajoNrot = {};
+      ajoEhd.forEach(function (k) { ajoLkm[k.sana] = (ajoLkm[k.sana] || 0) + 1; (ajoNrot[k.sana] = ajoNrot[k.sana] || {})[k.s] = 1; });
+      // Sarja numeroi: saman sanan sarjassa ainakin kaksi eri numeroa. Toistuva sama numero on nimi (näytelmän puhuja
+      // **V. EBERKOPF** 17 kertaa ja **EN I FLOKKEN**, Ibsenin Peer Gynt), ei kohta.
+      var ajoKohdat = ajoEhd.filter(function (k) { return ajoLkm[k.sana] >= 2 && Object.keys(ajoNrot[k.sana]).length >= 2; });
       if (ajoKohdat.length) {
         ajoKohdat.forEach(function (k) { res.kohdat.push({ b: k.b, s: k.s, vali: true, ajo: true, alku: k.alku }); });
         res.kohdat.sort(function (a, z) { return a.b - z.b; });

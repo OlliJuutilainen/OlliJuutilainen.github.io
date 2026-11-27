@@ -204,6 +204,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   raskain sovitteen leike). Sama muunnin (`akRunko()`) lukee SKS:n Kantelettaren (`/exist/apps/kanteletar`), jonka TEI on erilainen
   (runo `div type=poem`, säenumero `l rend=number`, viite tekstissä): muutos koskee molempia. md.js pudottaa otsikon lopun
   `[^x]`:n välilyönnin jälkeen, joten otsikon merkki liitetään ilman välilyöntiä. Testi `--sarja kal`.
+  Henrik Ibsens skrifter (`ibsen()`, opas 7.5): runko on `#content` (näytelmät, kirjeet) tai `#contentBrev` (runot), tekstisivun
+  tunnistaa kolofonista. Kommentaari ja tekstikritiikki ovat erillisiä paloja (`img.sakkommentar[hx-get]`, `*_xref`), jotka haetaan
+  `IB_RINNAKKAIN` kerrallaan; palvelin kuristaa tiheät haut (403), joten `ibHae()` yrittää uudelleen. Selain koodaa palan osoitteen
+  `|`:n muotoon `%7C`: pesukoneen välimuistin täyttö rinnakkain on tehtävä samoilla nimillä (*Peer Gynt* 1 824 palaa). md.js ei tee
+  toistuvasta samasta numerosta juoksevaa otsikkoa (puhuja *V. EBERKOPF*). Testi `--sarja ib`.
+  Henry Parlands Skrifter (`parland()`): vanha SLS-alusta, teksti `interface.php`:n JS-oliolitteraalista (`plJasenna()`, ei evalia),
+  leikataan `slsRunko()`lla: sen muutos koskee myös Parlandia (aja `--sarja sls` ja `--sarja pl`). Kirjaksi kootaan vain teosryhmä
+  (*Sönder …*, *Idealrealisation (1929)*), ei toimittajan ryhmiä. Testi `--sarja pl`.
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
@@ -280,7 +288,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
-  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Henrik Ibsens skrifter, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
   (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
