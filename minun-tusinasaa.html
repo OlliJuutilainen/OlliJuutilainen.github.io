@@ -1523,9 +1523,11 @@ function siirraAvain(kohde, muutos, esiin, myohemmin = []){
   svg.style.transformOrigin = '0 0';
   avainAnimaatiot.push(svg.animate(liike, ajoitus), avainNappi.animate(vari, ajoitus),
     ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)),
-    /* Avoimen näkymän nimi (SALKOSUTKAUTUS) häivyttyy esiin vasta, kun avain on pysähtynyt (käyttäjän päätös). */
+    /* Avoimen näkymän nimi (SALKOSUTKAUTUS) syttyy vasta, kun avain on asettunut (käyttäjän päätös): alkaa 15 % liikkeen
+       päättymisen jälkeen, koska liukuva jarrutus jatkuu silmälle loppuun asti, ja syttyy pehmeästi molemmista päistä
+       (cubic-bezier(.6, 0, .4, 1): alussa näkyvyys nousee hyvin hitaasti, joten nimi ei pomppaa esiin; ease-out pomppasi). */
     ...myohemmin.filter(el => el && !el.hidden).map(el => el.animate([{ opacity: 0 }, { opacity: 1 }],
-      { duration: SIIRTYMA.kesto * .42, delay: SIIRTYMA.kesto * 1.05, easing: 'ease-out', fill: 'backwards' })));
+      { duration: 400, delay: SIIRTYMA.kesto * 1.15, easing: 'cubic-bezier(.6, 0, .4, 1)', fill: 'backwards' })));
 }
 /* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja avain lähtee liikkeelle vasta AVAUS_TAUKO ms myöhemmin
    (käyttäjän päätös). Häivytyksen ja tauon aikana uusi napautus ei tee mitään. */

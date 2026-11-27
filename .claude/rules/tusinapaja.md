@@ -260,13 +260,13 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja avain lähtee liikkeelle vasta 0,11 s:n tauon jälkeen
   (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
   (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKOSUTKAUTUS
-  vasta, kun avain on pysähtynyt. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
+  syttyy pehmeästi vasta, kun avain on asettunut. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
   Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
   Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä versaalina (paino 400:n ja 600:n väliltä),
   väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
   korkuiset; saa jatkua palstan ohi ruudun reunaan asti, ja vasta kun sekään ei riitä (kapea ruutu), koko pienenee, koska
-  nimi ei rivity (käyttäjän päätös); se häivyttyy esiin vasta, kun avain on pysähtynyt. Arvo vain, kun laitteella on paneeli;
+  nimi ei rivity (käyttäjän päätös); se syttyy pehmeästi vasta, kun avain on asettunut. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
