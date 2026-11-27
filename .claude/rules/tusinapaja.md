@@ -195,8 +195,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös): se sulattaa salon heti muokattavaksi (muuten matka
-  muokkaukseen olisi pitkä ja mahdollisuudet vaikeita hahmottaa) ja tuo lisäksi hiutaleen kohdalle kiteen kehää ulommalle
-  samankeskiselle kehälle, kauas hiutaleen ulkopuolelle, lyhyen kaarinuolen kiertosuuntaan (ei suoraan hiutaleesta lähtevä).
+  muokkaukseen olisi pitkä ja mahdollisuudet vaikeita hahmottaa) ja tuo lisäksi hiutaleen kohdalle, kauas sen ulkopuolelle
+  (42 px), selvästi kaarevan lyhyen nuolen kiertosuuntaan (ei suoraan hiutaleesta lähtevä).
   Nimi piiloutuu. Nuolen napautus kiertää salon maailman keskukseksi muokkauksen pysyessä auki; saman hiutaleen uusi
   napautus tai kiteen tyhjän kohdan napautus peruu molemmat. Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja

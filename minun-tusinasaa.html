@@ -928,19 +928,22 @@ function pinoaValinnat(){
 }
 addEventListener('resize', pinoaValinnat);
 
-/* Kaarinuoli kysytyn salon kohdalla kiteen kehää KIERTO_ULOS px ulommalla samankeskisellä kehällä (hiutale 20 px, joten
-   väli hiutaleen kärkiin noin 19 px; lähempänä se näytti hiutaleen osalta), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
-   maailman keskukseksi (alakärkeen lyhintä tietä; vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Pituus
-   KIERTO_PITUUS px kärkineen kehää pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const KIERTO_ULOS = 30, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
+/* Kaarinuoli kysytyn salon ulkopuolella: kaaren keskikohta KIERTO_ULOS px hiutaleen keskeltä suoraan ulospäin (hiutale
+   20 px), ja nuoli osoittaa siihen suuntaan, johon salko kiertyisi maailman keskukseksi (alakärkeen lyhintä tietä;
+   vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Kaaren säde KIERTO_SADE px (0 = kiteen kanssa
+   samankeskinen kehä); keskipiste on hiutaleen ulkopuolisella säteellä, joten kaari kaartuu kierron suuntaan. Kaukana
+   hiutaleesta ja selvästi kaareva (käyttäjän päätös): säde 26 px, noin 84°. Pituus
+   KIERTO_PITUUS px kärkineen kaarta pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
+const KIERTO_ULOS = 42, KIERTO_SADE = 26, KIERTO_PITUUS = 38, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
 function piirraKierto(){
   const nuoli = $('kierto'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
   nuoli.hidden = !el;
   if (!el) return;
   const a = el._kohde ?? el._kulma, suunta = Math.sign(270 + 360 * Math.round((a - 270) / 360) - a) || 1;
-  const W = stage.clientWidth, R = SADE / 100 * W + KIERTO_ULOS, deg = px => px / R * 180 / Math.PI;
+  const W = stage.clientWidth, Rk = SADE / 100 * W, R = KIERTO_SADE || Rk + KIERTO_ULOS, e = Rk + KIERTO_ULOS - R;
   if (!W){ nuoli.hidden = true; return; }   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
-  const p = t => [W / 2 + R * Math.cos(rad(t)), W / 2 - R * Math.sin(rad(t))];
+  const deg = px => px / R * 180 / Math.PI, cx = W / 2 + e * Math.cos(rad(a)), cy = W / 2 - e * Math.sin(rad(a));
+  const p = t => [cx + R * Math.cos(rad(t)), cy - R * Math.sin(rad(t))];
   const t0 = a - suunta * deg(KIERTO_PITUUS / 2), t2 = a + suunta * deg(KIERTO_PITUUS / 2), t1 = t2 - suunta * deg(KIERTO_KARKI[0]);
   const [mx, my] = p(a), q = t => p(t).map((v, i) => v - [mx, my][i]);
   const [x0, y0] = q(t0), [x1, y1] = q(t1), [x2, y2] = q(t2);
@@ -948,7 +951,7 @@ function piirraKierto(){
   const [bx, by] = [x2 - tx * L, y2 - ty * L];
   nuoli.style.left = f2(mx) + 'px'; nuoli.style.top = f2(my) + 'px';
   const [kaari, karki] = nuoli.querySelectorAll('path');
-  kaari.setAttribute('d', `M${f2(x0)} ${f2(y0)}A${f2(R)} ${f2(R)} 0 0 ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
+  kaari.setAttribute('d', `M${f2(x0)} ${f2(y0)}A${f2(R)} ${f2(R)} 0 ${Math.abs(t1 - t0) > 180 ? 1 : 0} ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
   karki.setAttribute('d', `M${f2(x2)} ${f2(y2)}L${f2(bx + ty * w)} ${f2(by - tx * w)}L${f2(bx - ty * w)} ${f2(by + tx * w)}Z`);
 }
 addEventListener('resize', piirraKierto);
