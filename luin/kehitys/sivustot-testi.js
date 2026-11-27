@@ -7,7 +7,7 @@
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
 // Haku-rivi: tekijä mukaan tai pois, asiasana. Supersalmiakki kieli-rivin alla kuten kori (mukaan, pois, ennalleen; myös
-// otsikko-osumat; listan salmiakkien sarakkeessa; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
+// otsikko-osumat; rivinimet ja salmiakki oikealle tasattuina; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -85,9 +85,26 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
     const b = document.querySelector('button.salmiakki'), r = b && b.closest('.krivi');
     return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 1 &&
       b.textContent.trim() === '' && !!b.querySelector('svg') && !document.querySelector('.selite button'); }));
-  t('supersalmiakki: listan salmiakkien sarakkeessa ja samankokoisena', await page.evaluate(() => {
-    const a = document.querySelector('button.salmiakki svg').getBoundingClientRect(), l = document.querySelector('ul.sivustot li .super svg').getBoundingClientRect();
-    return a.x === l.x && a.width === l.width; }));
+  // Rivinimet ja salmiakki tasattuina oikealle: musteen oikea reuna kuvasta (rivin alue, korien vasemmalla puolella).
+  const musteReunat = async () => {
+    const a = await page.evaluate(() => { const s = document.getElementById('suodatus').getBoundingClientRect();
+      return { x: s.left, y: s.top + scrollY, w: document.querySelector('#suodatus .krivi .kk').getBoundingClientRect().left - s.left - 1,
+        rivit: [...document.querySelectorAll('#suodatus .krivi')].map(k => { const r = k.firstElementChild.getBoundingClientRect(); return [r.top - s.top - 3, r.bottom - s.top + 3]; }),
+        tausta: getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number) }; });
+    const h = a.rivit[a.rivit.length - 1][1];
+    const kuva = (await page.screenshot({ clip: { x: a.x, y: a.y, width: a.w, height: h }, fullPage: true })).toString('base64');
+    return page.evaluate(async ({ kuva, a, h }) => {
+      const img = new Image(); img.src = 'data:image/png;base64,' + kuva; await img.decode();
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height).data, D = img.width / a.w;
+      return a.rivit.map(([y0, y1]) => { let o = -1;
+        for (let y = Math.max(0, Math.round(y0 * D)); y < Math.min(img.height, Math.round(y1 * D)); y++) for (let x = 0; x < img.width; x++) {
+          const i = (y * img.width + x) * 4; if (Math.abs(d[i] - a.tausta[0]) + Math.abs(d[i + 1] - a.tausta[1]) + Math.abs(d[i + 2] - a.tausta[2]) > 90) o = Math.max(o, x); }
+        return (o + 1) / D; });
+    }, { kuva, a, h });
+  };
+  const reunat = await musteReunat();
+  t('rivinimet ja salmiakki: musteen oikeat reunat tasan (enintään 0,5 px)', reunat.length === 5 && Math.max(...reunat) - Math.min(...reunat) <= .5, reunat.join(' '));
   await page.click('button.salmiakki');
   t('supersalmiakki mukaan: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 && await sm() === 'true mukaan false',
     (await nimet()).join(' | ') + ' / ' + await sm());
