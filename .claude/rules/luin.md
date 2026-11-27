@@ -186,6 +186,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   ehdot (juokseva otsake, tavutus, kappaleliitos, viitemerkit) on mitattu `--sarja persee`lla (myös `--elava`lla sama): älä löysää mittaamatta.
   Cambridge Core (`cambridge()`): `pmcNumeroviitteet()` vain, kun kirjallisuus on numeroitu (tekijä–vuosi-linkin teksti on pelkkä vuosi,
   joka näyttäisi sille numerolta); testi `--sarja cambridge`.
+  OJS:n artikkelin ja gallerian tunnus voi olla polkunimi (`[^/]+`: Journal für Psychologie, Athenea Digital, Quaderns de Psicologia); testi `--sarja ojs4`.
+  Classics in the History of Psychology (`chp()`, opas 7.5) kokoaa kirjan hakemistosivun (`index.htm`) linkeistä myös luvun sivulta
+  (enintään `KK_RAJA`). Sivut ovat windows-1252:ta vain sivun metassa, joten pesukone antaa tavut sellaisinaan kuten avesta.orgin.
+  Sitovien välilyöntien lausekkeessa ei saa olla `(?:\u00a0|\s)`-vaihtoehtoa kvanttorin sisällä (`\s` sisältää sen; jumittaa välilehden). Testi `--sarja chp`.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
   numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös (käyttäjän päätös: Kielet-asetuksen *käännös* on silloin analyysi), kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
   Wisdom Library (`wisdomlib()`, opas 7.5) kokoaa puun (kirja, osa tai luku, tekstisivulta yläluku, enintään `KK_RAJA`);
