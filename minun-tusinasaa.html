@@ -315,7 +315,7 @@
   @media (hover:hover){
     .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ stroke-opacity:1 }
   }
-  .kierto .suunta{ fill:none; stroke:var(--muted); stroke-width:.5; pointer-events:none }
+  .kierto .suunta{ fill:none; stroke:var(--muted); stroke-width:.6; pointer-events:none }
   .kierto .suunta .karki{ fill:var(--muted); stroke:none }
   .kierto:focus-visible{ outline:none }
   .kierto:focus-visible .reuna{ stroke:var(--text) }
@@ -1025,13 +1025,17 @@ function piirraKierto(){
 }
 /* Suuntanuoli (käyttäjän päätös): ohut, pieni, hennosti kaareutuva nuoli napin kuusikulmion ulkopuolella, kaarena napin
    keskipisteen ympäri hiutaleesta poispäin. Kärki osoittaa sinne, minne salko kiertäisi alakärkeen (s: 1 vastapäivään,
-   −1 myötäpäivään; sama kierros kuin renderPanelissa). Kärki on kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const SUUNTA = { r: 20, puoli: 25, karki: 3.2, leveys: .85 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
+   −1 myötäpäivään; sama kierros kuin renderPanelissa). Kärki taipuu kaaren mukana: sen sivut kapenevat tyvestä huippuun
+   kaaren suuntaisina, joten nuoli kaartuu tasaisesti loppuun asti. Suora kolmio jättäisi kaaren lopun suoraksi ja kallistuisi
+   sisäänpäin (käyttäjän päätös: ei kaartunut tasaisesti). */
+const SUUNTA = { r: 20, puoli: 22, karki: 3.2, leveys: 1 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
 function suuntaNuoli(a, s){
   const { r, puoli, karki, leveys } = SUUNTA;
   const P = (f, q = r) => f2(q * Math.cos(rad(f))) + ' ' + f2(-q * Math.sin(rad(f)));
   const loppu = a + s * puoli, tyvi = loppu - s * karki / r * 180 / Math.PI;
-  return [`M${P(a - s * puoli)}A${r} ${r} 0 0 ${s > 0 ? 0 : 1} ${P(tyvi)}`, `M${P(loppu)}L${P(tyvi, r + leveys)}L${P(tyvi, r - leveys)}Z`];
+  const sivu = m => Array.from({ length: 6 }, (_, i) => P(tyvi + (loppu - tyvi) * (i + 1) / 6, r + m * leveys * (5 - i) / 6));   // tyveltä huippuun
+  return [`M${P(a - s * puoli)}A${r} ${r} 0 0 ${s > 0 ? 0 : 1} ${P(tyvi)}`,
+    `M${P(tyvi, r + leveys)}L${sivu(1).join('L')}L${sivu(-1).reverse().slice(1).join('L')}L${P(tyvi, r - leveys)}Z`];
 }
 addEventListener('resize', piirraKierto);
 
