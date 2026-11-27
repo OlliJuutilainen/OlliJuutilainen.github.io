@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026) sekä Avoin Kalevala ja Kanteletar, Henrik Ibsens skrifter ja Henry Parlands Skrifter sekä HUDOC ja Finlexin oikeuskäytäntö (27.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026) sekä Avoin Kalevala ja Kanteletar, Henrik Ibsens skrifter ja Henry Parlands Skrifter sekä HUDOC ja Finlexin oikeuskäytäntö sekä WiBiLex ja Themelios (27.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -10397,6 +10397,263 @@
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija, sivusto: IEP_NIMI, lahde: osoite.replace(/[?#].*$/, '') };
   }
 
+  /* WiBiLex, Das wissenschaftliche Bibellexikon im Internet (die-bibel.de/ressourcen/wibilex; myssyn kymmenen 27.11.2026, sivustoehdokkaat-5;
+     Deutsche Bibelgesellschaft). Angular-sovellus, jonka palvelin renderöi artikkelin: WordPressin lohkot (Gutenberg) elementissä
+     ibep-render-gutenberg-blocks, kukin lohko div.max-w-[610px]:n sisällä (ibep-paragraph, ibep-heading > div#id > h2–h4, ibep-list,
+     ibep-image, ibep-separator, ibep-table-of-contents). Alussa tietokappaleet: Andere Schreibweise (jää tekstiin), tekijä (linkki
+     /autoren/), (erstellt: September 2009; letzte Änderung: Juni 2011), Artikel als PDF ja Permanenter Link zum Artikel; ne etukenttään
+     ja pois. Sisällysluettelo, viivat, kuvat (vain kuva, kuvateksti on Abbildungsverzeichnisissä) ja PDF-Archiv pois.
+     Literaturverzeichnisin luettelot kappaleiksi (md.js:n p.bib); sen numeroidut alaotsikot tason alemmaksi, kun lähde on
+     merkinnyt ne samalle tasolle (Hahn: h2 1. Lexikonartikel), jotta kirjallisuusosio ei katkea. Abbildungsverzeichnis
+     numeroiduksi luetteloksi (tekstin Abb. 1 …). Alaviitteitä WiBiLexissä ei ole (viittaukset tekstissä). Julkaistu on erstellt,
+     kuten WiBiLexin oma viittausohje (Hieke, Art. Zwillinge, …, 2008); lähde on pysyvä linkki (bibelwissenschaft.de/stichwort/N).
+     Sama alusta antaa muut die-bibel.de:n Sachwissen-sivut (WiReLex, Gute Nachricht Bibelin sanaselitykset; WiBiLexin hakemistossa
+     on sanaselitykseen osoittavia osoitteita): sivusto murupolun toisesta nimestä. Sivun skripti hakee artikkelin uudelleen
+     rajapinnasta, joka torjuu otsattoman selaimen (400, sivulle 404): mitattu palvelimen HTML:stä. Lahjoitukset (WiBiLex
+     unterstützen, Jetzt spenden), ei mainoksia. Mitattu 27.11.2026. */
+  const WBL_KUUKAUDET = ['januar', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'dezember'];
+  function wblPvm(s) {
+    const m = /(?:(\p{L}+)\s+)?((?:19|20)\d\d)/u.exec(rivi(s));
+    if (!m) return '';
+    const k = m[1] ? WBL_KUUKAUDET.indexOf(m[1].toLowerCase()) : -1;
+    return m[2] + (k >= 0 ? '-' + String(k + 1).padStart(2, '0') : '');
+  }
+  async function wibilex() {
+    if (!/(^|\.)die-bibel\.de$/i.test(location.hostname) || !/^\/ressourcen\//.test(location.pathname)) return null;
+    const juuri = document.querySelector('ibep-render-gutenberg-blocks');
+    const h1 = document.querySelector('ibep-hero h1') || document.querySelector('main h1');
+    if (!juuri || !h1) return null;
+    const murut = [...document.querySelectorAll('ibep-breadcrumbs a')].map(a => rivi(a.textContent)).filter(Boolean);
+    const el = juuri.cloneNode(true);
+    el.querySelectorAll('ibep-table-of-contents, ibep-separator, ibep-image, img, script, style, button, [class*="svg"], svg').forEach(x => x.remove());
+    [...el.querySelectorAll('*')].filter(x => /-SVG$/.test(x.tagName)).forEach(x => x.remove());
+    // Tietokappaleet.
+    let tekijat = [], julkaistu = '', lahde = '';
+    // Lyhyt kappale ennen ensimmäistä väliotsikkoa (Andere Schreibweise, Schriften Philos finden sich im Internet) on md.js:lle
+    // otsikkolohkon tietorivi, jolloin etukentän tekijä ja aika eivät näy siinä: silloin tekijä- ja erstellt-rivi jäävät tekstiin
+    // kuten lähteessä (tekijä ilman linkkiä).
+    const TIETO = /^(\(erstellt:|Permanenter Link zum Artikel:|Artikel als PDF$)/i;
+    const ens = [...el.querySelectorAll('h2, h3, h4, p')].find(x => /^H/.test(x.tagName) || rivi(x.textContent) && !TIETO.test(rivi(x.textContent)) &&
+      ![...x.querySelectorAll('a[href]')].some(a => /\/autoren\//.test(a.getAttribute('href'))));
+    const kirjoitusasu = !!ens && ens.tagName === 'P' && rivi(ens.textContent).length <= 100;
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent), a = [...p.querySelectorAll('a[href]')];
+      const e = /^\(erstellt:\s*([^;)]*)/i.exec(t), pl = /^Permanenter Link zum Artikel:\s*(https?:\/\/\S+)/i.exec(t);
+      if (e) { julkaistu = wblPvm(e[1]); if (!kirjoitusasu) p.remove(); }
+      else if (pl) { lahde = pl[1]; p.remove(); }
+      else if (a.length && a.every(x => /\/autoren\//.test(x.getAttribute('href'))) && /^[\s,;/&]*(und[\s,;/&]+)*$/.test(a.reduce((r, x) => r.replace(rivi(x.textContent), ''), t))) {
+        tekijat.push(...a.map(x => rivi(x.textContent)));
+        if (kirjoitusasu) a.forEach(x => x.replaceWith(rivi(x.textContent))); else p.remove();
+      } else if (a.length === 1 && /\.pdf(\?|$)/i.test(a[0].getAttribute('href')) && /^Artikel als PDF$/i.test(t)) p.remove();
+    });
+    if (!tekijat.length) document.querySelectorAll('ibep-hero a[href*="/autoren/"]').forEach(a => tekijat.push(rivi(a.textContent)));
+    tekijat = [...new Set(tekijat.filter(Boolean))];
+    // Kääreet pois: lohkot ja Angularin elementit sisältöineen, tyhjät kappaleet ja kuvien kääreet.
+    [...el.querySelectorAll('*')].reverse().forEach(x => { if (/^(DIV|IBEP-[A-Z-]+)$/.test(x.tagName)) x.replaceWith(...x.childNodes); });
+    // Kaksi rivinvaihtoa peräkkäin (sanaselityksen lähderivi) on kappaleraja.
+    el.querySelectorAll('p').forEach(p => {
+      for (;;) {
+        const brs = [...p.querySelectorAll('br')];
+        let pari = null;
+        for (let i = 0; i + 1 < brs.length && !pari; i++) {
+          const r = document.createRange(); r.setStartAfter(brs[i]); r.setEndBefore(brs[i + 1]);
+          if (!rivi(r.toString())) pari = [brs[i], brs[i + 1]];
+        }
+        if (!pari) break;
+        const r1 = document.createRange(); r1.setStart(p, 0); r1.setEndBefore(pari[0]);
+        const uusi = document.createElement('p'); uusi.appendChild(r1.extractContents()); p.before(uusi);
+        const r2 = document.createRange(); r2.setStart(p, 0); r2.setEndAfter(pari[1]); r2.deleteContents();
+      }
+    });
+    el.querySelectorAll('p').forEach(x => { if (!rivi(x.textContent) && !x.querySelector('br')) x.remove(); });
+    [...el.children].forEach(x => { if (x.tagName === 'SPAN' && !rivi(x.textContent)) x.remove(); });
+    // Osiot otsikoittain: PDF-Archiv pois, Literaturverzeichnis kappaleiksi, Abbildungsverzeichnis numeroiduksi.
+    const ots = () => [...el.querySelectorAll('h2, h3, h4, h5')];
+    const osio = h => { const out = []; for (let n = h.nextElementSibling; n && !(/^H[2-5]$/.test(n.tagName) && +n.tagName[1] <= +h.tagName[1]); n = n.nextElementSibling) out.push(n); return out; };
+    ots().forEach(h => { if (el.contains(h) && /^PDF-Archiv$/i.test(rivi(h.textContent))) { osio(h).forEach(x => x.remove()); h.remove(); } });
+    // Numeron perästä puuttuva väli (Hahn: 1.Der Hahn im NT), jotta md.js tunnistaa numeroinnin.
+    ots().forEach(h => { const t = rivi(h.textContent), m = /^(\d+(?:\.\d+)*\.)(?=\p{L})/u.exec(t); if (m) h.textContent = m[1] + ' ' + t.slice(m[1].length); });
+    const lit = ots().find(h => /^Literaturverzeichnis$/i.test(rivi(h.textContent)));
+    if (lit) {
+      const taso = +lit.tagName[1], NRO = /^\d+(\.\d+)*\.?\s*/;
+      // Numeroidut alaotsikot siirtyvät yhtä monta tasoa, jotta niiden keskinäiset tasot säilyvät (Bibelfilme: h2 1. Bücher, h3 1.1. …).
+      const alat = [];
+      for (let n = lit.nextElementSibling; n && !(/^H[2-6]$/.test(n.tagName) && !NRO.test(rivi(n.textContent))); n = n.nextElementSibling) if (/^H[2-6]$/.test(n.tagName)) alat.push(n);
+      const siirto = alat.length ? Math.max(0, taso + 1 - Math.min(...alat.map(h => +h.tagName[1]))) : 0;
+      for (let n = lit.nextElementSibling; n; n = n.nextElementSibling) {
+        if (/^H[2-6]$/.test(n.tagName)) {
+          const nro = NRO.exec(rivi(n.textContent));
+          if (!nro) break;
+          if (siirto) { const u = document.createElement('h' + Math.min(6, +n.tagName[1] + siirto)); while (n.firstChild) u.appendChild(n.firstChild); n.replaceWith(u); n = u; }
+          // Numero pois: osion oma numerointi alkaisi tekstin luvuista uudelleen (md.js:n luvun tunniste luku-1 kahdesti).
+          n.textContent = rivi(n.textContent).slice(nro[0].length);
+        } else if (/^(UL|OL)$/.test(n.tagName)) {
+          const kpl = [...n.children].filter(li => li.tagName === 'LI').map(li => { const q = document.createElement('p'); while (li.firstChild) q.appendChild(li.firstChild); return q; });
+          if (!kpl.length) continue;
+          n.replaceWith(...kpl);
+          n = kpl[kpl.length - 1];
+        }
+      }
+    }
+    ots().forEach(h => {
+      if (!/^Abbildungsverzeichnis$/i.test(rivi(h.textContent))) return;
+      osio(h).filter(x => x.tagName === 'UL').forEach(ul => { const ol = document.createElement('ol'); while (ul.firstChild) ol.appendChild(ul.firstChild); ul.replaceWith(ol); });
+    });
+    el.normalize();
+    if (kkSanoja(el) < 30) return null;
+    const sivusto = murut.find(m => !/^sachwissen$/i.test(m)) || 'die-bibel.de';
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija: tekijat.join(' & '), julkaistu, sivusto,
+      yllapitaja: 'Deutsche Bibelgesellschaft', lahde: lahde || osoite.replace(/[?#].*$/, ''), maar: [] };
+  }
+
+  /* Themelios (The Gospel Coalition, thegospelcoalition.org/themelios; myssyn kymmenen 27.11.2026, sivustoehdokkaat-5). WordPress:
+     artikkeli ja kirja-arvio ovat .deck-blockissa (.heading: h1 ja By Nimi tai Written by Kirjailija ja Reviewed By Arvioija;
+     tiivistelmälaatikko .border-top, arviossa piilotettuna kustannustiedot; teksti; viiva; viitteet; .info-box tekijän esittely).
+     Numero on otsikkona Volume 51 - Issue 2 (uudessa arviossa vain luokkalinkin ?i=51-2), ja oikea julkaisuaika numeron sivulta
+     (/themelios/issue/51-2/: VOLUME 51, ISSUE 2, August 2026; yksi haku samalta sivustolta): sivun JSON-LD:n päiväys on siirtopäivä,
+     ja tekijä on siellä tyhjä. Viitteitä on kolmea muotoa: vanhoissa (1975–2005) linkittämätön <sup>N</sup> tekstissä ja viivan alla
+     kappaleet, jotka alkavat samalla <sup>N</sup>:llä (kohdistetaan numerosta, jatkokappaleet mukaan); Wordin a.sup → #_ftnN
+     (samanSivunViitteet); Modern Footnotes (sup.modern-footnotes-footnote ja sen perässä span …__note samalla data-mfn:llä).
+     Kirja-arviossa kirjan tiedot ensimmäiseksi kappaleeksi lihavoituna kuten NDPR:ssä ja BMCR:ssä, arvioija tekijäksi. Tiivistelmä
+     Abstract-osioksi, Wordin otsikkorivittömät taulukot ruudukoiksi (ojsTaulukko), tekijän esittely loppuun osanvaihdon jälkeen;
+     jakonapit (myös Logosin kumppanilinkki) pois. Etukenttään tyyppi tieteellinen, teos ja numero ilman sivustoa (kuten EJP).
+     Ei mainoksia (Googlen ja LinkedInin seurantapikselit,
+     arvioissa Amazonin kumppanilinkit, kuten Wait But Whyssä); The Gospel Coalitionilla on lahjoitussivu. Mitattu 27.11.2026. */
+  const TH_NIMI = 'Themelios';
+  async function themelios() {
+    if (!/(^|\.)thegospelcoalition\.org$/i.test(location.hostname) || !/^\/themelios\/(article|review)\/[^/]+/.test(location.pathname)) return null;
+    const d = document.querySelector('.deck-block');
+    const h1 = d && d.querySelector('.heading h1');
+    if (!h1) return null;
+    const arvio = /^\/themelios\/review\//.test(location.pathname);
+    const otsikko = rivi(h1.textContent);
+    // Tekijät: By A, B and C / Reviewed By A and B.
+    const nimet = t => t.split(/\s*,\s*(?:and\s+)?|\s+and\s+|\s*&\s*/).map(rivi).filter(Boolean);
+    const alat = [...d.querySelectorAll('.heading .subtitle')].map(x => rivi(x.textContent));
+    const tekijaRivi = alat.find(t => (arvio ? /^Reviewed by\s/i : /^By\s/i).test(t)) || '';
+    const tekijat = nimet(tekijaRivi.replace(/^(Reviewed\s+)?By\s+/i, ''));
+    const kirjailija = arvio ? alat.find(t => /^(Written|Edited|Translated)\s+by\s/i.test(t)) || '' : '';
+    // Numero: otsikko Volume X - Issue Y, luokkalinkin i=X-Y tai numeron pdf.
+    let vm = null;
+    const vh = [...d.parentElement.querySelectorAll(':scope > h2')].map(h => /Volume\s+(\d+)\s*-\s*Issue\s+(\d+)/i.exec(rivi(h.textContent))).find(Boolean);
+    if (vh) vm = [vh[1], vh[2]];
+    if (!vm) { const a = d.querySelector('a[href*="/themelios/review?"][href*="i="]'); const m = a && /[?&]i=(\d+)-(\d+)/.exec(a.getAttribute('href')); if (m) vm = [m[1], m[2]]; }
+    if (!vm) { const a = d.querySelector('a[href*="Themelios"][href$=".pdf"]'); const m = a && /Themelios_?(\d+)\.(\d+)\.pdf$/i.exec(a.getAttribute('href')); if (m) vm = [m[1], m[2]]; }
+    let julkaistu = '';
+    if (vm) {
+      const nd = await hae(location.origin + '/themelios/issue/' + vm[0] + '-' + vm[1] + '/');
+      const li = nd ? [...nd.querySelectorAll('.book-holder .info-list li, .info-list li')].map(x => rivi(x.textContent)) : [];
+      const m = li.map(t => /^(\p{L}+)\s+((?:19|20)\d\d)$/u.exec(t)).find(Boolean);
+      if (m) { const k = EN_KUUKAUDET.indexOf(m[1].toLowerCase()); julkaistu = m[2] + (k >= 0 ? '-' + String(k + 1).padStart(2, '0') : ''); }
+    }
+    const el = d.cloneNode(true);
+    const tiiv = el.querySelector(':scope > .border-top');
+    const tiivP = tiiv && tiiv.querySelector('p');
+    const tiivNakyy = tiiv && !/display\s*:\s*none/i.test(tiiv.getAttribute('style') || '') && tiivP && rivi(tiivP.textContent);
+    const tiedot = arvio && tiivP ? rivi(tiivP.textContent) : '';
+    const esittelyt = [...el.querySelectorAll('.info-box')].map(b => b.cloneNode(true));
+    el.querySelectorAll('.heading, .social-list, .d-block.d-md-none, .border-top, .info-box, .image-holder, script, style, noscript, form, img, figure, iframe, button').forEach(x => x.remove());
+    // Numeroitu otsikko luettelona (vanhat: <ol start="2"><li><h3>…</h3></li></ol>) otsikoksi numeroineen.
+    el.querySelectorAll('ol, ul').forEach(l => {
+      const li = [...l.children], h = li.length === 1 && li[0].querySelector('h2, h3, h4, h5');
+      if (!h || rivi(h.textContent) !== rivi(li[0].textContent)) return;
+      const u = document.createElement(h.tagName);
+      u.textContent = (l.tagName === 'OL' ? (parseInt(l.getAttribute('start'), 10) || 1) + '. ' : '') + rivi(h.textContent);
+      l.replaceWith(u);
+    });
+    // Viitteet.
+    let maar = [];
+    const mf = [...el.querySelectorAll('sup.modern-footnotes-footnote')];
+    if (mf.length) {
+      let n = 0;
+      mf.forEach(sup => {
+        const k = sup.getAttribute('data-mfn');
+        let note = sup.nextElementSibling;
+        if (!note || !note.matches('.modern-footnotes-footnote__note')) note = [...el.querySelectorAll('.modern-footnotes-footnote__note')].find(x => x.getAttribute('data-mfn') === k && !x.dataset.kaytetty);
+        if (!note) return;
+        note.dataset.kaytetty = '1';
+        const kopio = note.cloneNode(true);
+        kopio.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+        const t = muunna(kopio.innerHTML, 'inlined').trim();
+        note.remove();
+        if (!t) return;
+        const tunnus = 'th' + (++n);
+        maar.push(maaritelma(tunnus, t));
+        sup.replaceWith(merkki(tunnus));
+      });
+      el.querySelectorAll('.modern-footnotes-footnote__note, .modern-footnotes-list').forEach(x => x.remove());
+    } else if (el.querySelector('a[href^="#_ftn"], a[href^="#_edn"]')) {
+      maar = samanSivunViitteet(el, 'th');
+    } else {
+      // Vanha muoto: viimeisen viivan jälkeiset <sup>N</sup>-kappaleet.
+      const lapset = [...el.children], hrs = lapset.filter(x => x.tagName === 'HR'), hr = hrs[hrs.length - 1];
+      const alkuSup = x => { const s = x.firstElementChild; return s && s.tagName === 'SUP' && /^\d+$/.test(rivi(s.textContent)) && !rivi(x.textContent.slice(0, x.textContent.indexOf(s.textContent))) ? rivi(s.textContent) : ''; };
+      if (hr) {
+        const viitteet = new Map();
+        let nyt = null;
+        lapset.slice(lapset.indexOf(hr) + 1).forEach(x => {
+          const nro = /^(P|DIV|BLOCKQUOTE)$/.test(x.tagName) ? alkuSup(x) : '';
+          if (nro && !viitteet.has(nro)) { const k = x.cloneNode(true); k.firstElementChild.remove(); nyt = [k]; viitteet.set(nro, nyt); }
+          else if (nyt && rivi(x.textContent)) nyt.push(x.cloneNode(true));
+          else nyt = null;
+          if (viitteet.size) x.remove();
+        });
+        if (viitteet.size) {
+          const tunnukset = new Map();
+          lapset.slice(0, lapset.indexOf(hr)).forEach(x => (x.tagName === 'SUP' ? [x] : [...x.querySelectorAll('sup')]).forEach(sup => {
+            const nro = rivi(sup.textContent);
+            if (!viitteet.has(nro)) return;
+            if (!tunnukset.has(nro)) {
+              const kaare = document.createElement('div');
+              viitteet.get(nro).forEach(k => { const q = k.tagName === 'BLOCKQUOTE' ? k : document.createElement('div'); if (q !== k) while (k.firstChild) q.appendChild(k.firstChild); kaare.appendChild(q); });
+              kaare.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+              const t = muunna(kaare.innerHTML, 'inlined').trim();
+              tunnukset.set(nro, t ? 'th' + nro : '');
+              if (t) maar.push(maaritelma('th' + nro, t));
+            }
+            if (tunnukset.get(nro)) sup.replaceWith(merkki(tunnukset.get(nro)));
+          }));
+          hr.remove();
+        }
+      }
+    }
+    // Otsikkorivittömät Word-taulukot (rowspan) ruudukoiksi.
+    el.querySelectorAll('table').forEach(t => { if (!t.parentElement.closest('table') && !t.querySelector('th')) ojsTaulukko(t); });
+    // Viimeinen viiva (viitteiden edellä) pois, kun sen jälkeen ei ole enää tekstiä.
+    for (let x = el.lastElementChild; x && (x.tagName === 'HR' || !rivi(x.textContent)); x = el.lastElementChild) x.remove();
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent) && !p.querySelector('br')) p.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    // Alkuun kirjan tiedot (arvio) tai tiivistelmä (artikkeli).
+    if (arvio) {
+      const p = document.createElement('p'), b = document.createElement('strong'), em = document.createElement('em');
+      const kk = kirjailija.replace(/^Written by\s+/i, '');
+      em.textContent = otsikko;
+      b.append(kk ? kk + '. ' : '', em, '.' + (tiedot ? ' ' + tiedot : ''));
+      p.appendChild(b);
+      // Arvioija omalle rivilleen kuten lähteessä: lyhyt kirjarivi on md.js:lle otsikkolohkon tietorivi, eikä etukentän tekijä
+      // näkyisi silloin otsikkolohkossa.
+      if (tekijaRivi) p.append(document.createElement('br'), tekijaRivi.replace(/^Reviewed\s+By\b/i, 'Reviewed by'));
+      el.prepend(p);
+    } else if (tiivNakyy) {
+      const h = document.createElement('h2');
+      h.textContent = 'Abstract';
+      // Osanvaihto: johdanto ennen ensimmäistä väliotsikkoa on tekstiä, ei tiivistelmää (md.js:n etuosa).
+      el.prepend(h, tiivP.cloneNode(true), document.createElement('hr'));
+    }
+    // Tekijän esittely loppuun: nimi rivin alkuun, jos esittely ei mainitse sitä (vanhoissa pelkkä paikkakunta).
+    const esit = esittelyt.map(b => {
+      const nimi = rivi((b.querySelector('h2') || {}).textContent);
+      const ps = [...b.querySelectorAll('p')].filter(p => rivi(p.textContent));
+      if (!ps.length) return null;
+      const p = ps.map(x => x.cloneNode(true)).reduce((a, x) => { a.append(document.createElement('br'), ...x.childNodes); return a; });
+      if (nimi && !rivi(p.textContent).includes(nimi)) p.prepend(nimi, document.createElement('br'));
+      return p;
+    }).filter(Boolean);
+    if (esit.length) el.append(document.createElement('hr'), ...esit);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: tekijat.join(' & '), tyyppi: 'tieteellinen', teos: TH_NIMI,
+      numero: vm ? vm[0] + ':' + vm[1] : '', julkaistu, lahde: osoite.replace(/[?#].*$/, ''), maar, naytto: TH_NIMI };
+  }
+
   /* Substack (alusta; käyttäjän pyyntö 16.11.2026, pahvin B3: The Convivial Society, Experimental History). Tunnistus alustasta
      (substackcdn.com-osoitteet ja .available-content .body.markup), joten omat verkkotunnukset käyvät. Readability jätti
      jakonapin (Share), maksullisen äänitteen kehotteen (Upgrade to paid to play voiceover) ja viitteet linkkiketjuiksi
@@ -15827,6 +16084,8 @@
     wisdomlib: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/wisdomlib' },
     standardEbooks: { laji: 'lahjoitukset', osoite: 'https://standardebooks.org/donate' },
     celt: { laji: 'lahjoitukset', osoite: 'https://celt.ucc.ie/donate.html' },
+    themelios: { laji: 'lahjoitukset', osoite: 'https://www.thegospelcoalition.org/donate-today/' },
+    wibilex: { laji: 'lahjoitukset', osoite: 'https://www.die-bibel.de/spenden/deutschlandweit-helfen/ihre-spende-fuer-unsere-deutschlandweiten-projekte/?tw_target=Bibelverbreitung%20im%20Internet' },
     encyclopediaCom: { laji: 'mainokset' },
     duodecim: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
@@ -15898,7 +16157,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, hudoc, finlex, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, themelios, wibilex, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, hudoc, finlex, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

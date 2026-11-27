@@ -167,6 +167,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `#documentUrl`: sivun osoitteen #-osa (`eng#{"itemid":…}`) katoaa leikkeen osoitteesta. Finlex (`finlex()`): vain oikeuskäytäntö (säädökset
   yleiselle leikkeelle, käyttäjän linjaus: luettavaa, ei tietokantoja); luokkanimissä on käännöksen tiiviste (`uKldUa_akomaNtoso`), joten
   valitsimet ovat loppuosasta. Kumpikin on skriptisovellus: aja `--sarja hudoc` ja `--sarja finlex` aina `--elava`lla.
+  WiBiLex (`wibilex()`, die-bibel.de) luetaan palvelimen renderöimästä sivusta: sivun oma skripti korvaa artikkelin otsattomassa
+  selaimessa 404-sivulla (sen rajapinta vastaa 400), joten `--sarja wibilex` ajetaan ilman `--elava`a. CloudFront antaa curlille 403:n
+  mutta selaimelle sivun, joten pesukone hakee die-bibel.de:n sivut selaimella. Themelioksen (`themelios()`) julkaisuaika tulee numeron
+  sivulta (`/themelios/issue/51-2/`), ei sivun JSON-LD:stä (siirtopäivä).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
