@@ -755,14 +755,14 @@ const KUVIOT = [[], [3], [0, 3], [0, 2, 4], [0, 2, 3, 4], [0, 1, 2, 4, 5], [0, 1
 const SADE = 38, KARKI = .72;   // kärkien etäisyys keskeltä (% kiteestä) ja sakaran pituus siitä
 const stage = $('stage');
 const kidePaikka = (a, r = SADE) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
-/* Kiertymisen käyrä: naapurikärkeen (enintään 120°) kuten muissa siirtymissä, cubic-bezier(.3, .7, .2, 1) ja 700 ms.
-   Vastakkaiselta puolelta (180°) sama käyrä olisi levottoman nopea (käyttäjän havainto), joten pitkä kierto kestää
-   suhteessa kulmaan (700 ms / 90°) ja lähtee ja pysähtyy pehmeästi (cubic-bezier(.45, 0, .25, 1)). */
+/* Kierto (käyttäjän päätös): kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä (cubic-bezier(.45, 0, .25, 1)),
+   ja kesto kasvaa kulman neliöjuuren mukaan: 1,4 s × √(kulma / 180°), joten vastakkainen kärki (180°) 1,4 s ja naapuri
+   60° 0,81 s ja 120° 1,14 s. Kulma on suurin kärjen liike, koska kärkikuvio voi muuttua valitun pysyessä paikallaan. */
 const bezier = (x1, y1, x2, y2) => {
   const b = (t, p1, p2) => 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t * t * (1 - t) + t ** 3;
   return x => { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++){ t = (lo + hi) / 2; if (b(t, x1, x2) < x) lo = t; else hi = t; } return b(t, y1, y2); };
 };
-const KIERTO = bezier(.3, .7, .2, 1), PITKA_KIERTO = bezier(.45, 0, .25, 1);
+const KIERTO = bezier(.45, 0, .25, 1);
 let kiertoRaf = 0;
 function asetaKulma(el, a){
   el._kulma = a;
@@ -773,15 +773,15 @@ function asetaKulma(el, a){
   const arm = $('arms').querySelector(`line[data-id="${el.dataset.id}"]`);
   if (arm){ const [ax, ay] = kidePaikka(a, SADE * KARKI); arm.setAttribute('x2', f2(ax)); arm.setAttribute('y2', f2(ay)); }
 }
-function kierra(liikkeet, kulma){
+function kierra(liikkeet){
   cancelAnimationFrame(kiertoRaf);
   if (!liikkeet.some(([, a, b]) => a !== b) || matchMedia('(prefers-reduced-motion: reduce)').matches){
     liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); return;
   }
-  const pitka = Math.abs(kulma) > 120, kesto = pitka ? 700 * Math.abs(kulma) / 90 : 700, kayra = pitka ? PITKA_KIERTO : KIERTO;
+  const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 1400 * Math.sqrt(kulma / 180);
   const alku = performance.now();
   const askel = nyt => {
-    const p = Math.min(1, (nyt - alku) / kesto), e = kayra(p);
+    const p = Math.min(1, (nyt - alku) / kesto), e = KIERTO(p);
     liikkeet.forEach(([el, a, b]) => asetaKulma(el, a + (b - a) * e));
     if (p < 1) kiertoRaf = requestAnimationFrame(askel);
   };
@@ -846,7 +846,7 @@ function renderPanel(){
   $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
   liikkeet.forEach(([el, a]) => asetaKulma(el, a));
-  kierra(liikkeet, muutos);
+  kierra(liikkeet);
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
