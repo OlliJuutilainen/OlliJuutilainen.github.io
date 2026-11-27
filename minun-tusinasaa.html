@@ -137,6 +137,9 @@
   /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
   .omaan{ text-align:center; margin:44px 0 40px }
+  /* Reipas nuoli tekstin alla (käyttäjän päätös): ohut varsi ja logon säteen kaltainen terävä kärki. */
+  #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
+  #omaanSalkoon .nuoli{ display:block; width:78%; height:8px; overflow:visible }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
   #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -413,7 +416,7 @@
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener">Omaan salkoon</a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener">Omaan salkoon<svg class="nuoli" viewBox="0 0 120 8" aria-hidden="true"><path d="M0 4H109" stroke="currentColor" stroke-width="1.6"/><path d="M104 .6L120 4L104 7.4L107 4Z" fill="currentColor"/></svg></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
