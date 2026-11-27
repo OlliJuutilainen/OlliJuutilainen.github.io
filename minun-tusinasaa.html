@@ -1063,14 +1063,15 @@ $('kierto').addEventListener('pointerenter', sijoitaVihje);
    kärki söi kärkipuolen viivan, ja kärjen verran pidempänä kärkipuoli venyi. Kärki osoittaa sinne, minne salko kiertäisi
    alakärkeen (s: 1 vastapäivään, −1 myötäpäivään; sama kierros kuin renderPanelissa), ja on kapea suora kolmio sivun suuntaisesti.
    Pituus (käyttäjän päätös): kuusikulmion säteen suuntaiset sivut jatkettuina ovat kuvitteelliset suorat (yläkärjessä pystysuorat,
-   kuusikulmion sisäsäteen 13 cos 30° päässä napin keskeltä). Hännän uloin kohta, tylpän pään ulkonurkka, on täsmälleen suoralla
-   eikä yli; kärkipuoli on pidempi, joten kärki ylittää omansa. */
-const SUUNTA = { kulma: 137.5, R: 23, lisa: 1.4, karki: 3.1, leveys: 1.5, viiva: .9 };   // sisäkulma (°); kulman etäisyys napin keskeltä, kärkipuolen lisäpituus, kärjen pituus ja puolileveys, viivan paksuus (px)
+   kuusikulmion sisäsäteen 13 cos 30° päässä napin keskeltä). Kärki ylittää omansa yhtä paljon kuin häntä jää omastaan vajaaksi
+   (hännän uloin kohta on tylpän pään ulkonurkka), joten nuolen leveys on kuusikulmion leveys kärjen suuntaan siirrettynä. */
+const SUUNTA = { kulma: 137.5, R: 23, lisa: 1.4, karki: 3.1, leveys: 1.8, viiva: 1.1 };   // sisäkulma (°); kulman etäisyys napin keskeltä, kärkipuolen lisäpituus, kärjen pituus ja puolileveys, viivan paksuus (px)
 const SUUNTA_R = SUUNTA.R;
 $('kierto').querySelector('.suunta').style.strokeWidth = SUUNTA.viiva;
 function suuntaNuoli(a, s){
   const { karki, leveys } = SUUNTA, P = (x, y) => f2(x) + ' ' + f2(y), k = 180 - SUUNTA.kulma / 2;   // sivun suunta kulmasta
-  const kallistus = rad(90 - SUUNTA.kulma / 2), sivu = (13 * Math.cos(rad(30)) - SUUNTA.viiva / 2 * Math.sin(kallistus)) / Math.cos(kallistus);   // hännän pituus kulmasta
+  const kallistus = rad(90 - SUUNTA.kulma / 2), linja = 13 * Math.cos(rad(30));
+  const sivu = (2 * linja - SUUNTA.viiva / 2 * Math.sin(kallistus) - SUUNTA.lisa * Math.cos(kallistus)) / 2 / Math.cos(kallistus);   // hännän pituus kulmasta
   const kulma = [SUUNTA_R * Math.cos(rad(a)), -SUUNTA_R * Math.sin(rad(a))];
   const suunta = d => [Math.cos(rad(a + d * k)), -Math.sin(rad(a + d * k))];   // sivu kulmasta poispäin
   const [hx, hy] = suunta(s), [tx, ty] = suunta(-s);
