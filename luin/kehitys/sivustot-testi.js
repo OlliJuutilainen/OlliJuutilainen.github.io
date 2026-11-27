@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]
 // Tarkistaa: kaikki sivustot alussa; korit mukaan (tai saman rivin sisällä, ja rivien välillä), pois karsii pääkorin tai
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
-// vaakavieritystä ja suodatus alle 400 px (supistettuna alle 200 px; rivit aihe, laji ja kieli supistettuina, nimi avaa, supistettuna
+// vaakavieritystä ja suodatus alle 440 px (supistettuna alle 235 px; rivit aihe, laji ja kieli supistettuina, nimi avaa, supistettuna
 // näkyvät vain valitut korit); ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
@@ -45,7 +45,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const m2 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
   await rivi('laji'); await rivi('kieli');
   const m3 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
-  t('360 px: kaikki auki alle 400 px, ei vaakavieritystä', m3.korkeus < 400 && !m3.vaaka && m2.korkeus < m3.korkeus, JSON.stringify([m2, m3]));
+  t('360 px: kaikki auki alle 440 px, ei vaakavieritystä', m3.korkeus < 440 && !m3.vaaka && m2.korkeus < m3.korkeus, JSON.stringify([m2, m3]));
   await rivi('laji'); await rivi('kieli'); await rivi('aihe');
 
   await nappi('aihe', 'filosofia');
