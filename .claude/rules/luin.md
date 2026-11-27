@@ -167,6 +167,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `#documentUrl`: sivun osoitteen #-osa (`eng#{"itemid":…}`) katoaa leikkeen osoitteesta. Finlex (`finlex()`): vain oikeuskäytäntö (säädökset
   yleiselle leikkeelle, käyttäjän linjaus: luettavaa, ei tietokantoja); luokkanimissä on käännöksen tiiviste (`uKldUa_akomaNtoso`), joten
   valitsimet ovat loppuosasta. Kumpikin on skriptisovellus: aja `--sarja hudoc` ja `--sarja finlex` aina `--elava`lla.
+  TextGrid (`textgrid()`, opas 7.5): teossivulla teksti on sivun TEI-muunnoksessa; laitoksen ja kokoelman sivu kootaan
+  TextGridin koostepalvelusta (`textgridlab.org/1.0/aggregator/html/textgrid:<tunnus>`, CORS sallittu), ei portaalin `?mode=xml`-näkymästä,
+  joka katkeaa kolmen sekunnin muunnosrajaan. Vakiosivujen laitos on HTML-kommentissa `milestone (sigel)`: kommentit eivät saa kadota
+  ennen sivujen lukua. Pesukone antaa textgridlab.orgin vastaukset CORS-otsakkeella; testi `--sarja tg`.
+  Schelling Nachlass-Edition (`schellingNachlass()`): lukuteksti kuten sivun oletusnäkymä, ja sivun skriptin muutokset (ponnahduskääreet,
+  täydennysten värit, KaTeX) puretaan, jotta leike on sama skriptin kanssa ja ilman; testi `--sarja schelling` (myös `--elava`, samat tulokset).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
@@ -293,7 +299,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
-  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Henrik Ibsens skrifter, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  Folger, Faded Page, Folktexts, Gutenberg-DE, TextGrid, Litteraturbanken, Avoin Kalevala, Henrik Ibsens skrifter, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
   (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
