@@ -139,9 +139,9 @@
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
   /* Etusivun päänapit lihavoituina, MOTS kursiivilla (käyttäjän päätös). */
   #aloita, #omaan, #omaanSalkoon{ font-weight:700 }
-  /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen (väli 26 px; isompi oli tarpeeton) iso nappi, joka avaa oman säätiedotuksen uuteen
+  /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen (väli 30 px; 44 px oli tarpeeton) iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
-  .omaan{ text-align:center; margin:26px 0 40px }
+  .omaan{ text-align:center; margin:30px 0 40px }
   /* Reipas nuoli tekstin alla, 3 px tekstiä lyhyempi kummastakin päästä, melkein kiinni päihin (käyttäjän päätös): ohut
      varsi ilman perää ja kärkenä kapea suora kolmio, auringon säteen sukua eikä lovettu navigaattorinuoli (käyttäjän
      päätös). Varsi venyy, joten kärki pysyy mittasuhteissaan. */
@@ -303,6 +303,11 @@
   .kierto, .kehys{ position:absolute; width:30px; height:30px; margin:-15px 0 0 -15px }
   .kierto{ padding:0; border:0; background:none; color:var(--text); cursor:pointer }
   .kehys{ pointer-events:none }
+  /* Kehykset ja kiertonappi tulevat esiin ja häipyvät pehmeästi (käyttäjän päätös); häipyessä ne jäävät paikalleen eikä
+     nappia voi napauttaa. */
+  .kierto, .kehys{ opacity:0; visibility:hidden; pointer-events:none; transition:opacity .5s ease-out, visibility 0s .5s }
+  .kierto.esilla, .kehys.esilla{ opacity:1; visibility:visible; transition:opacity .2s ease-in }
+  .kierto.esilla{ pointer-events:auto }
   .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
   .kierto .reuna, .kehys .reuna{ fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25;
     stroke-dashoffset:.625; transition:stroke .15s, stroke-opacity .15s }
@@ -471,8 +476,8 @@
     <div id="ui" hidden>
       <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
-        <span class="kehys" id="kehys" hidden><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/></svg></span>
-        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" hidden><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/><g class="aurinko" transform="scale(.59) translate(-16 -16)"></g></svg></button>
+        <span class="kehys" id="kehys"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/></svg></span>
+        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" tabindex="-1"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/><g class="aurinko" transform="scale(.59) translate(-16 -16)"></g></svg></button>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
@@ -1006,8 +1011,10 @@ const KIERTO_ULOS = 34;
 function piirraKierto(){
   const nuoli = $('kierto'), kehys = $('kehys'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
   const W = stage.clientWidth;
-  nuoli.hidden = kehys.hidden = !el || !W;   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
-  if (nuoli.hidden) return;
+  const esilla = !!el && !!W;   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
+  nuoli.classList.toggle('esilla', esilla); kehys.classList.toggle('esilla', esilla);
+  nuoli.tabIndex = esilla ? 0 : -1;
+  if (!esilla) return;
   const a = el._kohde ?? el._kulma, [x, y] = kidePaikka(a).map(v => v / 100 * W);
   kehys.style.left = f2(x) + 'px'; kehys.style.top = f2(y) + 'px';
   nuoli.style.left = f2(x + KIERTO_ULOS * Math.cos(rad(a))) + 'px'; nuoli.style.top = f2(y - KIERTO_ULOS * Math.sin(rad(a))) + 'px';
@@ -1034,7 +1041,7 @@ document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click'
 }));
 
 stage.addEventListener('click', e => {
-  if (e.target.closest('#kierto')){ state.active = state.kysy; state.kysy = null; odotaNimi = true; tallenna(); renderPanel(); return; }
+  if (e.target.closest('#kierto')){ if (!state.kysy) return; state.active = state.kysy; state.kysy = null; odotaNimi = true; tallenna(); renderPanel(); return; }
   const el = e.target.closest('.slot');
   if (!el){ if (state.kysy){ if (state.melting === state.kysy) state.melting = null; state.kysy = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu
   const id = el.dataset.id;
@@ -1493,7 +1500,7 @@ const SIIRTYMA = { kesto: 420 }, siirtymaKayra = KIERTO;
 const avainKoti = document.querySelector('.top');
 let avainAnimaatiot = [];
 const rgbOsat = c => (c.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
-function siirraAvain(kohde, muutos, esiin){
+function siirraAvain(kohde, muutos, esiin, myohemmin = []){
   const svg = avainNappi.querySelector('svg'), ennen = svg.getBoundingClientRect(), variEnnen = getComputedStyle(avainNappi).color;
   avainAnimaatiot.forEach(a => a.cancel()); avainAnimaatiot = [];
   muutos();
@@ -1515,11 +1522,14 @@ function siirraAvain(kohde, muutos, esiin){
   const ajoitus = { duration: SIIRTYMA.kesto, easing: 'linear' };
   svg.style.transformOrigin = '0 0';
   avainAnimaatiot.push(svg.animate(liike, ajoitus), avainNappi.animate(vari, ajoitus),
-    ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)));
+    ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)),
+    /* Avoimen näkymän nimi (SALKOSUTKAUTUS) häivyttyy esiin vasta liikkeen loppupuolella (käyttäjän päätös). */
+    ...myohemmin.filter(el => el && !el.hidden).map(el => el.animate([{ opacity: 0 }, { opacity: 1 }],
+      { duration: SIIRTYMA.kesto * .6, delay: SIIRTYMA.kesto * .55, easing: 'ease-out', fill: 'backwards' })));
 }
-/* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja vasta sitten avain lähtee liikkeelle (käyttäjän päätös).
-   Häivytyksen aikana uusi napautus ei tee mitään. */
-const AVAUS_HAIVYTYS = 200;
+/* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja avain lähtee liikkeelle vasta AVAUS_TAUKO ms myöhemmin
+   (käyttäjän päätös). Häivytyksen ja tauon aikana uusi napautus ei tee mitään. */
+const AVAUS_HAIVYTYS = 200, AVAUS_TAUKO = 160;
 let avausHaivytys = null;
 function avaaNakyma(){
   if (avausHaivytys) return;
@@ -1531,7 +1541,7 @@ function avaaNakyma(){
       avainNappi.setAttribute('aria-expanded', 'true');
       (avausHaivytys || []).forEach(a => a.cancel());   // piilossa nyt; sulkiessa näkymä palaa täysin näkyvänä
       avausHaivytys = null;
-    }, [$('avainLomake'), $('avainNimi')]);
+    }, [$('avainLomake')], [$('avainNimi')]);
     kentta.value = state.lause || '';
     $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
     avainTila(''); vahvistus = null;
@@ -1540,7 +1550,7 @@ function avaaNakyma(){
   };
   if (!pois.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return jatka();
   avausHaivytys = pois.map(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: AVAUS_HAIVYTYS, easing: 'ease-in', fill: 'forwards' }));
-  avausHaivytys[0].finished.then(jatka, () => {});
+  avausHaivytys[0].finished.then(() => setTimeout(jatka, AVAUS_TAUKO), () => {});
 }
 function suljeNakyma(){
   siirraAvain(avainKoti, () => {
