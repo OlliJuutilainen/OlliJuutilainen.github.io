@@ -173,22 +173,26 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 300 UTC-päivässä). Profiilin `ct`
   enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
-  (välit kuten mallissa). Virhe näkyy *Salkoni*-rivin alla ja tarjoaa *yritä uudelleen*. Rivin otsake on *Salkoni:*, ei *Salkoni nyt*
-  (käyttäjän päätös), ja valitun salon nimi on linkki säätiedotukseen. Otsakkeen yllä on salko (käyttäjän päätös): kuin
+  (välit kuten mallissa). Virhe näkyy valitun salon rivin alla ja tarjoaa *yritä uudelleen*. Rivin otsake on *MAAILMAN KESKUS:*
+  (käyttäjän päätös; lähteessä *Maailman keskus:*, CSS tekee versaalin), ja valitun salon nimi on linkki säätiedotukseen. Otsakkeen yllä on salko (käyttäjän päätös): kuin
   avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista lukua. Kehä ja säteet luetaan logon poluista
   (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku). Salko on kiteen alakärjessä, ja
   auringon keskellä on valitun salon oma hiutale (kiteen nappi) kuvan oman hiutaleen kokoisena. Valittu salko kaikkinensa
   on muita kirkkaampi: kuva ja otsake `--text`, nimi `--brand` (käyttäjän päätös).
-  Jalka (käyttäjän päätös): nouseva aurinko eli sanan SALKONI pituinen horisontti, sen päällä kuusikulmion (kärjet sivuilla)
+  Jalka (käyttäjän päätös): nouseva aurinko eli otsakkeen MAAILMAN KESKUS levyinen (106,2 px, ilman kaksoispistettä) horisontti, sen päällä kuusikulmion (kärjet sivuilla)
   yläpuolisko ääriviivana ja neljä sädettä, horisontin alla juuret lumihiutaleen puolikkaana (kolme sakaraa, kussakin kaksi
   sivuhaaraa). Varsi ja juurten pääsakarat hohtavat: sisus `#fff` kummassakin teemassa. Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
-  Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
+  Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas. Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
+  puuttuminen kertoo sen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
-- *Pura tämä paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu paalupaikalta* vain unohtaa paneelin
+- Paneelin alla keskellä on versaali, laajentuva *POISTU* (kuten sovellusosion otsake, + / −), josta aukeaa rivi
+  *räjäytä ja tuhoa paalupaikka – poistu vähin äänin* (käyttäjän päätös). Rivi piirretään uudelleen joka kerta, joten auki-tila on
+  `state.poistuAuki`, ei `<details>`.
+  *Räjäytä ja tuhoa paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu vähin äänin* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
   (esim. Haakis) hallintalinkin avannut laite pääsee siitä eroon kaatamatta kaverin salkoja. Älä yhdistä näitä.
 - Lämpötilavalinnassa AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (`g-sula`, viivat sakaroiden väleissä), ei hiutale

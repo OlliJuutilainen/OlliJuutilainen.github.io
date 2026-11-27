@@ -202,7 +202,7 @@
   .slot .nm{ font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
   .slot.on{ color:var(--text) }
   /* Valitun hiutale on Salkoni-kuvan auringon keskellä samassa koossa kuin kuvan oma hiutale (--valittu, renderPanel);
-     nimi näkyy Salkoni-rivillä. */
+     nimi näkyy kiteen alla otsakerivillä (#now). */
   .slot.on svg{ transform:scale(var(--valittu, 1.25)) }
   .slot.on .nm{ visibility:hidden }
   .slot.free{ color:var(--dim) }
@@ -231,9 +231,16 @@
   .clear .link{ color:var(--muted) }
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
+  /* Poistuminen (käyttäjän päätös): keskellä versaali, laajentuva POISTU kuten sovellusosion otsake (+ / −), josta aukeavat
+     räjäytys ja vähin äänin poistuminen. Merkki riippuu sanan perässä tasauksen ulkopuolella, joten sana on keskellä. Viiva on
+     sidottu edelliseen, joten kapealla ruudulla jälkimmäinen siirtyy kokonaisena. */
+  .clear .poistu{ font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; text-decoration:none; white-space:nowrap }
+  .clear .poistu::after{ content:'+'; display:inline-block; width:0; text-indent:10px; font-size:15px; line-height:1; letter-spacing:0 }
+  .clear .poistu[aria-expanded="true"]::after{ content:'−' }
+  .clear .poistu:focus-visible{ outline:2px solid var(--muted); outline-offset:3px }
+  .clearValinnat{ display:block; margin:6px 0 0 }
   /* Paluuohje versaalilla (käyttäjän päätös). */
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
-  .full{ text-align:center; font-size:13px; color:var(--muted); margin:4px 0 0 }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
   details.app{ margin:48px 0 0; font-size:13px; line-height:1.5; color:var(--muted); max-width:46ch }
   details.app > summary{ list-style:none; cursor:pointer; display:inline-flex; gap:10px; align-items:baseline;
@@ -366,7 +373,6 @@
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
-      <p class="full" id="full" hidden>Salostossa on täydellinen kuusikko</p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
@@ -457,9 +463,9 @@ const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${
    valitun salon oma hiutale (kiteen nappi), ei kuvan omaa hiutaletta; hiutale on samankokoinen kuin logon luvun
    paikalle mahtuva (kärjet kehästä yhtä kaukana kuin logon luku). Leveys 56 px. Mitat logon yksiköissä (32).
    Varsi on kehän paksuinen ja alkaa alimman säteen loven pohjalta; se hohtaa (käyttäjän päätös): sisus valkoinen
-   kummassakin teemassa (vaaleassa se näkyy onttona). Jalka (käyttäjän päätös): horisonttina sanan SALKONI pituinen
-   (48,5 px) vaakaviiva, sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä; varsi
-   päättyy kehän yläreunaan. Horisontin alla juuret: lumihiutaleen puolikas (kolme sakaraa, kussakin kaksi sivuhaaraa,
+   kummassakin teemassa (vaaleassa se näkyy onttona). Jalka (käyttäjän päätös): horisonttina otsakkeen MAAILMAN KESKUS
+   (ilman kaksoispistettä) levyinen vaakaviiva (106,2 px, otsakkeen askelleveys; kuvaa leveämpi, SVG:n overflow näyttää sen),
+   sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä; varsi päättyy kehän yläreunaan. Horisontin alla juuret: lumihiutaleen puolikas (kolme sakaraa, kussakin kaksi sivuhaaraa,
    mittasuhteet kuin g-kide), pääsakaroissa varren valo. Kuva ei kasva jalan takia, vaan horisontti nousee juurten
    syvyyden verran. Jalka ja juuret ovat omina polkuinaan: samassa polussa varren ja kehän päällekkäinen osa kumoutuisi
    vastakkaisten kiertosuuntien takia. */
@@ -469,7 +475,7 @@ const salkoKuva = (() => {
   const t = osat('tumma'), ulko = luvut(t[0])[1], sisa = luvut(t[1])[1], lovi = luvut(t[8])[5];
   const s3 = Math.sqrt(3), P = (sisa - ulko) * s3 / 2, PITUUS = 26, LEVEYS = 56, H = 32 + PITUUS;
   const L = 8, kk = L / 11.6, yh = H - .8 - (L + .3), yj = yh + .8;
-  const VIIVA = 48.5 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
+  const VIIVA = 106.2 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
   const puoli = r => [[16 + r, yh], [16 + r / 2, yh - r * s3 / 2], [16 - r / 2, yh - r * s3 / 2], [16 - r, yh]];
   const jalka = 'M' + [...puoli(RO), ...puoli(RI).reverse()].map(([x, y]) => f2(x) + ' ' + f2(y)).join('L') + 'Z' +
     [30, 60, 120, 150].map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
@@ -572,7 +578,7 @@ async function pura(iv, ct, kb = keyBytes){
 let creds = null;   // { t, k, w }
 let uid = 0;
 /* avainLz: profiilin avain-kenttä (salkosutkautus salattuna kirjoitusavaimesta johdetulla avaimella), lause: sama purettuna. */
-const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false, confirmLeave: false, avainLz: null, lause: null, muutettu: 0 };
+const state = { slots: [], active: null, lampo: 'raaka', melting: null, poistuAuki: false, confirmClear: false, confirmLeave: false, avainLz: null, lause: null, muutettu: 0 };
 const nameOf = p => {
   const t = typeof p.title === 'string' ? p.title.trim() : '';
   return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄSALKO');
@@ -809,10 +815,9 @@ function renderPanel(){
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
-  $('now').innerHTML = act ? `<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').innerHTML = act ? `<span class="lbl">Maailman keskus:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
   $('now').hidden = first;
   $('clear').hidden = first;
-  $('full').hidden = n < MAX_PYLVAAT;
   $('appPaneeli').hidden = first || !creds;
   /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; poistuminen vain unohtaa paneelin tältä laitteelta. */
   $('clear').innerHTML = state.confirmClear
@@ -821,8 +826,9 @@ function renderPanel(){
     ? `Poistutaanko paalupaikalta? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">POISTU</button> · <button class="link" type="button" id="clearNo">peru</button>` +
       `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
-    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura tämä paalupaikka</button>]` +
-      (creds ? ` [<button class="link" type="button" id="leaveAsk">poistu paalupaikalta</button>]` : '') + `</span>`;
+    : `<button class="link poistu" type="button" id="poistuAuki" aria-expanded="${state.poistuAuki}" aria-controls="clearValinnat">Poistu</button>` +
+      (state.poistuAuki ? `<span class="clearIdle clearValinnat" id="clearValinnat"><button class="link" type="button" id="clearAsk">räjäytä ja tuhoa paalupaikka</button>` +
+        (creds ? `&nbsp;– <button class="link" type="button" id="leaveAsk">poistu vähin äänin</button>` : '') + `</span>` : '');
   syncPick();
   renderMelt();
   paivitaLogo();
@@ -856,12 +862,13 @@ stage.addEventListener('click', e => {
 });
 $('clear').addEventListener('click', e => {
   const id = e.target.closest('button')?.id;
+  if (id === 'poistuAuki'){ state.poistuAuki = !state.poistuAuki; renderPanel(); $('poistuAuki').focus(); }
   if (id === 'clearAsk'){ state.confirmClear = true; renderPanel(); }
   if (id === 'leaveAsk'){ state.confirmLeave = true; renderPanel(); }
   if (id === 'clearNo'){ state.confirmClear = false; state.confirmLeave = false; renderPanel(); }
   if (id === 'leaveYes') jataPaalupaikka();
   if (id === 'clearYes'){
-    state.slots = []; state.active = null; state.melting = null; state.confirmClear = false;
+    state.slots = []; state.active = null; state.melting = null; state.confirmClear = false; state.poistuAuki = false;
     tallenna();
     renderPanel();
   }
@@ -873,7 +880,7 @@ async function jataPaalupaikka(){
   try { localStorage.removeItem(PANEELI_KEY); localStorage.removeItem(KOPIO_KEY); } catch {}
   if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
   creds = null; keyBytes = null;
-  state.confirmLeave = false;
+  state.confirmLeave = false; state.poistuAuki = false;
   fromProfile({ pylvaat: [] });
   kentta.value = ''; vahvistus = null; avainTila('');
   renderPanel();
