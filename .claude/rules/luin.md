@@ -173,6 +173,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sivulta (`/themelios/issue/51-2/`), ei sivun JSON-LD:stä (siirtopäivä).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
+  Persée (`persee()`, opas 7.5) hakee artikkelin sivut samasta osoitteesta kuin sivun htmx (`/doc/page/<asiakirja>/<sivu>`, HTML),
+  `PE_RINNAKKAIN` kerrallaan uudelleenyrityksin; robots.txt kieltää yleiset haravat, joten pesukone hakee persee.fr:ää sekunnin välein.
+  Etukentän `vakiosivut` on lyhyt viite ilman sivua (*Dogan 1960,*), jotta kopion lyhyt viite on (Dogan 1960, 27). Koneluvun siivouksen
+  ehdot (juokseva otsake, tavutus, kappaleliitos, viitemerkit) on mitattu `--sarja persee`lla (myös `--elava`lla sama): älä löysää mittaamatta.
+  Cambridge Core (`cambridge()`): `pmcNumeroviitteet()` vain, kun kirjallisuus on numeroitu (tekijä–vuosi-linkin teksti on pelkkä vuosi,
+  joka näyttäisi sille numerolta); testi `--sarja cambridge`.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
   numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös (käyttäjän päätös: Kielet-asetuksen *käännös* on silloin analyysi), kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
   Wisdom Library (`wisdomlib()`, opas 7.5) kokoaa puun (kirja, osa tai luku, tekstisivulta yläluku, enintään `KK_RAJA`);
