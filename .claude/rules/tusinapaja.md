@@ -189,9 +189,12 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä,
   ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
-  Muun kuin valitun salon napautus ei kierrä heti vaan kysyy (käyttäjän päätös): *(a) maailman keskukseksi* vai
-  *(b) paaluta uudelleen* (sulatus ilman keskukseksi siirtymistä): keskukseksi siirtyminen on päämäärä eikä välivaihe.
-  Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
+  Muun kuin valitun salon napautus ei kierrä heti vaan kysyy salon luona (käyttäjän päätös): hiutale kirkastuu ja nimen
+  paikalle nimen puolelle tulee *(a) keskukseksi* ja *(b) paaluta* (sulatus ilman keskukseksi siirtymistä), yläkärjessä
+  hiutaleen oikealle yläviistoon; pidemmät tekstit eivät mahtuisi kapealla ruudulla. Keskukseksi siirtyminen on päämäärä
+  eikä välivaihe. Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
+- **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
+  lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio).
 - **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) … kursiivilla, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
   muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
@@ -218,7 +221,7 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
 
 - Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää (MOTS)* -nappi, eikä
   sovellusosiota ole etusivulla (käyttäjän päätökset).
-- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja kaksi seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
+- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja kolme seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
   dataan ja yr.no:hon (käyttäjän päätös); *Ilmatieteen laitoksen* ja koko sulkeet *(mm. yr.no)* kursiivilla (käyttäjän päätös).
 - Leipäteksti on tiivis (käyttäjän päätös): riviväli 1.3 17 px:n ja 1.35 15,5 px:n teksteissä. Logo on ylätekstin anfangi,
   joten sen koko ja yläväli seuraavat ylätekstin riviväliä (laskutapa CSS-kommentissa).
@@ -260,7 +263,7 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   repon avaimella `android/app/julkinen.jks` (ks. `android/README.md`), jotta julkinen APK ja Macin rakennus asentuvat
   toistensa päälle. Sijaintiversiot (Haakis) pysyvät debug-avaimella. Älä vaihda avainta.
 - **Koodi** on katselulinkin t ja k muodossa `TS12-<t>.<k>`, ei koskaan kirjoitusavainta `w`. Sen antavat paneelin
-  sovellusosio (*Pitääkö minun asentaa puhelimeen taas uusi äppi?*, tekstit mallista, piilossa ensipaalutuksessa) ja
+  sovellusosio (*Onko äppiä?*, tekstit mallista, piilossa ensipaalutuksessa) ja
   `oma-tusinasaa.html`.
 - **Koodisivu** `tusinasaa-koodi.html`: perusversio ilman linkkiä avaa sen parametrilla `?sovellus=1`. Sivu tarkistaa
   koodin purkamalla paketin ennen käyttöönottoa (sovellus ei tallenna linkkiä, joka ei aukea) ja antaa tuloksen

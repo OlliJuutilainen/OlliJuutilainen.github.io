@@ -133,7 +133,10 @@
   .btn:disabled{ opacity:.45; cursor:default }
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
   /* Etusivun päänapit lihavoituina, MOTS kursiivilla (käyttäjän päätös). */
-  #aloita, #omaan{ font-weight:700 }
+  #aloita, #omaan, #omaanSalkoon{ font-weight:700 }
+  /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
+     välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
+  .omaan{ text-align:center; margin:44px 0 40px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
   #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -164,14 +167,14 @@
   .opt .sym i{ font-style:italic }
   .opt .sym .tk{ display:block; font-size:9px; font-style:italic; line-height:1.3; margin-top:3px; text-transform:uppercase; letter-spacing:.09em }
   .opt[data-lampo="raaka"] .sym .tk{ font-style:normal }
-  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--tuote) }
+  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.26em; padding-left:.26em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--tuote) }
   .opt .ref i{ font-style:italic }
-  .opt .ref .tm{ margin-right:.2em }
+  .opt .ref .tm{ margin-right:.26em }
   .opt[aria-checked="true"] .ref{ color:var(--bg); opacity:.55 }
   .opt .alt{ display:none }
   /* Ensimmäinen paalutus: tuotenimi isona, °C / TK pienenä. */
   .pick.tuotteet .opt{ padding:8px 12px 7px }
-  .pick.tuotteet .opt .ref{ order:-1; font-size:15px; line-height:1.3; letter-spacing:.02em; padding-left:0; margin-top:0; color:inherit; opacity:1 }
+  .pick.tuotteet .opt .ref{ order:-1; font-size:15px; line-height:1.3; letter-spacing:.1em; padding-left:0; margin-top:0; color:inherit; opacity:1 }
   .pick.tuotteet .opt .ref .tm{ margin-right:0 }
   .pick.tuotteet .opt .sym{ display:none }
   .pick.tuotteet .opt .alt{ display:block; font-size:9px; text-transform:uppercase; letter-spacing:.09em; opacity:.75; margin-top:5px }
@@ -262,12 +265,17 @@
   .valinnat.pino{ display:table; margin-left:auto; margin-right:auto; text-align:left }
   .valinnat.pino .vaihtoehto{ display:block; margin:2px 0 0 }
   /* Muun kuin valitun salon napautus kysyy ensin (käyttäjän päätös): maailman keskukseksi vai paaluta uudelleen. Keskukseksi
-     siirtyminen ei ole pelkkä välivaihe muokkaukseen. */
-  .kysy{ text-align:center; font-size:13px; color:var(--muted); margin:12px 0 0 }
-  .kysy .kysyNimi{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; color:var(--text); margin:0 0 3px }
-  .kysy .valinnat:not(.pino){ display:block }
+     siirtyminen ei ole pelkkä välivaihe muokkaukseen. Valinta tehdään salon luona (käyttäjän päätös): hiutale kirkastuu ja
+     nimen paikalle, nimen puolelle (yläpuoliskossa yllä, alapuoliskossa alla), tulee valintalista. Erillisenä elementtinä,
+     koska salko on itse nappi. */
+  .kysy{ position:absolute; z-index:2; transform:translate(-50%, 13px); font-size:12px; color:var(--muted); white-space:nowrap }
+  .kysy.yla{ transform:translate(-50%, calc(-100% - 13px)) }
+  /* Yläkärjessä lista on hiutaleen oikealla yläviistossa: suoraan yllä se nousisi otsikon päälle, alla osuisi sakaraan
+     ja keskellä kapealla ruudulla oikean yläkärjen nimeen. */
+  .kysy.oikea{ transform:translate(18px, calc(-100% + 6px)) }
   .kysy .link{ color:var(--text) }
   .slot.kysytty{ color:var(--text) }
+  .slot.kysytty .nm{ visibility:hidden }
   /* Paluuohje versaalilla (käyttäjän päätös). */
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
@@ -399,12 +407,13 @@
     <div id="ui" hidden>
       <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
+        <div class="kysy" id="kysy" hidden></div>
       </div>
       <p class="now" id="now"></p>
-      <p class="kysy" id="kysy" hidden></p>
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener">Omaan salkoon</a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
@@ -420,7 +429,7 @@
       </div>
     </div>
     <details class="app" id="appPaneeli" hidden>
-      <summary>Pitääkö minun asentaa puhelimeen taas uusi äppi?</summary>
+      <summary>Onko äppiä?</summary>
       <div class="appBody">
         <p class="appLead">Yksi TUSINASÄÄ 12:n ihanteista on vähentää sovellusten asentamisen pakkoa.<br>Jos kuitenkin haluat sovelluskokemuksen, normaalin selainkäytön ohella on olemassa seuraavat vaihtoehdot:</p>
         <details class="appSub">
@@ -550,11 +559,12 @@ if (document.fonts){
   if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitQuote);
 }
 
-/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja kaksi seuraavaa (käyttäjän päätös). --- */
+/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja kolme seuraavaa (käyttäjän päätös). --- */
 const DEMO = [
   ['13:30', '0°', ['sinistä'], '—', '4 m/s', 'luoteesta', 1],
   ['klo 14', '0°', ['sangen sinistä'], '—', '4 m/s', 'pohjoisesta', 0],
-  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0]
+  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0],
+  ['klo 16', '-1°', ['NAUTTINEN HÄMÄRÄ (16:23)'], '—', '5 m/s', 'pohjoisesta', 0]
 ];
 $('demo').innerHTML = DEMO.map(([t, temp, desc, rain, w, dir, white]) => {
   const time = t.startsWith('klo') ? `<span class="mini">klo</span>${t.slice(4)}` : t;
@@ -854,6 +864,8 @@ function renderPanel(){
   $('now').hidden = first;
   $('clear').hidden = first;
   $('appPaneeli').hidden = first || !creds;
+  $('omaanP').hidden = first || !creds;
+  if (creds) $('omaanSalkoon').href = katseluLinkki();
   /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; poistuminen vain unohtaa paneelin tältä laitteelta. */
   $('clear').innerHTML = state.confirmClear
     ? `Puretaanko koko salosto? Kaikki salot kaadetaan, maa möyhitään paalutusperustuksia myöten. Ihan OK? <button class="link danger" type="button" id="clearYes">PURETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
@@ -865,9 +877,19 @@ function renderPanel(){
       (state.poistuAuki ? valinnat('clearValinnat', 'clearIdle clearValinnat', [['clearAsk', 'räjäytä ja tuhoa paalupaikka'], ...(creds ? [['leaveAsk', 'poistu vähin äänin']] : [])]) : '');
   const kysytty = state.slots.find(s => s.id === state.kysy);
   if (!kysytty) state.kysy = null;
-  $('kysy').hidden = !kysytty;
-  $('kysy').innerHTML = kysytty ? `<span class="kysyNimi">${esc(nameOf(kysytty.p))}</span>` +
-    valinnat('kysyValinnat', '', [['keskukseksi', 'maailman keskukseksi'], ['paalutaUudelleen', 'paaluta uudelleen']]) : '';
+  const ky = $('kysy');
+  ky.hidden = !kysytty;
+  /* Salon luona lyhyet tekstit: pidemmät eivät mahtuisi kapealla ruudulla kärkien väliin. */
+  ky.innerHTML = kysytty ? valinnat('kysyValinnat', 'pino kiintea', [['keskukseksi', 'keskukseksi'], ['paalutaUudelleen', 'paaluta']]) : '';
+  if (kysytty){
+    const a = kohde.get(kysytty.id), [x, y] = kidePaikka(a), yla = Math.abs(((a % 360) + 360) % 360 - 90) < 1;
+    ky.style.left = f2(x) + '%'; ky.style.top = f2(y) + '%'; ky.style.marginLeft = '0px';
+    ky.classList.toggle('oikea', yla);
+    ky.classList.toggle('yla', !yla && Math.sin(rad(a)) > 0);
+    const r = ky.getBoundingClientRect(), leveys = document.documentElement.clientWidth;   // ei ruudun reunan yli
+    if (r.right > leveys - 4) ky.style.marginLeft = f2(leveys - 4 - r.right) + 'px';
+    else if (r.left < 4) ky.style.marginLeft = f2(4 - r.left) + 'px';
+  }
   syncPick();
   renderMelt();
   paivitaLogo();
@@ -878,7 +900,7 @@ function renderPanel(){
 const valinnat = (id, luokat, lista) => `<span class="valinnat ${luokat}" id="${id}">` + lista.map(([bid, teksti], i) =>
   `<span class="vaihtoehto">${lista.length > 1 ? `<span class="kirjain">(${'ab'[i]})</span> ` : ''}<button class="link" type="button" id="${bid}">${teksti}</button></span>`).join(' ') + '</span>';
 function pinoaValinnat(){
-  document.querySelectorAll('.valinnat').forEach(v => {
+  document.querySelectorAll('.valinnat:not(.kiintea)').forEach(v => {
     v.classList.remove('pino');
     const o = [...v.querySelectorAll('.vaihtoehto')].map(x => Math.round(x.getBoundingClientRect().top));
     if (o.some(t => t !== o[0])) v.classList.add('pino');
