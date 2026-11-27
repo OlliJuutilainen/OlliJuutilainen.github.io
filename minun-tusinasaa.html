@@ -1525,7 +1525,7 @@ function siirraAvain(kohde, muutos, esiin, myohemmin = []){
     ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)),
     /* Avoimen näkymän nimi (SALKOSUTKAUTUS) häivyttyy esiin vasta, kun avain on pysähtynyt (käyttäjän päätös). */
     ...myohemmin.filter(el => el && !el.hidden).map(el => el.animate([{ opacity: 0 }, { opacity: 1 }],
-      { duration: SIIRTYMA.kesto * .6, delay: SIIRTYMA.kesto * 1.05, easing: 'ease-out', fill: 'backwards' })));
+      { duration: SIIRTYMA.kesto * .42, delay: SIIRTYMA.kesto * 1.05, easing: 'ease-out', fill: 'backwards' })));
 }
 /* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja avain lähtee liikkeelle vasta AVAUS_TAUKO ms myöhemmin
    (käyttäjän päätös). Häivytyksen ja tauon aikana uusi napautus ei tee mitään. */
