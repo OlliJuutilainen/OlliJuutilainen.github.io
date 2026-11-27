@@ -233,8 +233,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
-  Selitteen merkki ja nimi ovat kytkin (`button.sinetti`, skriptin tekemä; käyttäjän pyyntö): vain supersalmiakin sivustot ja
-  otsikkohaussa niiden osumat. Kaksi tilaa (ei korin pois-tilaa), *tyhjennä* nollaa; merkki ja selitteen rivit pysyvät kuten ilman skriptiä (testi).
+  Suodatuksessa kieli-rivin alla on pelkkä salmiakki (`button.salmiakki`, käyttäjän päätös; ei selitteeseen, joka on pelkkää tekstiä):
+  rivinimien sarakkeessa listan salmiakkien x:ssä ja koossa, toimii kuten kori (mukaan, pois, ennalleen; `tila.salmiakki`), myös otsikko-osumille.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on. Listan selitteissä J. L. Runeberg on yksin mainittuna *Runeberg*,
   mutta Fredrikan rinnalla *J. L. Runeberg* ja *Fredrika Runeberg* (käyttäjän päätös), alkukirjaimet ja sukunimi
