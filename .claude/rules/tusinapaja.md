@@ -186,7 +186,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (kuva, hiutale, otsake ja nimi) on yhtä väriä, sivun kirkkainta `--brand` (tummassa valkoinen; käyttäjän päätös).
   Jalka (käyttäjän päätös): nouseva aurinko eli horisontti otsakkeen MAAILMAN KESKUS kursiivin ylälaidan päästä päähän (ilman
   kaksoispistettä; ei koskaan yli: päät `VAS`/`OIK` mitattu musteesta; mittaa uudelleen, jos otsake tai fontti muuttuu),
-  sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja kuusi sädettä (12°, 38° ja 64° kummallakin puolella;
+  sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja kuusi sädettä (12°, 40° ja 64° kummallakin puolella;
   käyttäjän päätös). Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
@@ -195,9 +195,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä heti (käyttäjän päätös): hiutale kirkastuu, nimi piiloutuu ja hiutaleen kohdalle
   kiteen kehää ulommalle samankeskiselle kehälle, hiutaleen ulkopuolelle, tulee lyhyt kaarinuoli kiertosuuntaan (ei tekstiä,
-  ei suoraan hiutaleesta lähtevä; käyttäjän päätös). Nuolen napautus tekee salosta maailman keskuksen (päämäärä eikä
-  välivaihe), saman hiutaleen toinen napautus sulattaa sen paalutettavaksi ja kiteen tyhjän kohdan napautus peruu.
-  Valitun salon napautus sulattaa kuten ennen.
+  ei suoraan hiutaleesta lähtevä; käyttäjän päätös). Nuolen tai saman hiutaleen toisen napautuksen jälkeen salko kiertyy
+  maailman keskukseksi (sama kytkin, koska käyttäjä napauttaa hiutaletta; käyttäjän päätös); kiteen tyhjän kohdan napautus
+  peruu. Muokattavaksi salko sulatetaan keskuksena: valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
@@ -243,7 +243,7 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
 Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
-  hampaina; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
+  hampaina; kahvan ulkokulmien pyöristys 1,5 px isossa avaimessa, käyttäjän päätös; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
   sulkee näkymän. Siirtymän käyrä on `SIIRTYMA`-vakiossa (käyttäjän säätämä: 310 ms, koko suhteellisesti, väri ja muun

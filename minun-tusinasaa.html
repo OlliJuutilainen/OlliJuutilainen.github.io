@@ -309,7 +309,9 @@
   a.btn{ display:inline-block; text-decoration:none }
   @media (max-width:340px){ .btn.pieni{ font-size:11px; letter-spacing:.4px; padding:7px 8px } }
   #paneeli + .foot{ margin-top:36px }
-  /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Harvinaisen
+  /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Kahva on
+     täytetty rengas, jonka ulkokulmat on pyöristetty 0,366 yksikön säteellä (isossa avaimessa 1,5 px; käyttäjän päätös)
+     ja sisäkulmat terävät; varsi omana suorakulmionaan. Harvinaisen
      tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
      taustaan yli 3); kirkastuu osoitettaessa --textiin, ei --brandiin: avauksen värisiirtymä lähtee osoitetusta väristä
      (myös kosketus ja näppäin), ja --brand veisi siltä liukuman. Merkki jää otsikkorivin yläpuolelle kaikilla
@@ -386,7 +388,7 @@
     <a class="logoBox" id="logo" href="minun-tusinasaa.html" aria-label="TUSINASÄÄ 12, etusivu"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></a>
     <p class="toptext" id="toptext" hidden><span class="seg"><span class="nimi">TUSINASÄÄ 12</span> on&nbsp;henkilökohtainen sääsalkosi.</span> <span class="seg">Se välittää säästä (i)&nbsp;olennaisen ja (ii)&nbsp;nopeasti. Näin aikaa jää myös taivaalle katsomiseen.</span></p>
     <p class="quote" id="quote"><span><span class="q1"><b>Minun·oma·tusinasää (MOTS)</b></span><br><span class="q2">≈ sinun oma ”tusina-mää” (SOTM)</span></span></p>
-    <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" data-vihje="Salkosutkautukseen" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M16.9 5.6L14.45 1.36L9.55 1.36L7.1 5.6L9.55 9.84L14.45 9.84ZM12 9.84V27.44"/></svg></button>
+    <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" data-vihje="Salkosutkautukseen" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="currentColor" fill-rule="evenodd" d="M17.66 5.783A0.366 0.366 0 0 0 17.66 5.417L14.989 0.79A0.366 0.366 0 0 0 14.672 0.606L9.328 0.606A0.366 0.366 0 0 0 9.011 0.79L6.34 5.417A0.366 0.366 0 0 0 6.34 5.783L9.011 10.41A0.366 0.366 0 0 0 9.328 10.594L14.672 10.594A0.366 0.366 0 0 0 14.989 10.41ZM16.034 5.6L14.017 2.106L9.983 2.106L7.966 5.6L9.983 9.094L14.017 9.094Z"/><path fill="currentColor" d="M11.25 9.5H12.75V27.44H11.25Z"/></svg></button>
   </div>
 
   <main>
@@ -530,7 +532,7 @@ const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${
    MAAILMAN KESKUS (ilman kaksoispistettä) kursiivin ylälaidan päästä päähän, ei yli; päät (VAS, OIK) on mitattu musteesta,
    ja ne ovat epäsymmetriset, koska otsake on keskitetty kaksoispisteineen ja kursiivin ylälaita on siirtynyt. Kun otsake tai
    sen fontti muuttuu, mittaa uudelleen. Kuvaa leveämpi; SVG:n overflow näyttää sen. Sen päällä kuusikulmion (kärjet sivuilla)
-   yläpuolisko ääriviivana ja kuusi sädettä (12°, 38° ja 64° kummallakin puolella; käyttäjän päätös); varsi päättyy kehän
+   yläpuolisko ääriviivana ja kuusi sädettä (12°, 40° ja 64° kummallakin puolella; käyttäjän päätös); varsi päättyy kehän
    yläreunaan. Jalka on varren alaosan kohdalla eikä lisää korkeutta. Omana polkunaan: samassa polussa varren ja kehän
    päällekkäinen osa kumoutuisi vastakkaisten kiertosuuntien takia. */
 const salkoKuva = (() => {
@@ -543,7 +545,7 @@ const salkoKuva = (() => {
   const VAS = 53.1 * 32 / LEVEYS, OIK = 49.9 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
   const puoli = r => [[16 + r, yh], [16 + r / 2, yh - r * s3 / 2], [16 - r / 2, yh - r * s3 / 2], [16 - r, yh]];
   const jalka = 'M' + [...puoli(RO), ...puoli(RI).reverse()].map(([x, y]) => f2(x) + ' ' + f2(y)).join('L') + 'Z' +
-    [12, 38, 64].flatMap(a => [a, 180 - a]).map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
+    [12, 40, 64].flatMap(a => [a, 180 - a]).map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
     `M${f2(16 - VAS)} ${f2(yh)}H${f2(16 + OIK)}V${f2(yh + .8)}H${f2(16 - VAS)}Z`;
   const varsi = `M${f2(16 - P / 2)} ${lovi}H${f2(16 + P / 2)}V${f2(yh - RO * s3 / 2 + .5)}H${f2(16 - P / 2)}Z`;
   const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;
@@ -922,10 +924,10 @@ function pinoaValinnat(){
 addEventListener('resize', pinoaValinnat);
 
 /* Kaarinuoli kysytyn salon kohdalla kiteen kehää KIERTO_ULOS px ulommalla samankeskisellä kehällä (hiutale 20 px, joten
-   väli hiutaleen kärkiin noin 5 px), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
+   väli hiutaleen kärkiin noin 11 px; lähempänä se näytti hiutaleen osalta), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
    maailman keskukseksi (alakärkeen lyhintä tietä; vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Pituus
    KIERTO_PITUUS px kärkineen kehää pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const KIERTO_ULOS = 15, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
+const KIERTO_ULOS = 22, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
 function piirraKierto(){
   const nuoli = $('kierto'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
   nuoli.hidden = !el;
@@ -973,8 +975,9 @@ stage.addEventListener('click', e => {
   if (id === 'vapaa'){ state.melting = state.melting === 'uusi' ? null : 'uusi'; state.kysy = null; }
   else if (id === state.melting){ state.melting = null; state.kysy = null; }
   else if (id === state.active){ state.melting = state.active; state.kysy = null; }
-  /* Muu salko: ensin kaarinuoli (keskukseksi); saman salon toinen napautus sulattaa sen paalutettavaksi. */
-  else if (state.kysy === id){ state.melting = id; state.kysy = null; }
+  /* Muu salko: ensin kaarinuoli; saman hiutaleen toinen napautus on sama kytkin kuin nuoli (käyttäjän päätös). Muokattavaksi
+     salko sulatetaan keskuksena. */
+  else if (state.kysy === id){ state.active = id; state.kysy = null; tallenna(); }
   else { state.kysy = id; state.melting = null; }
   renderPanel();
 });
