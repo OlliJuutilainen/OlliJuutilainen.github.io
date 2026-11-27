@@ -244,7 +244,7 @@
   .now{ text-align:center; margin:2px 0 0; font-size:15px }
   .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--brand); margin:0 0 3px }
   .now b{ color:var(--brand) }
-  .now b{ transition:opacity .45s }
+  .now b{ transition:opacity .4s }
   .now.odottaa b{ opacity:0; transition:none; pointer-events:none }
   .now a{ text-decoration:none }
   .now a:hover, .now a:focus-visible{ text-decoration:underline; text-underline-offset:3px }
@@ -290,7 +290,7 @@
   .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
   .kierto .reuna, .kehys .reuna{ fill:var(--muted); fill-opacity:0; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25;
     stroke-dashoffset:.625; transition:fill-opacity .15s, stroke .15s }
-  .kierto .reuna, .kehys .reuna{ stroke-width:.6 }
+  .kierto .reuna, .kehys .reuna{ stroke-width:.45; stroke-opacity:.75 }
   @media (hover:hover){
     .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ fill-opacity:.08; stroke:var(--text) }
   }
@@ -814,14 +814,16 @@ const KUVIOT = [[], [3], [0, 3], [0, 2, 4], [0, 2, 3, 4], [0, 1, 2, 4, 5], [0, 1
 const SADE = 38, KARKI = .72;   // kärkien etäisyys keskeltä (% kiteestä) ja sakaran pituus siitä
 const stage = $('stage');
 const kidePaikka = (a, r = SADE) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
-/* Kierto (käyttäjän päätös): kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä (cubic-bezier(.45, 0, .25, 1)),
-   ja kesto kasvaa kulman neliöjuuren mukaan: 1,4 s × √(kulma / 180°), joten vastakkainen kärki (180°) 1,4 s ja naapuri
-   60° 0,81 s ja 120° 1,14 s. Kulma on suurin kärjen liike, koska kärkikuvio voi muuttua valitun pysyessä paikallaan. */
+/* Kierto (käyttäjän päätös): kaikki kierrot lähtevät ja pysähtyvät rauhallisesti samalla symmetrisellä käyrällä
+   (cubic-bezier(.37, 0, .63, 1), siniä vastaava: huippunopeus 1,6 × keskinopeus; epäsymmetrinen (.45, 0, .25, 1) kaahasi
+   keskellä 2,6-kertaisella), ja kesto kasvaa kulman neliöjuuren mukaan: 2,1 s × √(kulma / 180°), joten vastakkainen kärki
+   (180°) 2,1 s, naapuri 60° 1,21 s ja 120° 1,71 s. Kulma on suurin kärjen liike, koska kärkikuvio voi muuttua valitun
+   pysyessä paikallaan. */
 const bezier = (x1, y1, x2, y2) => {
   const b = (t, p1, p2) => 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t * t * (1 - t) + t ** 3;
   return x => { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++){ t = (lo + hi) / 2; if (b(t, x1, x2) < x) lo = t; else hi = t; } return b(t, y1, y2); };
 };
-const KIERTO = bezier(.45, 0, .25, 1);
+const KIERTO = bezier(.37, 0, .63, 1);
 let kiertoRaf = 0, odotaNimi = false, nimiAjastin = 0;
 function asetaKulma(el, a){
   el._kulma = a;
@@ -840,7 +842,7 @@ function kierra(liikkeet, valmis = () => {}){
   if (!liikkeet.some(([, a, b]) => a !== b) || matchMedia('(prefers-reduced-motion: reduce)').matches){
     liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); valmis(); return;
   }
-  const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 1400 * Math.sqrt(kulma / 180);
+  const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 2100 * Math.sqrt(kulma / 180);
   const alku = performance.now();
   const askel = nyt => {
     const p = Math.min(1, (nyt - alku) / kesto), e = KIERTO(p);
@@ -909,10 +911,10 @@ function renderPanel(){
   $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
   liikkeet.forEach(([el, a]) => asetaKulma(el, a));
-  /* Kiertonapin jälkeen uuden keskuksen nimi tulee näkyviin häivyttäen vasta vähän sen jälkeen, kun pyörä on
-     pysähtynyt; otsake pysyy (käyttäjän päätös). */
+  /* Kiertonapin jälkeen uuden keskuksen nimi tulee näkyviin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt;
+     otsake pysyy (käyttäjän päätös). */
   clearTimeout(nimiAjastin);
-  kierra(liikkeet, () => { nimiAjastin = setTimeout(() => { odotaNimi = false; $('now').classList.remove('odottaa'); }, odotaNimi ? 450 : 0); });
+  kierra(liikkeet, () => { nimiAjastin = setTimeout(() => { odotaNimi = false; $('now').classList.remove('odottaa'); }, odotaNimi ? 250 : 0); });
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
@@ -954,12 +956,13 @@ addEventListener('resize', pinoaValinnat);
 
 /* Kiertonappi kysytyn salon ulkopuolella (käyttäjän päätös): keskipiste KIERTO_ULOS px hiutaleen keskeltä suoraan
    ulospäin kaikissa kärjissä (kide on siksi alempana, .stage); kuusikulmioiden vastakkaisten kulmien väli 8 px. Aurinko
-   tehdään logon kehästä ja säteistä kuten Salkoni-kuva (molemmat teemat), ilman lukua; mittakaava ,59, joten säteiden
-   kärjet ovat noin 4 px kuusikulmion kulmista. */
+   tehdään logon kehästä ja säteistä kuten Salkoni-kuva (molemmat teemat), ilman lukua, ja keskelle pieni täytetty
+   kuusikulmio (käyttäjän päätös); mittakaava ,59, joten säteiden kärjet ovat noin 4 px kuusikulmion kulmista. */
 const KIERTO_ULOS = 34;
 (() => {
   const osat = luokka => $('logo').querySelector('.' + luokka).getAttribute('d').split(/(?=M)/);
-  $('kierto').querySelector('.aurinko').innerHTML = ['tumma', 'vaalea'].map(l => `<path class="${l}" fill="currentColor" d="${osat(l).slice(0, 14).join('')}"/>`).join('');
+  $('kierto').querySelector('.aurinko').innerHTML = ['tumma', 'vaalea'].map(l => `<path class="${l}" fill="currentColor" d="${osat(l).slice(0, 14).join('')}"/>`).join('') +
+    '<path fill="currentColor" d="M16 12.2L19.29 14.1L19.29 17.9L16 19.8L12.71 17.9L12.71 14.1Z"/>';   // keskellä pieni täytetty kuusikulmio
 })();
 function piirraKierto(){
   const nuoli = $('kierto'), kehys = $('kehys'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
