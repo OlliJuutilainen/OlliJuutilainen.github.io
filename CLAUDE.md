@@ -62,6 +62,8 @@ Käytännössä siis:
   jotain muuta kuin tarkoitettu muuttui, kerro se itse ennen kuin käyttäjä huomaa.
 - **Mittaa, älä arvioi** tyylejä ja rivittymistä. `getComputedStyle` ja `getClientRects`
   kertovat totuuden; silmämääräinen arvio ei.
+- **Rivittymistä verrataan pikselin välein** (esim. 280–1300 px), ei muutamalla leveydellä: kynnys voi olla parin pikselin
+  levyinen. Rivit lasketaan tekstisolmujen `Range.getClientRects`illa; lohkoelementin `getClientRects` antaa aina yhden.
 - Kun mittarisi antaa oudon tuloksen, epäile ensin mittaria.
 
 ## Ympäristön reunaehdot
