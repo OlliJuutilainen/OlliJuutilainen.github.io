@@ -65,35 +65,39 @@
   @media (max-width:375px){ .quote{ font-size:15px; letter-spacing:.035em } .quote .q2{ letter-spacing:.02em } }
 
   /* Etusivu: logo on kuin anfangi, kolmen rivin korkuinen: yläreuna ensimmäisen rivin versaalikorkeudella ja alareuna
-     kolmannen rivin perusviivalla (logo 64,5 px, teksti 17 px, riviväli 26 px, logon yläväli 6,7 px). Leveällä koko
-     sisältö samassa palstassa logon oikealla; logo jää marginaaliin. */
+     kolmannen rivin perusviivalla (logo 55,7 px, teksti 17 px, riviväli 1.3 eli 22,1 px, logon yläväli 4,69 px; mitattu
+     getClientRects-perusviivoista, koska nimen sisältävä ensimmäinen rivi on 1 px muita korkeampi). Rivivälin muutos muuttaa
+     logoa kahden rivivälin verran ja yläväliä puolen verran; palstan sisennys on logo + 1,15em. Leveällä
+     koko sisältö samassa palstassa logon oikealla; logo jää marginaaliin. Etusivun leipäteksti tiivis (käyttäjän päätös):
+     17 px:n teksteissä riviväli 1.3, 15,5 px:n teksteissä 1.35. */
   .top.eka{ align-items:flex-start; gap:0; margin-bottom:18px }
-  .top.eka .logoBox{ font-size:19px; margin:6.7px 1.15em 0 0 }
+  .top.eka .logoBox{ font-size:19px; margin:4.69px 1.15em 0 0 }
   /* Logo ilman linkkiä (etusivulla, kun laitteella ei ole pystyssä olevaa salkoa; paivitaLogo). */
   .logoBox:not([href]){ cursor:default }
-  .top.eka .logo{ width:3.394em; height:3.394em }
+  .top.eka .logo{ width:2.930em; height:2.930em }
   .top.eka .toptext{ flex:1; min-width:0 }
   /* Oikean yläkulman avainmerkki: ensimmäinen pala ei saa ulottua sen alle (muuten 500–521 px:n leveydellä osuu). */
   .top.eka .toptext > .seg:first-child{ padding-right:18px }
-  .toptext{ margin:0; font-size:17px; line-height:26px }
-  @media (min-width:480px){ #etusivu > *{ margin-left:86.3px } }
+  .toptext{ margin:0; font-size:17px; line-height:1.3 }
+  @media (min-width:480px){ #etusivu > *{ margin-left:77.5px } }
   /* Nimi kuin ohjelman otsikkorivillä: lihava, pienempi ja harvennettu; täysvalkoinen vain ensimmäinen. */
   .nimi{ font-weight:700; font-size:.84em; letter-spacing:.07em; color:var(--brand) }
   .second .nimi{ color:inherit }
-  .second{ font-size:17px; line-height:1.4; margin:36px 0 30px }
-  .lede2{ font-size:17px; line-height:1.4; margin:0 0 18px }
+  .second{ font-size:17px; line-height:1.3; margin:36px 0 30px }
+  .lede2{ font-size:17px; line-height:1.3; margin:0 0 18px }
   .lede2 b{ font-weight:600 }
   /* Rivinvaihdot ehdotettuihin kohtiin: pala pysyy yhdessä, jos mahtuu, ja rivittyy sisältä vain tarvittaessa. */
   .seg{ display:inline-block; text-wrap:balance }
-  .lede2.leadin{ margin:34px 0 0; font-size:15.5px; line-height:1.5 }
+  .lede2.leadin{ margin:34px 0 0; font-size:15.5px; line-height:1.35 }
   /* Kaksitoista tuntia riittää: aikataulu kuin ohjelman aikasarake (pieni versaali, ohut pystyviiva). */
   .enough{ display:grid; grid-template-columns:auto 1fr; gap:18px 14px; margin:18px 0 46px; align-items:baseline }
   .enough dt{ font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); text-align:right;
     padding-right:12px; border-right:1px solid var(--border); line-height:1.9 }
-  .enough dd{ margin:0; font-size:15.5px; line-height:1.5 }
+  .enough dd{ margin:0; font-size:15.5px; line-height:1.35 }
   /* Datalähderivin vasen reuna asetetaan JS:llä esimerkkirivien klo-sanan kohdalle (alignCredit). */
   .credit{ font-size:13px; line-height:1.4; color:var(--muted); margin:10px 0 0; padding:0 14px }
-  .credit a{ text-underline-offset:2px }
+  /* Datalähteet kursiivilla: Ilmatieteen laitoksen linkki ja koko sulkeet (mm. yr.no) (käyttäjän päätös). */
+  .credit a{ text-underline-offset:2px; font-style:italic }
   .toOwn{ margin:36px 0 0 }
   /* Esimerkkinäkymä: mallin tallennetut rivit ohjelman ilmeellä. */
   .screen{ border:1px solid var(--border); border-radius:18px; padding:14px 10px 6px; background:var(--bg);
@@ -130,6 +134,8 @@
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
   /* Etusivun päänapit lihavoituina, MOTS kursiivilla (käyttäjän päätös). */
   #aloita, #omaan{ font-weight:700 }
+  /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
+  #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
   .link{ background:none; border:0; padding:0; color:inherit; cursor:pointer; text-decoration:underline; text-underline-offset:3px }
   .note{ color:var(--muted); font-size:14px }
@@ -365,10 +371,10 @@
         <div class="dh"><span></span><span></span><span></span><span>SADE</span><span>TUULEE</span></div>
         <div id="demo"></div>
       </div>
-      <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin (mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>) avoimesta datasta.</p>
+      <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin <i>(mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>)</i> avoimesta datasta.</p>
       <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
       <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
-      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun·oma·tusinasää (<i>MOTS</i>)</button></p>
+      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun·oma·tusinasää (MOTS)</button></p>
     </section>
     <div id="paneeli">
     <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
