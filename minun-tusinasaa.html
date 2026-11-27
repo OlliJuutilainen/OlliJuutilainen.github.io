@@ -246,15 +246,28 @@
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
   /* Poistuminen (käyttäjän päätös): keskellä versaali, laajentuva POISTU kuten sovellusosion otsake (+ / −), josta aukeavat
-     räjäytys ja vähin äänin poistuminen versaalin TAI:n erottamina. Merkki riippuu sanan perässä tasauksen ulkopuolella, joten
-     sana on keskellä. TAI kulkee jälkimmäisen kanssa (nowrap), joten kapealla ruudulla toinen rivi alkaa TAI poistu vähin äänin. */
+     (a) räjäytys ja (b) vähin äänin poistuminen (valintarivi, alla). Merkki riippuu sanan perässä tasauksen ulkopuolella,
+     joten sana on keskellä. */
   .clear .poistu{ font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; text-decoration:none; white-space:nowrap }
   .clear .poistu::after{ content:'+'; display:inline-block; width:0; text-indent:10px; font-size:15px; line-height:1; letter-spacing:0 }
   .clear .poistu[aria-expanded="true"]::after{ content:'−' }
   .clear .poistu:focus-visible{ outline:2px solid var(--muted); outline-offset:3px }
   .clearValinnat{ display:block; margin:6px 0 0 }
-  .clearValinnat .pari{ white-space:nowrap }
-  .clearValinnat .tai{ letter-spacing:.6px; text-transform:uppercase }
+  /* Valintarivi (a) … (b) … (käyttäjän päätös): vaihtoehto ei katkea. Jos vaihtoehdot mahtuvat, ne ovat yhdellä keskitetyllä
+     rivillä; muuten (pinoaValinnat) ne ovat allekkain listana, joka on vasemmalle tasattu, jotta kirjaimet ovat allekkain,
+     ja keskitetty kokonaisuutena. Keskitetyt rivit kirjain kummankin edessä näyttäisivät porrastetuilta. */
+  .valinnat{ font-style:italic }   /* kirjaimet ja tekstit kursiivilla (käyttäjän päätös) */
+  .valinnat .vaihtoehto{ white-space:nowrap }
+  .valinnat .vaihtoehto + .vaihtoehto{ margin-left:1.2em }
+  .valinnat.pino{ display:table; margin-left:auto; margin-right:auto; text-align:left }
+  .valinnat.pino .vaihtoehto{ display:block; margin:2px 0 0 }
+  /* Muun kuin valitun salon napautus kysyy ensin (käyttäjän päätös): maailman keskukseksi vai paaluta uudelleen. Keskukseksi
+     siirtyminen ei ole pelkkä välivaihe muokkaukseen. */
+  .kysy{ text-align:center; font-size:13px; color:var(--muted); margin:12px 0 0 }
+  .kysy .kysyNimi{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; color:var(--text); margin:0 0 3px }
+  .kysy .valinnat:not(.pino){ display:block }
+  .kysy .link{ color:var(--text) }
+  .slot.kysytty{ color:var(--text) }
   /* Paluuohje versaalilla (käyttäjän päätös). */
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
@@ -388,6 +401,7 @@
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
       </div>
       <p class="now" id="now"></p>
+      <p class="kysy" id="kysy" hidden></p>
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
@@ -593,7 +607,7 @@ async function pura(iv, ct, kb = keyBytes){
 let creds = null;   // { t, k, w }
 let uid = 0;
 /* avainLz: profiilin avain-kenttä (salkosutkautus salattuna kirjoitusavaimesta johdetulla avaimella), lause: sama purettuna. */
-const state = { slots: [], active: null, lampo: 'raaka', melting: null, poistuAuki: false, confirmClear: false, confirmLeave: false, avainLz: null, lause: null, muutettu: 0 };
+const state = { slots: [], active: null, lampo: 'raaka', melting: null, kysy: null, poistuAuki: false, confirmClear: false, confirmLeave: false, avainLz: null, lause: null, muutettu: 0 };
 const nameOf = p => {
   const t = typeof p.title === 'string' ? p.title.trim() : '';
   return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄSALKO');
@@ -806,7 +820,7 @@ function renderPanel(){
   };
   state.slots.forEach(s => {
     const el = nappi(s.id), on = s.id === state.active, melting = s.id === state.melting;
-    el.className = 'slot' + (on ? ' on' : '') + (melting ? ' melting' : '');
+    el.className = 'slot' + (on ? ' on' : '') + (melting ? ' melting' : '') + (s.id === state.kysy ? ' kysytty' : '');
     el.innerHTML = icon(melting ? 'sula' : 'kide') + `<span class="nm">${esc(nameOf(s.p))}</span>`;
     el.setAttribute('aria-pressed', String(on));
     el.setAttribute('aria-label', `${titleOf(s.p)}${on ? ', valittu' : ''}`);
@@ -848,12 +862,29 @@ function renderPanel(){
       `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
     : `<button class="link poistu" type="button" id="poistuAuki" aria-expanded="${state.poistuAuki}" aria-controls="clearValinnat">Poistu</button>` +
-      (state.poistuAuki ? `<span class="clearIdle clearValinnat" id="clearValinnat"><button class="link" type="button" id="clearAsk">räjäytä ja tuhoa paalupaikka</button>` +
-        (creds ? ` <span class="pari"><span class="tai">tai</span> <button class="link" type="button" id="leaveAsk">poistu vähin äänin</button></span>` : '') + `</span>` : '');
+      (state.poistuAuki ? valinnat('clearValinnat', 'clearIdle clearValinnat', [['clearAsk', 'räjäytä ja tuhoa paalupaikka'], ...(creds ? [['leaveAsk', 'poistu vähin äänin']] : [])]) : '');
+  const kysytty = state.slots.find(s => s.id === state.kysy);
+  if (!kysytty) state.kysy = null;
+  $('kysy').hidden = !kysytty;
+  $('kysy').innerHTML = kysytty ? `<span class="kysyNimi">${esc(nameOf(kysytty.p))}</span>` +
+    valinnat('kysyValinnat', '', [['keskukseksi', 'maailman keskukseksi'], ['paalutaUudelleen', 'paaluta uudelleen']]) : '';
   syncPick();
   renderMelt();
   paivitaLogo();
+  pinoaValinnat();
 }
+
+/* Valintarivi (a) … (b) …; yksi vaihtoehto ilman kirjainta. */
+const valinnat = (id, luokat, lista) => `<span class="valinnat ${luokat}" id="${id}">` + lista.map(([bid, teksti], i) =>
+  `<span class="vaihtoehto">${lista.length > 1 ? `<span class="kirjain">(${'ab'[i]})</span> ` : ''}<button class="link" type="button" id="${bid}">${teksti}</button></span>`).join(' ') + '</span>';
+function pinoaValinnat(){
+  document.querySelectorAll('.valinnat').forEach(v => {
+    v.classList.remove('pino');
+    const o = [...v.querySelectorAll('.vaihtoehto')].map(x => Math.round(x.getBoundingClientRect().top));
+    if (o.some(t => t !== o[0])) v.classList.add('pino');
+  });
+}
+addEventListener('resize', pinoaValinnat);
 
 /* Sovellusosion kopiointinapit: iPhonelle katselulinkki, Androidille koodi. */
 function copyText(t){
@@ -876,10 +907,19 @@ document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click'
 
 stage.addEventListener('click', e => {
   const el = e.target.closest('.slot'); if (!el) return;
-  if (el.dataset.id === 'vapaa') state.melting = state.melting === 'uusi' ? null : 'uusi';
-  else if (el.dataset.id === state.active) state.melting = state.melting === state.active ? null : state.active;
-  else { state.active = el.dataset.id; state.melting = null; tallenna(); }
+  const id = el.dataset.id;
+  if (id === 'vapaa'){ state.melting = state.melting === 'uusi' ? null : 'uusi'; state.kysy = null; }
+  else if (id === state.melting){ state.melting = null; state.kysy = null; }
+  else if (id === state.active){ state.melting = state.active; state.kysy = null; }
+  /* Muu salko: ensin kysymys (maailman keskukseksi vai paaluta uudelleen); saman salon napautus peruu sen. */
+  else { state.kysy = state.kysy === id ? null : id; state.melting = null; }
   renderPanel();
+});
+$('kysy').addEventListener('click', e => {
+  const id = e.target.closest('button')?.id, s = state.kysy;
+  if (!s) return;
+  if (id === 'keskukseksi'){ state.active = s; state.kysy = null; tallenna(); renderPanel(); }
+  if (id === 'paalutaUudelleen'){ state.melting = s; state.kysy = null; renderPanel(); }
 });
 $('clear').addEventListener('click', e => {
   const id = e.target.closest('button')?.id;
@@ -1172,7 +1212,7 @@ function naytaSivu(s, uusi){
   $('etuPaalutus').hidden = palaava;
   $('aloita').hidden = palaava;
   $('toOwn').hidden = !palaava;
-  if (etu) alignCredit();
+  if (etu) alignCredit(); else pinoaValinnat();   // piilossa piirretty valintarivi mitataan vasta näkyvänä
   if (uusi){ history.pushState({ sivu }, '', location.href); window.scrollTo(0, 0); }
   paivitaLogo();
 }
