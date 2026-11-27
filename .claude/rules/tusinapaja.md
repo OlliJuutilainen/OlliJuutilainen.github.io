@@ -241,7 +241,11 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
   sulkee näkymän. Siirtymän käyrä on `SIIRTYMA`-vakiossa (käyttäjän säätämä: 310 ms, koko suhteellisesti, väri ja muun
-  näkymän häivytys samassa tahdissa). Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa. Arvo vain, kun laitteella on paneeli;
+  näkymän häivytys samassa tahdissa). Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
+  Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
+  vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
+  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* aforismin äänellä (kursiivi versaali, `--brand`),
+  versaalien keskikohta kahvan kuusikulmion keskikohdassa; se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
