@@ -244,7 +244,8 @@
   .now{ text-align:center; margin:2px 0 0; font-size:15px }
   .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--brand); margin:0 0 3px }
   .now b{ color:var(--brand) }
-  .now.odottaa b{ visibility:hidden }
+  .now b{ transition:opacity .45s }
+  .now.odottaa b{ opacity:0; transition:none; pointer-events:none }
   .now a{ text-decoration:none }
   .now a:hover, .now a:focus-visible{ text-decoration:underline; text-underline-offset:3px }
   /* Ilmoitukset vain virheistä ja ensipaalutuksesta: onnistunut tallennus ei muuta asettelua (väli kuten mallissa). */
@@ -289,13 +290,14 @@
   .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
   .kierto .reuna, .kehys .reuna{ fill:var(--muted); fill-opacity:0; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25;
     stroke-dashoffset:.625; transition:fill-opacity .15s, stroke .15s }
+  .kierto .reuna, .kehys .reuna{ stroke-width:.6 }
   @media (hover:hover){
     .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ fill-opacity:.08; stroke:var(--text) }
   }
   .kierto:focus-visible{ outline:none }
   .kierto:focus-visible .reuna{ stroke:var(--text) }
   .slot.kysytty{ color:var(--text) }
-  .slot.kysytty .nm, .stage.kiertaa .slot .nm{ visibility:hidden }
+  .slot.kysytty .nm{ visibility:hidden }
   /* Paluuohje versaalilla (käyttäjän päätös). */
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
@@ -820,13 +822,16 @@ const bezier = (x1, y1, x2, y2) => {
   return x => { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++){ t = (lo + hi) / 2; if (b(t, x1, x2) < x) lo = t; else hi = t; } return b(t, y1, y2); };
 };
 const KIERTO = bezier(.45, 0, .25, 1);
-let kiertoRaf = 0, odotaNimi = false;
+let kiertoRaf = 0, odotaNimi = false, nimiAjastin = 0;
 function asetaKulma(el, a){
   el._kulma = a;
   const [x, y] = kidePaikka(a), s = Math.sin(rad(a)), nm = el.querySelector('.nm');
   el.style.left = f2(x) + '%'; el.style.top = f2(y) + '%';
   el.classList.toggle('yla', s > 0);
-  if (nm) nm.style.opacity = f2(Math.min(1, Math.abs(s) / .5));   // levossa kärjet ovat vähintään 30° vaakatasosta
+  /* Nimi häipyy vaakatason lähellä (vaihtaa siellä puolta) ja alakärjen lähellä, jossa se kulkisi Salkoni-kuvan yli:
+     piilossa 20°:n ja täysin näkyvissä 50°:n päässä alakärjestä (levossa alemmat kärjet ovat 60°:n päässä). */
+  const ala = Math.abs((((a - 270) % 360) + 540) % 360 - 180);
+  if (nm) nm.style.opacity = f2(Math.min(1, Math.abs(s) / .5, Math.max(0, (ala - 20) / 30)));   // levossa kärjet ovat vähintään 30° vaakatasosta
   const arm = $('arms').querySelector(`line[data-id="${el.dataset.id}"]`);
   if (arm){ const [ax, ay] = kidePaikka(a, SADE * KARKI); arm.setAttribute('x2', f2(ax)); arm.setAttribute('y2', f2(ay)); }
 }
@@ -904,10 +909,10 @@ function renderPanel(){
   $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
   liikkeet.forEach(([el, a]) => asetaKulma(el, a));
-  /* Kiertonapin jälkeen uuden keskuksen nimi ja reunan paikkanimet tulevat näkyviin vasta, kun pyörä on pysähtynyt;
-     otsake pysyy (käyttäjän päätös). */
-  stage.classList.toggle('kiertaa', odotaNimi);
-  kierra(liikkeet, () => { odotaNimi = false; $('now').classList.remove('odottaa'); stage.classList.remove('kiertaa'); });
+  /* Kiertonapin jälkeen uuden keskuksen nimi tulee näkyviin häivyttäen vasta vähän sen jälkeen, kun pyörä on
+     pysähtynyt; otsake pysyy (käyttäjän päätös). */
+  clearTimeout(nimiAjastin);
+  kierra(liikkeet, () => { nimiAjastin = setTimeout(() => { odotaNimi = false; $('now').classList.remove('odottaa'); }, odotaNimi ? 450 : 0); });
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
