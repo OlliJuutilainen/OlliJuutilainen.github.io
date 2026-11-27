@@ -373,7 +373,7 @@
       font-style:italic; font-size:11px; line-height:1.4; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap;
       pointer-events:none; opacity:0; visibility:hidden; transition:opacity .12s, visibility 0s .12s }
     .top > .avainNappi::after{ content:attr(data-vihje); position:absolute; right:100%; bottom:calc(100% - 14.26px) }
-    .top > .avainNappi:hover::after, #stage:has(.kierto.esilla:hover) .kiertoVihje{ opacity:1; visibility:visible; transition:opacity .15s .6s, visibility 0s .6s }
+    .top > .avainNappi:hover::after, #stage:has(.kierto.esilla:hover) .kiertoVihje{ opacity:1; visibility:visible; transition:opacity .15s 1.2s, visibility 0s 1.2s }
   }
   /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
      kokoinen (ulkoapoteema 16,57 px; avain 89 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
@@ -390,12 +390,12 @@
      keskikohta ,7261em − 0,48 px rivin yläreunasta, sovitettu litteiden versaalien musteesta 15–41 px:n koilla; perusviivan
      pyöristys heittää ±1 px). Väli kuusikulmion reunasta 19 px. Versaalit ovat kehän sisäpuolen korkuiset (23,16 px = 32,94 px:n fontti;
      käyttäjän päätös), ja nimi saa siksi jatkua palstan ohi ruudun reunaan (16 px:n marginaali) asti. Ei rivity, joten
-     kapeammalla koko pienenee: nimi vie 10,9em (8,97em + 15 × ,12em + varaa), avain ja välit 67,5 px palstan
+     kapeammalla koko pienenee: nimi vie 10,45em (8,64em + 14 × ,12em + varaa), avain ja välit 67,5 px palstan
      vasemmasta reunasta, jonka etäisyys ruudun oikeaan reunaan on (100vw + 100cqw) / 2. Ilman cqw-tukea 16 px. */
   .avainPaikka{ container-type:inline-size }
   .avainNimi{ order:1; align-self:flex-start; margin:calc(25.04px - .7261em) 0 0 11px; white-space:nowrap;
     font-weight:400; -webkit-text-stroke:.016em currentColor; font-size:16px;
-    font-size:min(32.94px, ((100vw + 100cqw) / 2 - 83.5px) / 10.9); line-height:1.4; letter-spacing:.12em;
+    font-size:min(32.94px, ((100vw + 100cqw) / 2 - 83.5px) / 10.45); line-height:1.4; letter-spacing:.12em;
     text-transform:uppercase; color:var(--brand) }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
@@ -441,7 +441,7 @@
 
   <main>
     <section class="avainNakyma" id="avainNakyma" aria-label="Salkosutkautus" hidden>
-      <div class="avainPaikka" id="avainPaikka"><span class="avainNimi" id="avainNimi" aria-hidden="true">Salko·sutkautus</span></div>
+      <div class="avainPaikka" id="avainPaikka"><span class="avainNimi" id="avainNimi" aria-hidden="true">Salkosutkautus</span></div>
       <form id="avainLomake" autocomplete="off">
         <textarea id="lause" rows="2" aria-label="Salkosutkautus" placeholder="salkosutkautus" maxlength="80" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"></textarea>
         <div class="avainRivi">
@@ -1584,7 +1584,7 @@ function siirraAvain(kohde, muutos, esiin, myohemmin = []){
   svg.style.transformOrigin = '0 0';
   avainAnimaatiot.push(svg.animate(liike, ajoitus), avainNappi.animate(vari, ajoitus),
     ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)),
-    /* Avoimen näkymän nimi (SALKO·SUTKAUTUS) syttyy vasta, kun avain on asettunut (käyttäjän päätös): alkaa 15 % liikkeen
+    /* Avoimen näkymän nimi (SALKOSUTKAUTUS) syttyy vasta, kun avain on asettunut (käyttäjän päätös): alkaa 15 % liikkeen
        päättymisen jälkeen, koska liukuva jarrutus jatkuu silmälle loppuun asti, ja syttyy pehmeästi molemmista päistä
        (cubic-bezier(.6, 0, .4, 1): alussa näkyvyys nousee hyvin hitaasti, joten nimi ei pomppaa esiin; ease-out pomppasi). */
     ...myohemmin.filter(el => el && !el.hidden).map(el => el.animate([{ opacity: 0 }, { opacity: 1 }],
