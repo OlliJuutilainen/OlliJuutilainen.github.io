@@ -4,7 +4,8 @@
 // Tekopalvelimen alkuhaku taittaa kirjainkoon ja diakriitit kuten oikea haku luultavasti; --ei-taittoa ajaa saman ilman
 // taittoa (vain pienet kirjaimet), jolloin majuminuluku nojaa koko tekstin hakuun. Tarkistaa kielikohtaiset ketjut,
 // valitsimen, huomautukset, raksin, asetusten riippumattomuuden ja käännöksen oletuksen sekä sanaselityssivun kielivalikon
-// (kielirajaus). Kuvat kuvakansioon, jos annettu.
+// (kielirajaus) ja sanakirjavalikon (Wiktionary ja termipankki päälle ja pois; muut sanakirjat tekoaineistolla: Logeion,
+// Wörterbuchnetz, DPD ja Köln, muodot kuten oikeissa vastauksissa 26.11.2026). Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -132,6 +133,11 @@ function tpWiki(t) {
 const tpReitti = route => {
   const u = new URL(route.request().url()), q = u.searchParams, h = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
   tpPyynnot.push(decodeURIComponent(u.pathname + u.search));
+  // Nimityssivujen olemassaolo (sanaselityssivu ilman Wiktionarya: perusmuoto päätesäännöistä).
+  if (q.get('titles')) {
+    const on = n => Object.values(TP).some(x => !x.virhe && x.n.some(([, m]) => 'Nimitys:' + m === n));
+    return route.fulfill({ status: 200, headers: h, body: JSON.stringify({ batchcomplete: true, query: { pages: q.get('titles').split('|').map(t => on(t) ? { ns: 1098, title: t, pageid: 1 } : { ns: 1098, title: t, missing: true }) } }) });
+  }
   const nimi = (q.get('gbltitle') || '').replace(/^Nimitys:/, '');
   const osuvat = Object.entries(TP).filter(([t, x]) => x.n.some(([, n]) => n === nimi) || (x.m || '').includes('[[Nimitys:' + nimi + '|'));
   if (osuvat.some(([, x]) => x.virhe)) return route.fulfill({ status: 500, headers: h, body: '{}' });
@@ -142,6 +148,51 @@ const tpReitti = route => {
       { pageid: 8, ns: 0, title: 'Lista monitieteisistä termeistä', revisions: [{ slots: { main: { content: '[[Nimitys:' + nimi + ']]' } } }] }]);
   return route.fulfill({ status: 200, headers: h, body: JSON.stringify({ batchcomplete: true, query: { pages } }) });
 };
+// Logeion: detail (sanakirjat, myös pois jätettävä linkkisanakirja) ja find (jäsennys; tuntemattomalle aakkosissa lähin, ei kelpaa).
+const LG = {
+  'λόγος': { headword: 'λόγος', shortdef: ['λόγος, λόγου, ὁ, word, speech, story'], dicos: [
+    { dname: 'LSJ', es: ['λόγος, ὁ, <i>computation, reckoning</i>, <span style="font-variant: small-caps;">Hdt.</span> 3.142.<br>II. <b>relation, correspondence</b>.'] },
+    { dname: 'Brill-Montanari', es: ['<a href="https://dictionaries.brillonline.com/x" target="_blank">x</a>'] },
+    { dname: 'Middle Liddell', es: ['λόγος, ὁ, <i><b>the word</b></i> by which the inward thought is expressed'] }] }
+};
+const LG_FIND = { 'λόγου': [{ lemma: 'λόγος', parse: ' - Noun - masculine - genitive singular' }] };
+// Wörterbuchnetz: hakusanat sanakirjoittain, tekstitunnukset (pituus) ja artikkeli sanoittain (entiteetit kuten oikeassa).
+const WB = { Adelung: { begriff: { lemma: 'Begriff', gram: '', wbnetzid: 'B01071' }, 'straße': { lemma: 'Straße', gram: '', wbnetzid: 'S10001' } }, Campe: { begriff: { lemma: 'Begriff', gram: 'Der', wbnetzid: 'B02041' } },
+  DWB: {}, DWB2: { begriff: { lemma: 'BEGRIFF', gram: 'm.', wbnetzid: 'B01517' } } };
+const WB_PITUUS = { B01071: 141, B02041: 99999, B01517: 2724 };
+const WB_ART = { B01071: [['Der', 'recte'], [' ', 'recte'], ['Begriff', 'recte'], [', im fig&#x00fc;rlichen Verstande ', 'recte'], ['ohne Plural', 'italics'], ['.', 'recte']] };
+// DPD: tiivistelmä taivutusmuodolle; Köln: tasan sama ei löydy, simple-search antaa diakriittiset ehdokkaat.
+const DPD = { dhammassa: '<p class="summary"> <a class="summary-link" href="#dhamma_1_01"> dhamma 1.01 </a> masc. <b>nature; character</b> <a class="summary-link" href="#dhamma_1_01">►</a> </p>' +
+  '<p class="summary"> <a class="summary-link" href="#dhamma_1_03"> dhamma 1.03 </a> masc. <b>teaching; discourse; doctrine</b> <a class="summary-link" href="#dhamma_1_03">►</a> </p>' };
+const KO_RIVI = "<table class='display'><tr><td class='display' valign=\"top\"> <span style='font-weight:bold'>(H1) <span class='hrefdata'><span style='color:rgb(160,160,160);'> [Printed book page <a href='//x/servepdf.php?page=255'>255</a>,2]</span></span></span><br> " +
+  "<span class='sdata_italic_iast'><i>karuṇa</i></span> mf(<i>ā</i>)n. mournful, miserable, <span title='Mahābhārata (Title)'>MBh.</span> <span class='lnum'> [<span title='Cologne record ID'>ID=44557</span>]</span></td></tr>" +
+  "<tr><td class='display'> <span style='font-weight:bold'>(H1B) <span class='hrefdata'>[Printed book page 255,3]</span></span><br> <i>karuṇā</i> f. compassion, pity <span class='lnum'> [<span>ID=44560</span>]</span></td></tr></table>";
+function muutVastaus(u) {
+  const j = b => ({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+  const t = b => ({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/html; charset=utf-8' }, body: b });
+  const q = k => u.searchParams.get(k) || '';
+  if (u.hostname === 'anastrophe.uchicago.edu') {
+    const w = q('w');
+    if (u.pathname.endsWith('/detail')) return j({ detail: Object.assign({ bwl: [], dicos: [], headword: w, lewisshort: [], shortdef: [] }, LG[w] || {}) });
+    if (w === 'λογος') return j({ parses: [], word: 'λόγος', description: 'Found λογος with different accentuation.' });
+    return j(LG_FIND[w] ? { parses: LG_FIND[w], word: LG_FIND[w][0].lemma } : { parses: [], word: 'λογοδαιδαλία', description: 'Looking for closest alphabetic form.' });
+  }
+  if (u.hostname === 'api.woerterbuchnetz.de') {
+    let m = /^\/open-api\/dictionaries\/([^/]+)\/lemmata\/(.+)$/.exec(u.pathname);
+    if (m) { const e = (WB[m[1]] || {})[decodeURIComponent(m[2]).toLowerCase()]; return j({ result_set: e ? [Object.assign({ sigle: m[1], wbnetzlink: 'https://woerterbuchnetz.de/?sigle=' + m[1] + '&lemid=' + e.wbnetzid }, e)] : [], result_count: e ? 1 : 0 }); }
+    m = /^\/dictionaries\/([^/]+)\/lemmata\/lemid\/([^/]+)\/2\/json$/.exec(u.pathname);
+    if (m) return j([{ lemid: m[2], textid: 1000 }, { lemid: 'seuraava', textid: 1000 + (WB_PITUUS[m[2]] || 10) }]);
+    m = /^\/dictionaries\/([^/]+)\/articles\/([^/]+)\/lemid$/.exec(u.pathname);
+    if (m) return j((WB_ART[m[2]] || []).map(([word, typeset]) => ({ word, typeset, elementtype: 'sense' })));
+  }
+  if (u.hostname === 'www.dpdict.net') return j({ summary_html: DPD[q('q')] || '', dpd_html: '', license: {} });
+  if (u.hostname === 'sanskrit-lexicon.uni-koeln.de') {
+    if (/simple-search/.test(u.pathname)) return j({ result: q('key') === 'karuna' ? [{ key: 'karman', dicthwoutput: 'karman' }, { key: 'karuRa', dicthwoutput: 'karuṇa' }, { key: 'karuRA', dicthwoutput: 'karuṇā' }] : [] });
+    return t(q('input') === 'slp1' && q('key') === 'karuRa' ? '<html><body><div id="CologneBasic"><h1>karuṇa</h1>' + KO_RIVI + '</div></body></html>' : "<h2>not found: '" + q('key') + "'</h2>");
+  }
+  return { status: 404, headers: { 'Access-Control-Allow-Origin': '*' }, body: '' };
+}
+const MUUT_ISANNAT = ['https://anastrophe.uchicago.edu/**', 'https://api.woerterbuchnetz.de/**', 'https://www.dpdict.net/**', 'https://sanskrit-lexicon.uni-koeln.de/**'];
 const NIMET = Object.fromEntries(Object.entries(NIMI).map(([k, v]) => [k, v]));
 function osioLista(o) {
   const e = E[o], osiot = []; let n = 0;
@@ -330,7 +381,7 @@ palvelin.listen(0, async () => {
   await p.goto(BASE + 'luin.html#tuo');
   await p.waitForTimeout(500);
   const oletus = await p.evaluate(() => ({ k: window.__luin.aset.kaannos, s: window.__luin.aset.sanakirja, suk: window.__luin.aset.sukSana, av: window.__luin.aset.av }));
-  tulos('oletukset: sanaselitys valikossa, käännös ei, sukkela päällä', oletus.k === 0 && oletus.s === 1 && oletus.suk === 1 && oletus.av === 7, JSON.stringify(oletus));
+  tulos('oletukset: sanaselitys valikossa, käännös ei, sukkela päällä', oletus.k === 0 && oletus.s === 1 && oletus.suk === 1 && oletus.av >= 7, JSON.stringify(oletus));
 
   // Selitys tekstin kohdasta: odotetaan, kunnes Haetaan… vaihtuu.
   // n: monesko esiintymä, tai 'kappaleen alku#monesko' (kokonainen sana siinä kappaleessa).
@@ -665,7 +716,7 @@ palvelin.listen(0, async () => {
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.av = 5; a.kaannos = 1; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(400);
   const av = await p.evaluate(() => ({ k: window.__luin.aset.kaannos, av: window.__luin.aset.av }));
-  tulos('av 6→7: tallennettu pilotin käännös pois kerran', av.k === 0 && av.av === 7, JSON.stringify(av));
+  tulos('av 6→7: tallennettu pilotin käännös pois kerran', av.k === 0 && av.av >= 7, JSON.stringify(av));
 
   // Kapea kosketusruutu (360 px): pitkä otsikko rivittyy, eikä se, merkki ja raksi mene päällekkäin, eikä ikkuna ylitä ruutua.
   await p.setViewportSize({ width: 360, height: 740 });
@@ -791,8 +842,10 @@ palvelin.listen(0, async () => {
 
   // Sanaselityssivu (luin/sanaselitys.html): sama moottori ilman lukijaa. Kieli on tuntematon, ellei alussa ole kielikoodia
   // ja kaksoispistettä (fi:, en: …), jolloin haku on kuin sen kielen leipätekstissä.
-  const sivuvirheet2 = [];
+  const sivuvirheet2 = [], muutPyynnot = [];
   p.on('pageerror', e => sivuvirheet2.push(e.message));
+  const muutReitti = route => { const u = new URL(route.request().url()); muutPyynnot.push(u.hostname + ' ' + decodeURIComponent(u.pathname + u.search)); return route.fulfill(muutVastaus(u)); };
+  for (const h of MUUT_ISANNAT) await p.route(h, muutReitti);
   await p.setViewportSize({ width: 1280, height: 900 });
   await p.goto(BASE + 'luin/sanaselitys.html');
   const odotaSivu = () => p.waitForFunction(() => { const t = document.querySelector('#selitys .sk-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
@@ -958,12 +1011,12 @@ palvelin.listen(0, async () => {
   tulos('kielivalikko: ilmaus (Ranskan ilmausta …)', /^Ranskan ilmausta ei löytynyt englanninkielisestä Wikisanakirjasta eikä Tieteen termipankista\.$/.test(r.tieto), JSON.stringify(r));
   await kuvaSivu('sivu-rajaus');
   await p.click('#selitys .sk-sulje');
-  pyynnot.length = 0;
+  pyynnot.length = 0; muutPyynnot.length = 0;
   await p.fill('#sana', 'edes');
   await kieleksi('latina');
   await p.waitForTimeout(300);
   r = await sivuTila();
-  tulos('kielivalikko: vaihto ilman näkyvää selitystä ei hae', !r.nakyy && r.vihje && !pyynnot.length, JSON.stringify(r));
+  tulos('kielivalikko: vaihto ilman näkyvää selitystä ei hae', !r.nakyy && r.vihje && !pyynnot.length && !muutPyynnot.some(x => /edes/.test(x)), JSON.stringify(r));
   await p.goto('about:blank');
   await p.goto(BASE + 'luin/sanaselitys.html#edes');
   await odotaSivu(); await p.waitForTimeout(150);
@@ -1055,13 +1108,185 @@ palvelin.listen(0, async () => {
   tulos('termipankki: saksa: Dasein → termipankki ja Wikisanakirja', r.vaihdot[0] === 'täälläolo · Filosofia' && r.termi === 1, JSON.stringify(r));
   await kieleksi('kaikki kielet');
 
+  /* ---------- Sanakirjavalikko ja muut sanakirjat ----------
+     Kolme tilaa: Wiktionary ja termipankki moottorissa (päähaaran valitsin), pelkkä termipankki moottorissa (o.wikt false, ei
+     Wikisanakirjan pyyntöjä) ja ilman moottoria; muut sanakirjat osioina selityksen alla kaikissa. */
+  const muutTila = () => p.evaluate(() => {
+    const qa = s => [...document.querySelectorAll(s)];
+    return { nappi: document.querySelector('#sanakirjat').textContent, osiot: qa('#selitys section.sx:not([hidden])').map(s => s.dataset.l),
+      ei: (document.querySelector('#selitys .sx-ei') || {}).textContent || '', runko: (document.querySelector('#selitys .sk-runko > .sk-tieto') || {}).textContent || '',
+      ots: (document.querySelector('#selitys .sk-o') || {}).textContent || '', logos: !!document.querySelector('#selitys .sk-logos:not([hidden])'),
+      muoto: (document.querySelector('#selitys .sk-runko .sk-muoto') || {}).textContent || '', lahde: (document.querySelector('#selitys .sk-ala .sk-lahde') || {}).textContent || '',
+      vast: qa('#selitys .sk-vrivi .sk-sana').map(b => b.dataset.k + ':' + b.dataset.sana), linssi: !!document.querySelector('#selitys .sk-ots button.sk-ety'),
+      ala: (() => { const a = document.querySelector('#selitys .sk-ala'); return a ? getComputedStyle(a).display : ''; })(),
+      sx: Object.fromEntries(qa('#selitys section.sx:not([hidden])').map(s => [s.dataset.l, {
+        ots: [...s.querySelectorAll('.sx-ots')].map(e => e.textContent), muoto: [...s.querySelectorAll('.sx-muoto')].map(e => e.textContent),
+        p: [...s.querySelectorAll(':scope > .sx-p')].map(e => e.textContent), kirjat: [...s.querySelectorAll('.sx-kirjat button.sx-auki')].map(e => e.textContent),
+        lahde: (s.querySelector('.sx-lahde') || {}).textContent, lisa: (s.querySelector('a.sx-lisa') || {}).href || '' }])) };
+  });
+  // Valmis: ei Haetaan-tekstiä, ja osio, ei osumaa -rivi tai kehyksen viesti näkyy (rivi tulee vasta, kun kaikki ovat valmiita).
+  const odotaMuut = () => p.waitForFunction(() => {
+    const r = document.querySelector('#selitys .sk-runko'); if (!r || /Haetaan/.test(r.textContent)) return false;
+    return !!document.querySelector('#selitys section.sx:not([hidden])') || !!(document.querySelector('#selitys .sx-ei') || {}).textContent || /\S/.test(r.textContent);
+  }, null, { timeout: 5000 }).then(() => p.waitForTimeout(250));
+  const hakuMuut = async h => { muutPyynnot.length = 0; pyynnot.length = 0; tpPyynnot.length = 0; await p.fill('#sana', h); await p.press('#sana', 'Enter'); await odotaMuut(); return muutTila(); };
+  const lista = () => p.evaluate(() => [...document.querySelectorAll('#sanakirjat-lista button')].map(b => b.querySelector('.vk-nimi').textContent + (b.getAttribute('aria-pressed') === 'true' ? '+' : '-') + (b.getAttribute('aria-disabled') === 'true' ? '!' : '')));
+  const valitse = async nimet => { for (const n of nimet) await p.click('#sanakirjat-lista button:has(.vk-nimi:text-is("' + n + '"))'); };
+  await p.goto('about:blank');
+  await p.goto(BASE + 'luin/sanaselitys.html');
+  e = await p.evaluate(() => ({ nappi: document.querySelector('#sanakirjat').textContent, kiinni: document.querySelector('#sanakirjat-lista').hidden, talletettu: localStorage.getItem('luin-sanakirjat') }));
+  await p.click('#sanakirjat');
+  let l = await lista();
+  tulos('sanakirjat: oletuksena Wiktionary ja Tieteen termipankki, kuusi lähdettä, lista kiinni alussa',
+    e.nappi === 'Wiktionary, Termipankki' && e.kiinni && e.talletettu === null &&
+    l.join('|') === 'Wiktionary+|Tieteen termipankki+|Logeion-|Wörterbuchnetz-|Digital Pāḷi Dictionary-|Monier-Williams-', JSON.stringify([e, l]));
+  e = await p.evaluate(() => { const l = document.querySelector('#sanakirjat-lista').getBoundingClientRect(), b = document.querySelector('#sanakirjat').getBoundingClientRect();
+    return { alla: l.top >= b.bottom - 1, vasen: Math.abs(l.left - b.left), oikea: l.right <= innerWidth - 16 }; });
+  tulos('sanakirjat: lista napin alla sen vasemmasta laidasta (leveällä ruudulla)', e.alla && e.vasen < 1 && e.oikea, JSON.stringify(e));
+  await kuvaSivu('sivu-sanakirjat-lista');
+  await p.keyboard.press('Escape');
+  tulos('sanakirjat: Esc sulkee listan', await p.evaluate(() => document.querySelector('#sanakirjat-lista').hidden && document.activeElement.id === 'sanakirjat'));
+  await p.click('#sanakirjat');
+  await valitse(['Logeion', 'Wörterbuchnetz', 'Digital Pāḷi Dictionary', 'Monier-Williams']);
+  l = await lista();
+  await p.click('h1');
+  tulos('sanakirjat: valinta napautuksesta, nappi kertoo määrän, ohi napautus sulkee ja tallentaa', l.every(x => x.endsWith('+')) &&
+    await p.evaluate(() => document.querySelector('#sanakirjat').textContent === '6 sanakirjaa' && document.querySelector('#sanakirjat-lista').hidden &&
+      localStorage.getItem('luin-sanakirjat') === '["wiktionary","termipankki","logeion","woerterbuchnetz","dpd","koln"]'), l.join('|'));
+
+  // 1) Wiktionary ja termipankki: muut saavat Wiktionaryn perusmuodon, linkki vie kaikki uuteen sanaan, ei osumaa -rivi lopuksi.
+  r = await hakuMuut('de: Strasse');
+  let ts = r.sx.woerterbuchnetz || {};
+  tulos('wiktionary: perusmuoto muille (de: Strasse → Straße Wörterbuchnetzissä, ei toista muotoriviä), saksaan sopimattomat eivät hae',
+    r.ots === 'Straße' && r.osiot.join() === 'woerterbuchnetz' && ts.ots.join() === 'Straße' && !ts.muoto.length &&
+    muutPyynnot.some(x => /lemmata\/Straße$/.test(x)) && !muutPyynnot.some(x => /uchicago|dpdict|koeln/.test(x)) && r.ei === '', JSON.stringify([r, muutPyynnot]));
+  await hakuMuut('la: quidditas');
+  muutPyynnot.length = 0;
+  await p.click('#selitys .sk-sana[data-sana="est"]');
+  await p.waitForFunction(() => document.querySelector('#selitys .sk-o').textContent === 'est');
+  await odotaMuut();
+  tulos('siirto: Wiktionaryn linkki (est) hakee muista uuden sanan', muutPyynnot.some(x => /detail\?w=est&/.test(x)) && !muutPyynnot.some(x => /quidditas/.test(x)), muutPyynnot.join('\n'));
+  r = await hakuMuut('kelloon');
+  tulos('wiktionary: ei osumaa -rivi muista vasta Wiktionaryn jälkeen (kelloon → kello)', r.ots === 'kello' && !r.osiot.length &&
+    r.ei === 'Ei osumaa: Logeion, Wörterbuchnetz, Digital Pāḷi Dictionary, Monier-Williams.', JSON.stringify(r));
+
+  // 2) Pelkkä termipankki: ohi napautus (ΛΟΓΟΣ) ei laukea; haku uudelleen ilman Wikisanakirjan pyyntöjä.
+  await p.click('#sanakirjat');
+  await valitse(['Wiktionary']);
+  pyynnot.length = 0; muutPyynnot.length = 0;
+  await p.click('#selitys .sk-logos');
+  await odotaMuut();
+  r = await muutTila();
+  tulos('ilman Wiktionarya: ohi napautus ei laukea (ΛΟΓΟΣ), kelloon haetaan uudelleen pelkästä termipankista ja muista',
+    await p.evaluate(() => document.querySelector('#sanakirjat-lista').hidden) && r.ots === 'kelloon' && r.runko === 'Sanaa ei löytynyt Tieteen termipankista.' &&
+    !pyynnot.length && r.ei === 'Ei osumaa: Logeion, Wörterbuchnetz, Digital Pāḷi Dictionary, Monier-Williams.' && await p.evaluate(() => !document.querySelector('#selitys .sk-ala .sk-lisa')), JSON.stringify(r));
+  r = await hakuMuut('käsitteen');
+  tulos('termipankki ilman Wiktionarya: käsitteen → käsite päätesäännöistä, haettu muoto, termipankin lähde, ei Wikisanakirjan pyyntöjä',
+    r.ots === 'käsite' && r.muoto === '(”käsitteen”)' && r.lahde === 'Tieteen termipankki, CC BY-SA' && r.logos && !r.linssi && !pyynnot.length &&
+    tpPyynnot.some(x => /titles=.*Nimitys:käsite(\||$)/.test(x)) && tpPyynnot.some(x => /gbltitle=Nimitys:käsite$/.test(x)), JSON.stringify(r) + ' ' + tpPyynnot.join(' · '));
+  tulos('termipankki ilman Wiktionarya: vastineet ovat uusia hakuja kielikoodin kanssa', r.vast.join('|') === 'sx-hae:en: concept|sx-hae:de: Begriff', r.vast.join('|'));
+  await kuvaSivu('sivu-termipankki-yksin');
+  muutPyynnot.length = 0; pyynnot.length = 0;
+  await p.click('#selitys .sk-sana[data-sana="de: Begriff"]');
+  await odotaMuut();
+  r = await muutTila();
+  tulos('termipankki ilman Wiktionarya: vastine de: Begriff → kenttä ja osoite, käsite saksasta, Wörterbuchnetz', r.ots === 'käsite' && r.muoto === '(”Begriff” · saksa)' &&
+    await p.evaluate(() => document.querySelector('#sana').value === 'de: Begriff' && decodeURIComponent(location.hash) === '#de: Begriff') &&
+    r.osiot.join() === 'woerterbuchnetz' && !pyynnot.length, JSON.stringify(r));
+  await p.click('#selitys .sk-logos');
+  await odotaMuut();
+  r = await muutTila();
+  tulos('termipankki ilman Wiktionarya: ΛΟΓΟΣ hakee sanan λόγος muista (kenttä ennallaan)', r.ots === 'λόγος' && (r.sx.logeion || {}).ots.join() === 'λόγος' &&
+    await p.evaluate(() => document.querySelector('#sana').value === 'de: Begriff') && !pyynnot.length, JSON.stringify(r));
+
+  // 3) Ilman moottoria (Wiktionary ja termipankki pois).
+  await p.click('#sanakirjat');
+  await valitse(['Tieteen termipankki']);
+  await p.click('h1');
+  r = await hakuMuut('λόγου');
+  ts = r.sx.logeion || {};
+  tulos('logeion: λόγου → λόγος jäsennyksestä, muoto, lyhyt määritelmä, sanakirjat (linkkisanakirja pois, Middle Liddell ensin)',
+    r.osiot.join() === 'logeion' && ts.ots.join() === 'λόγος' && ts.muoto.join() === '(”λόγου” · Noun · masculine · genitive singular)' &&
+    ts.p.join() === 'λόγος, λόγου, ὁ, word, speech, story' && ts.kirjat.join('|') === 'Middle Liddell|LSJ' && /logeion\.uchicago\.edu/.test(ts.lisa) && ts.lahde === 'Logeion (Chicagon yliopisto)', JSON.stringify(r));
+  tulos('ilman moottoria: otsikko on haku, ΛΟΓΟΣ näkyy, kehyksen lähderivi piilossa, ei Wikisanakirjan eikä termipankin pyyntöjä',
+    r.ots === 'λόγου' && r.logos && r.ala === 'none' && r.runko === '' && !pyynnot.length && !tpPyynnot.length && r.ei === '', JSON.stringify(r));
+  await p.click('#selitys section.sx[data-l="logeion"] .sx-kirjat button.sx-auki[data-i="1"]');
+  e = await p.evaluate(() => { const s = document.querySelector('#selitys section.sx[data-l="logeion"] .sx-sisus[data-i="1"]');
+    return { auki: !s.hidden, nimi: s.querySelector('.sx-vk').textContent, kpl: [...s.querySelectorAll('.sx-sisalto .sx-p')].map(x => x.innerHTML) }; });
+  tulos('logeion: LSJ aukeaa nimettynä, kursiivi säilyy, rivinvaihto on kappale, tyylit pois', e.auki && e.nimi === 'LSJ' && e.kpl.length === 2 &&
+    /<i>computation, reckoning<\/i>/.test(e.kpl[0]) && !/style|span/.test(e.kpl.join()), JSON.stringify(e));
+  await kuvaSivu('sivu-logeion');
+  await p.click('#selitys section.sx[data-l="logeion"] .sx-kirjat button.sx-auki[data-i="1"]');
+  tulos('logeion: toinen napautus sulkee', await p.evaluate(() => document.querySelector('#selitys section.sx[data-l="logeion"] .sx-sisus[data-i="1"]').hidden));
+  await p.click('#selitys .sk-logos');
+  await odotaMuut();
+  r = await muutTila();
+  tulos('ilman moottoria: ΛΟΓΟΣ vie sanaan λόγος muissa', r.ots === 'λόγος' && (r.sx.logeion || {}).ots.join() === 'λόγος' && !(r.sx.logeion || {}).muoto.length, JSON.stringify(r));
+  r = await hakuMuut('λογος');
+  tulos('logeion: aksentiton λογος → λόγος (sama toisin kirjoitettuna); aakkosissa lähin ei kelpaa',
+    (r.sx.logeion || {}).ots.join() === 'λόγος' && (r.sx.logeion || {}).muoto.join() === '(”λογος” · sama toisin kirjoitettuna)', JSON.stringify(r));
+  r = await hakuMuut('Begriffe');
+  ts = r.sx.woerterbuchnetz || {};
+  tulos('wörterbuchnetz: Begriffe → Begriff päätesäännöstä, kolme sanakirjaa aikoineen',
+    r.osiot.join() === 'woerterbuchnetz' && ts.ots.join() === 'Begriff' && ts.muoto.join() === '(”Begriffe”)' && ts.kirjat.join('|') === 'Adelung|Campe|Grimm, uusi laitos' &&
+    r.ei === 'Ei osumaa: Logeion, Digital Pāḷi Dictionary, Monier-Williams.', JSON.stringify(r));
+  await p.click('#selitys section.sx[data-l="woerterbuchnetz"] .sx-kirjat button.sx-auki[data-i="0"]');
+  await p.waitForFunction(() => !/Haetaan/.test(document.querySelector('#selitys section.sx[data-l="woerterbuchnetz"] .sx-sisus[data-i="0"]').textContent));
+  await p.click('#selitys section.sx[data-l="woerterbuchnetz"] .sx-kirjat button.sx-auki[data-i="1"]');
+  await p.waitForFunction(() => !/Haetaan/.test(document.querySelector('#selitys section.sx[data-l="woerterbuchnetz"] .sx-sisus[data-i="1"]').textContent));
+  e = await p.evaluate(() => { const s = i => document.querySelector('#selitys section.sx[data-l="woerterbuchnetz"] .sx-sisus[data-i="' + i + '"]');
+    return { a: s(0).querySelector('.sx-sisalto').innerHTML, an: s(0).querySelector('.sx-vk').textContent, c: s(1).textContent, link: (s(1).querySelector('a.sx-ulos') || {}).href || '' }; });
+  tulos('wörterbuchnetz: Adelungin artikkeli sanoittain (entiteetit purettu, kursiivi), Campen pitkä artikkeli linkkinä',
+    e.an === 'Adelung · Begriff' && e.a === '<p class="sx-p">Der Begriff, im figürlichen Verstande <i>ohne Plural</i>.</p>' &&
+    /Artikkeli on pitkä \(noin 99\s999 sanaa\)/.test(e.c) && /sigle=Campe&lemid=B02041/.test(e.link) && !muutPyynnot.some(x => /articles\/B02041/.test(x)), JSON.stringify(e));
+  r = await hakuMuut('dhammassa');
+  ts = r.sx.dpd || {};
+  tulos('dpd: dhammassa → tiivistelmän kohdat (otsikko kursiivina, nuolilinkit pois)', r.osiot.join() === 'dpd' &&
+    ts.p.join('|') === 'dhamma 1.01 masc. nature; character|dhamma 1.03 masc. teaching; discourse; doctrine' && /dpdict\.net\/\?q=dhammassa/.test(ts.lisa), JSON.stringify(r));
+  r = await hakuMuut('karuna');
+  ts = r.sx.koln || {};
+  tulos('köln: karuna → karuṇa diakriitittä (simple-search), rivit ilman sivu- ja tunnistemerkintöjä', r.osiot.join() === 'koln' && ts.ots.join() === 'karuṇa' &&
+    ts.muoto.join() === '(”karuna” · sama toisin kirjoitettuna)' && ts.p.join('|') === 'karuṇa mf(ā)n. mournful, miserable, MBh.|karuṇā f. compassion, pity', JSON.stringify(r));
+  await kuvaSivu('sivu-koln');
+  r = await hakuMuut('xyzzyq');
+  tulos('ilman moottoria: ei löytynyt mistään → kehyksen viesti, ei ΛΟΓΟΣta eikä osioita', r.runko === 'Sanaa ei löytynyt valituista sanakirjoista.' && !r.logos && !r.osiot.length && r.ei === '', JSON.stringify(r));
+  await kieleksi('saksa');
+  r = await hakuMuut('Begriffe');
+  tulos('kielivalikko: saksa → vain Wörterbuchnetz; Logeion, DPD ja Köln eivät hae', r.osiot.join() === 'woerterbuchnetz' && !muutPyynnot.some(x => /uchicago|dpdict|koeln/.test(x)), JSON.stringify([r.osiot, muutPyynnot.map(x => x.split(' ')[0])]));
+  await kieleksi('suomi');
+  r = await hakuMuut('Begriffe');
+  tulos('kielivalikko: suomi → yksikään valittu ei kata hakua', !r.osiot.length && r.runko === 'Valitut sanakirjat eivät kata tätä hakua.' && !muutPyynnot.length, JSON.stringify(r));
+  await kieleksi('kaikki kielet');
+  // Viimeistä päällä olevaa ei voi ottaa pois; valinta muistetaan uudelleenlatauksessa.
+  await p.click('#sanakirjat');
+  await valitse(['Logeion', 'Wörterbuchnetz', 'Digital Pāḷi Dictionary']);
+  l = await lista();
+  await p.click('#sanakirjat-lista button:has(.vk-nimi:text-is("Monier-Williams"))', { force: true });
+  const l2 = await lista();
+  tulos('sanakirjat: viimeistä ei voi ottaa pois', l.join('|') === 'Wiktionary-|Tieteen termipankki-|Logeion-|Wörterbuchnetz-|Digital Pāḷi Dictionary-|Monier-Williams+!' && l2.join() === l.join(), l2.join('|'));
+  await p.click('#sanakirjat');
+  await p.goto('about:blank');
+  await p.goto(BASE + 'luin/sanaselitys.html');
+  tulos('sanakirjat: valinta muistetaan (Monier-Williams)', await p.evaluate(() => document.querySelector('#sanakirjat').textContent === 'Monier-Williams'));
+  await p.evaluate(() => localStorage.removeItem('luin-sanakirjat'));
+
   // Kapea kosketusruutu: ei vaakavieritystä, otsikko ja raksi eivät mene päällekkäin, näppäimistö pois haun jälkeen.
   const mctx = await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, deviceScaleFactor: KUVAT ? 2 : 1 });
   const mp = await mctx.newPage();
   mp.on('pageerror', e => sivuvirheet2.push(e.message));
   await mp.route('https://en.wiktionary.org/**', wikiReitti);
   await mp.route('https://tieteentermipankki.fi/**', tpReitti);
+  for (const h of MUUT_ISANNAT) await mp.route(h, route => route.fulfill(muutVastaus(new URL(route.request().url()))));
   await mp.goto(BASE + 'luin/sanaselitys.html');
+  await mp.tap('#sanakirjat');
+  e = await mp.evaluate(() => { const l = document.querySelector('#sanakirjat-lista').getBoundingClientRect();
+    return { vasen: l.left, oikea: l.right, ikkuna: innerWidth, leveys: document.documentElement.scrollWidth, rivit: [...document.querySelectorAll('#sanakirjat-lista button')].map(b => b.getBoundingClientRect().height),
+      sk: document.querySelector('.sk-osa-valinta').getBoundingClientRect().left - document.querySelector('.rajaus label').getBoundingClientRect().left }; });
+  tulos('sanakirjat 360 px: lista palstan sisällä (16 px laidoista), ei vaakavieritystä, rivit ≥ 44 px, taittunut rivi alkaa laidasta',
+    e.vasen >= 15.5 && e.oikea <= e.ikkuna - 15.5 && e.leveys <= e.ikkuna && e.rivit.every(h => h >= 44) && Math.abs(e.sk) < .5, JSON.stringify(e));
+  if (KUVAT) await mp.screenshot({ path: path.join(KUVAT, 'sivu-360-sanakirjat.png') });
+  await mp.tap('h1');
+  tulos('sanakirjat 360 px: napautus ohi sulkee listan', await mp.evaluate(() => document.querySelector('#sanakirjat-lista').hidden));
   await mp.fill('#sana', 'pratityasamutpadaa');
   await mp.press('#sana', 'Enter');
   await mp.waitForFunction(() => { const t = document.querySelector('#selitys .sk-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });

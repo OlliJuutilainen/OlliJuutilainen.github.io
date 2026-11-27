@@ -18,6 +18,11 @@
   kielet ovat lukemiston (sivustot.html) kielirivin kielet (käyttäjän päätös). Teema luin-asetuksista kuten muilla alasivuilla.
   Samalla haulla Tieteen termipankki (LuinSana.termit, vain tällä sivulla): löydetyt käsitteet ovat valitsimessa Wikisanakirjan
   osumien edellä, ja kielirajaus rajaa ne käsitteisiin, joissa haettu nimitys on sitä kieltä.
+  Sanakirjavalikko (käyttäjän päätös: mitkä tahansa päälle ja pois, oletuksena Wiktionary ja Tieteen termipankki; valinta
+  muistetaan tällä laitteella, luin-sanakirjat). Wiktionary ja termipankki ovat moottorin (sanaselitys.js) selitys; ilman
+  Wiktionarya moottori ajaa pelkän termipankin (o.wikt false) ja termipankki saa perusmuodon päätesäännöistä. Muut (Logeion,
+  Wörterbuchnetz, DPD, Köln) ovat sanakirjat.js:n osioita selityksen alla omin perusmuodoin; Wiktionaryn perusmuodot (o.selitetty)
+  ovat niille lisäehdokkaita, ja Wiktionaryn linkistä siirtyminen hakee niistä uuden sanan.
 -->
 <script>
   try {
@@ -81,6 +86,30 @@
   /* Valikon leveys valitun kielen mukaan (natiivi valikko on pisimmän vaihtoehdon levyinen): mitataan tästä. */
   .rajaus .mitta { position: absolute; visibility: hidden; white-space: pre; }
   .vihje i { color: var(--muste); }
+  /* Sanakirjavalikko kielivalikon rinnalla: nappi kuin valikko (ruoste, nuoli), lista ponnahduksena napin alla. Valinnan merkki
+     on asetusten kytkimen salmiakki. Ahtaalla rivi taittuu, ja lista on palstan levyinen. */
+  .rajaus { flex-wrap: wrap; column-gap: .5em; row-gap: 0; }
+  .rajaus select { margin-right: .4em; }
+  .rajaus .sk-osa-valinta { display: inline-flex; align-items: center; gap: .5em; }
+  .rajaus .sk-osa-valinta span.n { font-style: italic; }
+  .rajaus button#sanakirjat, .sk-valikko button { -webkit-tap-highlight-color: transparent; }
+  .rajaus button#sanakirjat { font: inherit; color: var(--ruoste); min-height: 36px; padding: 0 16px 0 0; text-align: left;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 4px top 55%, right 0 top 55%; background-size: 4px 4px; background-repeat: no-repeat; }
+  main { position: relative; }
+  .sk-valikko { position: absolute; z-index: 5; width: min(22rem, calc(100% - 32px)); margin: 0; padding: 5px 0; background: var(--paperi);
+    border: 1px solid var(--viiva); }
+  .sk-valikko[hidden] { display: none; }
+  .sk-valikko button { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 7px 14px; text-align: left;
+    font-size: .92rem; line-height: 1.35; color: var(--harmaa); }
+  .sk-valikko button[aria-pressed="true"] { color: var(--muste); }
+  .sk-valikko button[aria-pressed="false"] { opacity: .6; }
+  .sk-valikko button[aria-disabled="true"] { cursor: default; }
+  .sk-valikko svg { flex: 0 0 auto; width: 9px; height: 12.4px; margin-top: .32em; overflow: visible; }
+  .sk-valikko .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
+  .sk-valikko .sal-sisa { fill: none; }
+  .sk-valikko button[aria-pressed="true"] .sal-sisa { fill: currentColor; }
+  .sk-valikko .vk-kuv { display: block; margin-top: 1px; font-size: .84em; font-style: italic; color: var(--harmaa); }
 
   /* Selitys: lukimen selitysikkunan (.valikko.sanakirja) säännöt ilman kehystä. Ikkunan rem-koot ovat tässä em:einä suhteessa
      ikkunan .9rem:iin, joten suhteet pysyvät, vaikka koko on suurempi; pikselimitat (linssi, raksi) ennallaan. */
@@ -139,6 +168,40 @@
   #selitys .sk-vast { margin-top: 2px; }
   #selitys .sk-vrivi { margin: 3px 0; padding-left: 1em; text-indent: -1em; }
   #selitys .sk-vkieli { font-size: .889em; font-style: italic; color: var(--harmaa); margin-right: .35em; }
+  /* Muut sanakirjat selityksen alla, kukin omana osionaan: nimi kuten ΛΟΓΟΣ (pieni, haalea, väljästi harvennettu), lähde ja
+     plussa kuten Wiktionaryn. Avattavat sanakirjat ovat ruostetta; avattu sisältö sisennettynä hiusviivan vieressä. */
+  #selitys section.sx { margin-top: 26px; }
+  #selitys section.sx[hidden] { display: none; }
+  #selitys .sx-nimi { font-size: .8em; letter-spacing: .26em; line-height: 1.3; text-transform: uppercase;
+    color: var(--harmaa); color: color-mix(in srgb, var(--harmaa) 72%, var(--viiva)); }
+  #selitys .sx-ots { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 10px; margin-top: 7px; font-size: 1.111em; font-style: italic; }
+  #selitys .sx-o { min-width: 0; overflow-wrap: anywhere; }
+  #selitys .sx-p { margin: 4px 0 0; }
+  #selitys .sx-pieni { font-size: .889em; color: var(--harmaa); }
+  #selitys .sx-muoto { margin-top: 4px; font-size: .889em; line-height: 1.4; padding-left: .9em; font-style: italic; color: var(--harmaa); }
+  #selitys .sx-vk { font-size: .78em; letter-spacing: .06em; text-transform: uppercase; color: var(--harmaa); }
+  #selitys .sx-vali { color: var(--harmaa); }
+  #selitys button.sx-auki { display: inline; text-align: inherit; color: var(--ruoste);
+    text-decoration: underline; text-decoration-color: var(--viiva); text-underline-offset: 3px; }
+  #selitys button.sx-auki { font-style: italic; }
+  #selitys button.sx-auki[aria-expanded="true"] { color: var(--muste); }
+  #selitys .sx-kirjat { margin-top: 6px; line-height: 1.75; }
+  #selitys .sx-kirjat button.sx-auki { font-style: normal; }
+  #selitys .sx-kirja { white-space: nowrap; }
+  #selitys .sx-sisus { margin: 8px 0 10px; padding-left: .9em; border-left: 1px solid var(--viiva); }
+  #selitys .sx-sisus[hidden] { display: none; }
+  #selitys .sx-sisus > .sx-p:first-child, #selitys .sx-sisalto > .sx-p:first-child { margin-top: 0; }
+  #selitys a.sx-ulos { color: var(--ruoste); text-decoration-color: var(--viiva); text-underline-offset: 3px; }
+  #selitys .sx-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 8px; }
+  #selitys .sx-lahde { font-size: .711em; letter-spacing: .02em; color: var(--huomio); color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva)); }
+  #selitys a.sx-lisa { display: inline-flex; align-self: center; margin: -8px -8px -8px auto; padding: 8px; line-height: 0; text-decoration: none; }
+  #selitys a.sx-lisa svg { width: 10.5px; height: 10.5px; fill: none; overflow: visible; }
+  #selitys a.sx-lisa .plus { stroke: var(--ruoste); stroke-width: 1.3; }
+  #selitys .sx-ei { margin-top: 24px; font-size: .889em; font-style: italic; color: var(--harmaa); line-height: 1.4; }
+  #selitys .sx-ei:empty { display: none; }
+  /* Ilman moottoria (Wiktionary ja termipankki pois) kehyksestä jää otsikko, raksi ja tila; lähderivi on osioissa. */
+  #selitys.sx-oma .sk-ala { display: none; }
+  #selitys.sx-oma .sk-runko:empty { display: none; }
   @media (hover: hover) {
     #selitys .sk-vaihdot li:hover button.sk-vaihto { text-decoration-color: var(--ruoste); }
     #selitys button.sk-ety:hover .e { stroke: var(--muste); }
@@ -171,18 +234,23 @@
     <option value="de">saksa</option>
     <option value="fi">suomi</option>
     <option value="da">tanska</option>
-  </select><span class="mitta" id="kieli-mitta" aria-hidden="true"></span></p>
+  </select><span class="mitta" id="kieli-mitta" aria-hidden="true"></span><span class="sk-osa-valinta"><span class="n" id="sanakirjat-n">sanakirjat</span><button
+    type="button" id="sanakirjat" aria-haspopup="true" aria-expanded="false" aria-controls="sanakirjat-lista" aria-labelledby="sanakirjat-n sanakirjat"></button></span></p>
+  <div class="sk-valikko" id="sanakirjat-lista" role="group" aria-label="Sanakirjat" hidden></div>
   <p class="vihje" id="vihje">Kielikoodi ja kaksoispiste alkuun, niin sitä kieltä haetaan ensin: <i>fi: käsitteen</i>, <i>en: running</i>
     (myös la, grc, el, de, fr, sv, lt, es, it ja da).</p>
   <section id="selitys" hidden></section>
 </main>
 <p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
-<script src="sanaselitys.js?v=52ae27ba"></script>
+<script src="sanaselitys.js?v=4ea3cea5"></script>
+<script src="sanakirjat.js?v=3898facd"></script>
 <script>
 (function () {
   'use strict';
-  var S = window.LuinSana, lomake = document.getElementById('haku'), kentta = document.getElementById('sana'),
+  var S = window.LuinSana, SK = window.LuinSanakirjat, lomake = document.getElementById('haku'), kentta = document.getElementById('sana'),
     tulos = document.getElementById('selitys'), vihje = document.getElementById('vihje'), valikko = document.getElementById('kieli'), nyt = null;
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function uniq(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
   // Kielirajauksen nimi genetiivinä (ei löytynyt -viesti: Latinan sanaa ei löytynyt …); arvo on Wikisanakirjan kielikoodit.
   var RAJAUS_NIMI = { en: 'englannin', es: 'espanjan', it: 'italian', 'grc,el': 'kreikan', la: 'latinan', lt: 'liettuan', fr: 'ranskan',
     sv: 'ruotsin', de: 'saksan', fi: 'suomen', da: 'tanskan' };
@@ -201,6 +269,72 @@
   // Kosketusnäyttö kuten lukimessa (hover: none on välttämätön: Booxin Firefox ei täytä pointer: coarse -ehtoa).
   var KOSKETUS = !!(window.matchMedia && matchMedia('(pointer: coarse), (hover: none)').matches);
 
+  /* ---------- Sanakirjavalikko ----------
+     Käyttäjän päätös: mitkä tahansa päälle ja pois, oletuksena Wiktionary ja Tieteen termipankki. Valinta muistetaan tällä
+     laitteella (luin-sanakirjat); viimeistä päällä olevaa ei voi ottaa pois. Muutos hakee näkyvän selityksen uudelleen, kun
+     lista sulkeutuu (ei joka napautuksella). Listan ohi napautus vain sulkee sen (Luinin sääntö). */
+  var SK_AVAIN = 'luin-sanakirjat', OLETUS = SK.LAHTEET.filter(function (l) { return l.oletus; }).map(function (l) { return l.id; });
+  var SAL = '<svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
+  var paalla = (function () {
+    try {
+      var a = JSON.parse(localStorage.getItem(SK_AVAIN) || 'null');
+      if (Array.isArray(a)) { a = SK.LAHTEET.map(function (l) { return l.id; }).filter(function (id) { return a.indexOf(id) >= 0; }); if (a.length) return a; }
+    } catch (e) {}
+    return OLETUS.slice();
+  })();
+  var skNappi = document.getElementById('sanakirjat'), skLista = document.getElementById('sanakirjat-lista'), skAlussa = '';
+  function skNimi() {
+    var n = paalla.map(function (id) { var l = SK.lahde(id); return l.lyhyt || l.nimi; });
+    skNappi.textContent = n.length <= 2 ? n.join(', ') : n.length + ' sanakirjaa';
+  }
+  function skPiirra() {
+    skLista.innerHTML = SK.LAHTEET.map(function (l) {
+      var on = paalla.indexOf(l.id) >= 0, viimeinen = on && paalla.length === 1;
+      return '<button type="button" data-l="' + l.id + '" aria-pressed="' + on + '"' + (viimeinen ? ' aria-disabled="true"' : '') + '>' + SAL +
+        '<span><span class="vk-nimi">' + esc(l.nimi) + '</span><span class="vk-kuv">' + esc(l.kuvaus) + '</span></span></button>';
+    }).join('');
+    skNimi();
+  }
+  function skAuki() { return !skLista.hidden; }
+  function skAvaa() {
+    skAlussa = paalla.join();
+    skPiirra();
+    skLista.hidden = false;
+    skNappi.setAttribute('aria-expanded', 'true');
+    // Napin alle sen vasemmasta laidasta; jos ei mahdu, ikkunan oikeaan laitaan 16 px:n päähän (kapealla palstan levyinen).
+    var m = skLista.offsetParent.getBoundingClientRect(), b = skNappi.getBoundingClientRect(), lev = skLista.offsetWidth;
+    skLista.style.top = Math.round(b.bottom - m.top) + 'px';
+    skLista.style.left = Math.round(Math.max(16, Math.min(b.left, document.documentElement.clientWidth - 16 - lev)) - m.left) + 'px';
+  }
+  function skSulje(fokus) {
+    if (!skAuki()) return;
+    skLista.hidden = true;
+    skNappi.setAttribute('aria-expanded', 'false');
+    if (fokus) skNappi.focus();
+    if (paalla.join() !== skAlussa) {
+      try { localStorage.setItem(SK_AVAIN, JSON.stringify(paalla)); } catch (e) {}
+      if (!tulos.hidden && kentta.value.trim()) laheta(true);
+    }
+  }
+  skNappi.addEventListener('click', function () { if (skAuki()) skSulje(); else skAvaa(); });
+  skLista.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-l]');
+    if (!b || b.getAttribute('aria-disabled') === 'true') return;
+    var id = b.dataset.l, i = paalla.indexOf(id);
+    if (i >= 0) paalla.splice(i, 1); else paalla.push(id);
+    paalla = SK.LAHTEET.map(function (l) { return l.id; }).filter(function (x) { return paalla.indexOf(x) >= 0; });
+    skPiirra();
+    var uusi = skLista.querySelector('button[data-l="' + id + '"]');
+    if (uusi) uusi.focus();
+  });
+  document.addEventListener('click', function (e) {
+    if (!skAuki() || skLista.contains(e.target) || skNappi.contains(e.target)) return;
+    if (e.isTrusted) { e.preventDefault(); e.stopPropagation(); }
+    skSulje();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && skAuki()) { e.preventDefault(); skSulje(true); } });
+  skPiirra();
+
   // Kielikoodi ja kaksoispiste alussa (fi:, en: … vain LuinSana.NIMI:n kielet). Ilman sitä kieli on tuntematon, paitsi
   // kreikan kirjaimilla: polytoninen merkintä on muinaiskreikkaa, muu nykykreikkaa (ketju hakee molemmista).
   function jasenna(raaka) {
@@ -210,8 +344,104 @@
     return { kieli: kieli, haku: haku };
   }
   function tyhjenna() {
-    nyt = null; tulos.hidden = true; tulos.innerHTML = ''; tulos.className = ''; vihje.hidden = false;
+    nyt = null; muut = null; muutVuoro++; tulos.hidden = true; tulos.innerHTML = ''; tulos.className = ''; vihje.hidden = false;
   }
+
+  /* ---------- Muut sanakirjat ----------
+     muut: tämän haun tila. sanat ovat ehdokkaat kaikille lähteille: haettu sana ja Wiktionaryn perusmuodot (o.selitetty).
+     Wiktionaryn linkistä tai otsikosta siirtyminen (siirto) vaihtaa sanan kokonaan. Lähteet haetaan rinnakkain, osiot ovat
+     kiinteässä järjestyksessä, ja osio piirretään uudelleen vain, kun sen tulos vaihtuu. Ei osumaa -rivi tulee vasta, kun
+     kaikki (myös Wiktionary) ovat valmiita, jottei se välähdä perusmuodon odotuksen ajan. */
+  var muut = null, muutVuoro = 0, siirto = false;
+  var PLUS = '<svg viewBox="6.75 6.75 10.5 10.5" aria-hidden="true"><path class="plus" d="M12 7.4V16.6M7.4 12H16.6"/></svg>';
+  function muutLahteet(sana, ymp) {
+    return SK.LAHTEET.filter(function (l) { return paalla.indexOf(l.id) >= 0 && SK.sopii(l.id, sana, ymp); }).map(function (l) { return l.id; });
+  }
+  function osioHtml(id, r) {
+    var L = SK.lahde(id);
+    return '<div class="sx-nimi">' + esc(L.otsake) + '</div>' + r.html + '<div class="sx-ala"><span class="sx-lahde">' + esc(L.lahde) + '</span>' +
+      (r.linkki ? '<a class="sx-lisa" href="' + esc(r.linkki) + '" title="' + esc(r.otsikko) + '" aria-label="' + esc(r.otsikko) + '">' + PLUS + '</a>' : '') + '</div>';
+  }
+  function nimet(ids) { return ids.map(function (id) { return SK.lahde(id).nimi; }).join(', '); }
+  function paivitaTila(m) {
+    var alue = tulos.querySelector('.sx-muut');
+    if (!alue || muut !== m) return;
+    var tila = function (t) { return m.lahteet.filter(function (id) { return m.tila[id] === t; }); };
+    var kesken = tila('haku').length > 0, ei = tila('ei'), virhe = tila('virhe'), osumia = tila('osuma').length;
+    var rivi = alue.querySelector('.sx-ei');
+    if (!m.moottori) {
+      // Ilman moottoria (Wiktionary ja termipankki pois) kehyksen runko kertoo tilan.
+      var runko = tulos.querySelector('.sk-runko'), logos = tulos.querySelector('.sk-logos');
+      if (runko) runko.innerHTML = kesken && !osumia ? '<div class="sk-tieto">Haetaan…</div>' : osumia ? '' :
+        '<div class="sk-tieto">' + (!m.lahteet.length ? 'Valitut sanakirjat eivät kata tätä hakua.' :
+          virhe.length && !ei.length ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' : 'Sanaa ei löytynyt valituista sanakirjoista.') + '</div>';
+      if (logos) { logos.hidden = !osumia; tulos.classList.toggle('sk-logos-nak', !!osumia); }
+      if (!osumia) { rivi.textContent = ''; return; }
+    }
+    rivi.textContent = kesken || !m.valmis ? '' : (ei.length ? 'Ei osumaa: ' + nimet(ei) + '.' : '') +
+      (virhe.length ? (ei.length ? ' ' : '') + 'Haku ei onnistunut: ' + nimet(virhe) + '. Onko verkkoyhteys päällä?' : '');
+  }
+  function ajaMuut() {
+    var m = muut, v = ++muutVuoro, alue = tulos.querySelector('.sx-muut');
+    if (!m || !alue) return;
+    var olemassa = {};
+    [].forEach.call(alue.querySelectorAll('section.sx'), function (sec) { if (m.lahteet.indexOf(sec.dataset.l) < 0) sec.remove(); else olemassa[sec.dataset.l] = sec; });
+    var rivi = alue.querySelector('.sx-ei');
+    if (!rivi) { rivi = document.createElement('div'); rivi.className = 'sx-ei'; alue.appendChild(rivi); }
+    m.lahteet.forEach(function (id) {
+      if (olemassa[id]) { alue.insertBefore(olemassa[id], rivi); return; }
+      var sec = document.createElement('section');
+      sec.className = 'sx'; sec.dataset.l = id; sec.hidden = true;
+      alue.insertBefore(sec, rivi);
+    });
+    m.tila = {};
+    m.lahteet.forEach(function (id) { m.tila[id] = 'haku'; });
+    paivitaTila(m);
+    m.lahteet.forEach(function (id) {
+      var sec = alue.querySelector('section.sx[data-l="' + id + '"]');
+      SK.hae(id, m.sanat, m.ymp).then(function (r) {
+        if (v !== muutVuoro || muut !== m) return;
+        if (r) {
+          if (sec.dataset.avain !== r.avain) {
+            sec.innerHTML = osioHtml(id, r); sec.dataset.avain = r.avain;
+            var b = r.auki && sec.querySelector('button.sx-auki');
+            if (b) SK.avaa(b);
+          }
+          sec.hidden = false; m.tila[id] = 'osuma';
+        } else { sec.hidden = true; sec.innerHTML = ''; delete sec.dataset.avain; m.tila[id] = 'ei'; }
+      }, function () {
+        if (v !== muutVuoro || muut !== m) return;
+        sec.hidden = true; sec.innerHTML = ''; delete sec.dataset.avain; m.tila[id] = 'virhe';
+      }).then(function () { if (v === muutVuoro) paivitaTila(m); });
+    });
+  }
+  // Moottorin haku valmis: Wiktionaryn sivut lisäehdokkaiksi (siirrossa uudeksi sanaksi); termipankki ja valitsin antavat [].
+  function moottoriValmis(otsikot) {
+    var m = muut;
+    if (!m) return;
+    m.valmis = true;
+    var oli = siirto;
+    siirto = false;
+    if (oli && !otsikot.length) { paivitaTila(m); return; }
+    var sanat = oli ? otsikot.slice() : uniq([m.haku].concat(otsikot));
+    if (oli) m.haku = otsikot[0];
+    var lahteet = muutLahteet(sanat[0], m.ymp);
+    if (sanat.join('|') === m.sanat.join('|') && lahteet.join() === m.lahteet.join()) { paivitaTila(m); return; }
+    m.sanat = sanat; m.lahteet = lahteet;
+    ajaMuut();
+  }
+  /* Termipankki moottorille (LuinSana.termit). Wiktionaryn kanssa haku on kirjoitettu muoto kuten päähaarassa (Wiktionary hoitaa
+     taivutuksen); ilman sitä termipankki saa ensin olemassa olevan perusmuodon päätesäännöistä (käsitteen → käsite), ja selitys
+     kertoo haetun muodon (t.haettu; kopiot, koska termit ovat moottorin muistissa). */
+  function termipankki(haku, kielet, wikt, ymp) {
+    if (wikt) return S.termit(haku, kielet);
+    return SK.tpPerusmuoto(haku, ymp).catch(function () { return ''; }).then(function (w) {
+      return S.termit(w || haku, kielet).then(function (ts) {
+        return w && w !== haku ? ts.map(function (t) { return Object.assign({}, t, { haettu: haku }); }) : ts;
+      });
+    });
+  }
+
   // Kirjoitettu haku on kuin tekstin sana keskellä leipätekstiä: kirjainkoko on tarkoituksellinen (Kantin on erisnimi).
   // Kielirajauksessa haku on kuin rajauksen kielen leipätekstissä (kielikoodi kelpaa vain rajauksen sisältä), ja ketjusta jää
   // vain sen kieli; kreikkaan rajattu haku latinalaisin kirjaimin haetaan kreikkalaisin kirjaimin.
@@ -220,15 +450,25 @@
     if (!q.haku) { tyhjenna(); return; }
     var rajaus = valikko.value ? { kielet: valikko.value.split(','), nimi: RAJAUS_NIMI[valikko.value] } : null;
     var kieli = rajaus && rajaus.kielet.indexOf(q.kieli) < 0 ? rajaus.kielet[0] : q.kieli;
-    var y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: false, kieli: kieli, symboli: S.symboli(q.haku), pikkusana: false };
-    var monta = S.sanaLkm(q.haku) > 1, erisnimi = !monta && /^\p{Lu}/u.test(q.haku) && q.haku !== q.haku.toUpperCase();
-    var ketju = S.ketju(kieli, y, monta, erisnimi);
-    if (rajaus) ketju = S.rajaa(ketju, rajaus.kielet, rajaus.kielet.indexOf('grc') >= 0 && !/\p{Script=Greek}/u.test(q.haku));
-    tulos.className = ''; tulos.innerHTML = S.kehys(q.haku, q.haku); tulos.hidden = false; vihje.hidden = true;
-    var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: ketju, kirjoitettu: true, rajaus: rajaus,
-      termit: S.termit(q.haku, rajaus ? [RAJAUS_TP[valikko.value]] : null),
-      auki: function () { return nyt === oma && !tulos.hidden; } });
-    oma.aja();
+    var wikt = paalla.indexOf('wiktionary') >= 0, tp = paalla.indexOf('termipankki') >= 0, ymp = { rajaus: rajaus ? rajaus.kielet : null, kieli: kieli };
+    tulos.className = ''; tulos.innerHTML = S.kehys(q.haku, wikt ? q.haku : '') + '<div class="sx-muut"></div>'; tulos.hidden = false; vihje.hidden = true;
+    muut = { haku: q.haku, ymp: ymp, sanat: [q.haku], lahteet: muutLahteet(q.haku, ymp), moottori: wikt || tp, wikt: wikt, valmis: !(wikt || tp), tila: {} };
+    siirto = false;
+    nyt = null;
+    // Moottori ajaa Wiktionaryn ja termipankin (päähaaran valitsin); ilman Wiktionarya pelkän termipankin (o.wikt false, tyhjä ketju).
+    if (wikt || tp) {
+      var y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: false, kieli: kieli, symboli: S.symboli(q.haku), pikkusana: false };
+      var monta = S.sanaLkm(q.haku) > 1, erisnimi = !monta && /^\p{Lu}/u.test(q.haku) && q.haku !== q.haku.toUpperCase(), ketju = [];
+      if (wikt) {
+        ketju = S.ketju(kieli, y, monta, erisnimi);
+        if (rajaus) ketju = S.rajaa(ketju, rajaus.kielet, rajaus.kielet.indexOf('grc') >= 0 && !/\p{Script=Greek}/u.test(q.haku));
+      }
+      var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: ketju, kirjoitettu: true, rajaus: rajaus, wikt: wikt,
+        termit: tp ? termipankki(q.haku, rajaus ? [RAJAUS_TP[valikko.value]] : null, wikt, ymp) : null,
+        auki: function () { return nyt === oma && !tulos.hidden; }, selitetty: function (o) { if (nyt === oma) moottoriValmis(o); } });
+      oma.aja();
+    } else tulos.classList.add('sx-oma');
+    ajaMuut();
   }
   // Osoitteen #-osa on haku sellaisenaan (sanaselitys.html#fi:käsitteen); + on väli kuten hakukoneiden osoitteissa.
   function osoitteesta() {
@@ -238,10 +478,12 @@
     history.replaceState(null, '', v ? '#' + encodeURIComponent(v).replace(/%3A/gi, ':') : location.pathname + location.search);
   }
 
-  function laheta() {
+  // hiljaa: valikon muutos hakee uudelleen siirtämättä kohdistusta.
+  function laheta(hiljaa) {
     var v = kentta.value.trim();
     osoitteeseen(v);
     hae(v);
+    if (hiljaa === true) return;
     // Kosketusnäytöllä näppäimistö pois selityksen tieltä; hiirellä kenttä valituksi, jotta seuraavan sanan voi kirjoittaa heti.
     if (KOSKETUS) kentta.blur(); else kentta.select();
   }
@@ -250,18 +492,24 @@
   valikko.addEventListener('change', function () { mitoita(); if (!tulos.hidden && kentta.value.trim()) laheta(); });
   tulos.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-k]');
-    if (!b || !nyt) return;
+    if (!b) return;
     e.preventDefault();
-    if (nyt.klikkaus(b.dataset.k, b) === false) {
-      tyhjenna(); kentta.value = ''; osoitteeseen(''); kentta.focus();
-      return;
-    }
+    var k = b.dataset.k;
+    if (k === 'sx-auki') { SK.avaa(b); return; }
+    // Termipankin vastine on uusi haku (kielikoodin kanssa, kun Wiktionary tuntee kielen).
+    if (k === 'sx-hae') { kentta.value = b.dataset.sana; laheta(); if (tulos.getBoundingClientRect().top < 0) tulos.scrollIntoView(); return; }
+    if (k === 'sk-sulje') { tyhjenna(); kentta.value = ''; osoitteeseen(''); kentta.focus(); return; }
+    // Ilman Wiktionarya ΛΟΓΟΣ ja ΕΤΥΜΟΝ ovat sivun hakuja (sama vitsi muissa sanakirjoissa); kenttä ei muutu kuten Wiktionaryssa.
+    if (k === 'sk-osa' && !(muut && muut.wikt)) { hae(b.dataset.sana.split('|')[0]); return; }
+    if (!nyt) return;
+    siirto = k === 'sk-sana' || k === 'sk-osa';
+    nyt.klikkaus(k, b);
     // Uusi sana (linkki, vaihtoehto, otsikko) korvaa selityksen: sen alku näkyviin.
-    if (b.dataset.k !== 'sk-ety' && tulos.getBoundingClientRect().top < 0) tulos.scrollIntoView();
+    if (k !== 'sk-ety' && tulos.getBoundingClientRect().top < 0) tulos.scrollIntoView();
   });
   window.addEventListener('hashchange', function () {
     var v = osoitteesta();
-    if (v === kentta.value.trim() && nyt) return;
+    if (v === kentta.value.trim() && muut) return;
     kentta.value = v; hae(v);
   });
 
