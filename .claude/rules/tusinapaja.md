@@ -199,8 +199,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
-  reipas nuoli (perässä ohut pieni kuusikulmio, ohut varsi, kärkenä kapea suora kolmio: auringon säteen sukua, ei lovettu
-  navigaattorinuoli; käyttäjän päätös).
+  reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (perässä ohut kuusikulmio 9,2 px kärjestä kärkeen, ohut varsi,
+  kärkenä kapea suora kolmio: auringon säteen sukua, ei lovettu navigaattorinuoli; käyttäjän päätös).
 - **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) … kursiivilla, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
   muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat

@@ -137,12 +137,12 @@
   /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
   .omaan{ text-align:center; margin:44px 0 40px }
-  /* Reipas nuoli tekstin alla, tekstin levyinen (käyttäjän päätös): perässä varren ohuinen pieni kuusikulmio, ohut varsi
-     ja kärkenä kapea suora kolmio, auringon säteen sukua eikä lovettu navigaattorinuoli (käyttäjän päätös). Varsi venyy,
-     joten perä ja kärki pysyvät mittasuhteissaan. */
+  /* Reipas nuoli tekstin alla, 3 px tekstiä lyhyempi kummastakin päästä, melkein kiinni päihin (käyttäjän päätös): perässä
+     varren ohuinen kuusikulmio (9,2 px kärjestä kärkeen), ohut varsi ja kärkenä kapea suora kolmio, auringon säteen sukua
+     eikä lovettu navigaattorinuoli (käyttäjän päätös). Varsi venyy, joten perä ja kärki pysyvät mittasuhteissaan. */
   #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
-  #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:10px }
-  #omaanSalkoon .pera{ flex:none; width:10px; height:10px; overflow:visible; margin-right:-1.4px }
+  #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:12px; margin:0 3px }
+  #omaanSalkoon .pera{ flex:none; width:12px; height:12px; overflow:visible; margin-right:-1.4px }
   #omaanSalkoon .varsi{ flex:1; height:1.6px; background:currentColor; margin-right:-1px }
   #omaanSalkoon .karki{ flex:none; width:12px; height:5px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
@@ -439,7 +439,7 @@
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><svg class="pera" viewBox="-5 -5 10 10"><path d="M-3.6 0L-1.8 -3.12L1.8 -3.12L3.6 0L1.8 3.12L-1.8 3.12Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><svg class="pera" viewBox="-6 -6 12 12"><path d="M-4.6 0L-2.3 -3.98L2.3 -3.98L4.6 0L2.3 3.98L-2.3 3.98Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
