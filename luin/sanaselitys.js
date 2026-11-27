@@ -122,8 +122,9 @@
     p.catch(function () { delete tpVarasto[avain]; });
     return (tpVarasto[avain] = p);
   }
-  // Vastineet kielittäin napautettavina (sk-sana vie sanan Wikisanakirjan selitykseen); otsikon sana ei toistu.
-  function tpVastineet(t) {
+  // Vastineet kielittäin napautettavina (sk-sana vie sanan Wikisanakirjan selitykseen); otsikon sana ei toistu. uusiHaku:
+  // Wiktionary on pois (o.wikt === false), joten vastine on sivun uusi haku (sx-hae) kielikoodin kanssa, kun kieli tunnetaan.
+  function tpVastineet(t, uusiHaku) {
     var ryhmat = {}, jarj = [];
     t.nim.forEach(function (n) {
       if (n.kieli === t.okieli && n.nimitys === t.o) return;
@@ -135,7 +136,8 @@
     if (!jarj.length) return '';
     return '<div class="sk-kieli">Vastineet</div><div class="sk-vast">' + jarj.map(function (k) {
       return '<div class="sk-vrivi"><span class="sk-vkieli">' + esc(k) + '</span> ' + ryhmat[k].map(function (w) {
-        var wk = tpWikiKieli(k, w);
+        var wk = tpWikiKieli(k, w), kk = skKieliKoodi(wk);
+        if (uusiHaku) return '<button type="button" class="sk-sana" data-k="sx-hae" data-sana="' + esc((kk ? kk + ': ' : '') + w) + '">' + esc(w) + '</button>';
         return '<button type="button" class="sk-sana" data-k="sk-sana" data-sana="' + esc(w) + '"' + (wk ? ' data-kieli="' + esc(wk) + '"' : '') + '>' + esc(w) + '</button>';
       }).join(', ') + '</div>';
     }).join('') + '</div>';
@@ -746,12 +748,17 @@
      haku on käyttäjän kirjoittama eikä tekstin sana (huomautukset sanovat Haettu x, eivät Tekstissä x); o.rajaus: sanaselityssivun
      kielirajaus { kielet, nimi } (ketju skRajaa()lla; nimi genetiivinä, latinan), jolloin ei löytynyt -viesti nimeää kielen ja
      määritelmän linkki pysyy rajauksessa, kun linkin kieli kuuluu siihen; o.termit: sanaselityssivun termipankkihaku
-     (haeTermit()), jolloin tulokset ovat valitsimessa Wikisanakirjan osumien edellä (alla kaynnista). Palauttaa { aja, klikkaus(k, b) }:
+     (haeTermit()), jolloin tulokset ovat valitsimessa Wikisanakirjan osumien edellä (alla kaynnista). o.wikt === false:
+     sanaselityssivun sanakirjavalikossa Wiktionary on pois, joten istunto on pelkkä termipankki (ketju tyhjä) eikä hae
+     Wikisanakirjasta mitään: ei alkuperää, vastine on uusi haku (sx-hae) ja ΛΟΓΟΣ jää sivun hoidettavaksi. o.selitetty(otsikot):
+     valinnainen, kutsutaan, kun haku on valmis: selityksen sivut (perusmuoto ensin) tai [] (ei löytynyt, virhe, termiselitys tai
+     valitsin odottaa valintaa); sanaselityssivu antaa ne muille sanakirjoille. Palauttaa { aja, klikkaus(k, b) }:
      klikkaus käsittelee kehyksen data-k-napit ja palauttaa false, kun kehyksen saa sulkea (raksi). */
   function istunto(o) {
     var pop = o.juuri, haku = o.haku, y = o.y, ketju = o.ketju, vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
     var monta = sanaLkm(haku) > 1, termit = [], tpHaettu = false, tpEty = {};
     function sijoitaPop() { if (o.sijoita) o.sijoita(); }
+    function selitetty(v, otsikot) { if (o.selitetty && ajossa(v)) o.selitetty(otsikot); }
     function klikkaus(k, b) {
       if (k === 'sk-sulje') return false;
       if (k === 'sk-termi') { vuoro = ++skVuoro; termiSelitys(vuoro, termit[+b.dataset.i]); return true; }
@@ -807,11 +814,12 @@
     }
     function piirraSelitys(v, osumat, alku, etusija) {
       if (!ajossa(v)) return;
-      var runko = '', nayt = [], tilaa = 4, ylin = '';
+      var runko = '', nayt = [], tilaa = 4, ylin = '', sivut = [];
       osumat.forEach(function (x, i) {
         if (tilaa <= 0) return;
         var s = skSisalto(x.j, x.kielet, etusija || y.kieli, tilaa);
         if (!s.html) return;
+        sivut.push(x.o);
         etyKielet[x.o] = s.kielet.map(function (k) { return (x.j[k][0] || {}).language || ''; });
         delete tpEty[x.o];
         var muoto = x.muoto ? '<div class="sk-muoto">(”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' · ' + esc(x.muoto.kuvaus) : '') + ')</div>' : '';
@@ -822,6 +830,7 @@
       });
       nayta(v, osumat[0].o, ylin + (alku || '') + (etusija ? '' : kieliHuom(nayt)) + runko, true, osumat[0].o, osumat[0].o);
       osumat.forEach(function (x) { if (etyKielet[x.o]) etyNapiksi(v, x.o, etyKielet[x.o]); });
+      selitetty(v, sivut);
     }
     function skPerusEnsin(osumat, etusija) {
       return Promise.all(osumat.map(function (x) {
@@ -855,19 +864,23 @@
        nimitys (”suuntautuneisuus”) tai vieraskielinen (”Dasein” · saksa), kuten taivutusmuoto Wikisanakirjan selityksessä.
        Ala, määritelmät ja vastineet. Linssi vain, kun alkuperää on (käyttäjän päätös): termipankin alkuperähuomautus tai
        otsikon sanan Etymology-osio Wikisanakirjassa sen kielessä. */
+    // t.haettu: sanaselityssivun kirjoittama muoto, kun termipankista haettiin sen perusmuotoa (käsitteen → käsite).
     function termiSelitys(v, t) {
       if (!t || !ajossa(v)) return;
-      var muoto = t.osui.nimitys !== t.o || t.osui.kieli !== t.okieli ?
-        '<div class="sk-muoto">(”' + esc(t.osui.nimitys) + '”' + (t.osui.kieli !== 'suomi' ? ' · ' + esc(t.osui.kieli) : '') + ')</div>' : '';
+      var nakyva = t.haettu || t.osui.nimitys;
+      var muoto = nakyva !== t.o || t.osui.kieli !== t.okieli ?
+        '<div class="sk-muoto">(”' + esc(nakyva) + '”' + (t.osui.kieli !== 'suomi' ? ' · ' + esc(t.osui.kieli) : '') + ')</div>' : '';
       var runko = muoto + '<div class="sk-ety-paikka" data-o="' + esc(t.o) + '"></div><div class="sk-kieli">' + esc(t.ala) + '</div>' +
         (t.maar.length ? '<ol class="sk-ol">' + t.maar.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>' :
-          '<div class="sk-tieto">Termipankkiin ei ole kirjattu määritelmää.</div>') + tpVastineet(t);
+          '<div class="sk-tieto">Termipankkiin ei ole kirjattu määritelmää.</div>') + tpVastineet(t, o.wikt === false);
       nayta(v, t.o, runko, SK_LAHDE_TP, t, t.o);
-      var wk = tpWikiKieli(t.okieli, t.o);
+      // Ilman Wiktionarya alkuperä on vain termipankin huomautus.
+      var wk = o.wikt === false ? '' : tpWikiKieli(t.okieli, t.o);
       etyKielet[t.o] = wk ? [wk] : [];
       tpEty[t.o] = t.ety;
       if (t.ety.length) etyNappi(t.o);
       else if (wk) etyNapiksi(v, t.o, [wk]);
+      selitetty(v, []);
     }
     // Avaa tai sulkee sivun o alkuperän (epsilon tai laatikon raksi).
     function alkupera(o) {
@@ -910,7 +923,9 @@
       var mita = monta ? 'ilmausta' : 'sanaa';
       mita = o.rajaus ? o.rajaus.nimi.charAt(0).toUpperCase() + o.rajaus.nimi.slice(1) + ' ' + mita : mita.charAt(0).toUpperCase() + mita.slice(1);
       nayta(v, haku, '<div class="sk-tieto">' + (virhe ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' :
-        mita + ' ei löytynyt englanninkielisestä Wikisanakirjasta' + (tpHaettu ? ' eikä Tieteen termipankista.' : '.')) + '</div>', false, virhe ? '' : haku);
+        (o.wikt === false ? mita + ' ei löytynyt Tieteen termipankista.' :
+        mita + ' ei löytynyt englanninkielisestä Wikisanakirjasta' + (tpHaettu ? ' eikä Tieteen termipankista.' : '.'))) + '</div>', false, virhe || o.wikt === false ? '' : haku);
+      selitetty(v, []);
     }
     // x.osumat: valitsimen rivi Wikisanakirjan tasan samoille muodoille (termipankin rinnalla), huomautukset valmiina (x.alku).
     function valitse(x) {
@@ -926,8 +941,8 @@
     function suoraan(o, kieli, rajaa) {
       var v = skVuoro;
       nayta(v, o, '<div class="sk-tieto">Haetaan…</div>', false, o);
-      haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: rajaa && skOnKieli(j, rajaa) ? rajaa : '*' }], '', kieli); else nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); })
-        .catch(function () { nayta(v, o, '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
+      haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: rajaa && skOnKieli(j, rajaa) ? rajaa : '*' }], '', kieli); else { nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); selitetty(v, []); } })
+        .catch(function () { nayta(v, o, '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); selitetty(v, []); });
     }
     // Otsikon vitsi: ensimmäinen löytyvä sivu (ἔτυμον on Wikisanakirjassa, käyttäjä tarkisti 12.11.2026; etymon varalla),
     // kreikka etusijalla kreikalle.
@@ -935,11 +950,11 @@
       var v = skVuoro;
       nayta(v, lista[0], '<div class="sk-tieto">Haetaan…</div>', false, '');
       (function seur(i) {
-        if (i >= lista.length) { nayta(v, lista[0], '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, lista[0]); return; }
+        if (i >= lista.length) { nayta(v, lista[0], '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, lista[0]); selitetty(v, []); return; }
         haeSana(lista[i]).then(function (j) {
           if (!j) { seur(i + 1); return; }
           selitys(v, [{ o: lista[i], j: j, kielet: '*' }], '', /\p{Script=Greek}/u.test(lista[i]) ? 'grc' : 'en');
-        }).catch(function () { nayta(v, lista[0], '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
+        }).catch(function () { nayta(v, lista[0], '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); selitetty(v, []); });
       })(0);
     }
     function aja(i) {
@@ -959,7 +974,7 @@
        Kun termipankista löytyy jotain, valitsin (käyttäjän luonnos): ensin termipankin käsitteet alan kera, sitten Wikisanakirjan
        osumat. Jos Wikisanakirjasta ei löydy mitään ja käsite on yksi, se aukeaa suoraan. */
     function kaynnista() {
-      var tp = o.termit ? o.termit.then(function (ts) { tpHaettu = true; return ts; }, function () { return []; }) : Promise.resolve([]);
+      var tp = o.termit ? o.termit.then(function (ts) { tpHaettu = true; return ts; }, function () { if (o.wikt === false) virhe = true; return []; }) : Promise.resolve([]);
       Promise.all([aja(0).catch(function () { virhe = true; return null; }), tp]).then(function (rr) {
         termit = rr[1] || [];
         if (!termit.length) { wikiTulos(rr[0]); return; }
@@ -986,6 +1001,7 @@
         };
         nayta(vuoro, haku, '<div class="sk-kieli">Tieteen termipankki</div>' + rivit(termit, 'sk-termi') +
           (vaihdot.length ? '<div class="sk-kieli">Wikisanakirja</div>' + wh + rivit(vaihdot, 'sk-vaihto') : ''), false, '');
+        selitetty(vuoro, []);
       }).catch(function () { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); });
     }
     function wikiTulos(r) {
@@ -1013,6 +1029,7 @@
           return '<li><button type="button" class="sk-vaihto" data-k="sk-vaihto" data-i="' + i + '">' + esc(x.o) + '</button>' +
             (x.kl ? '<span class="sk-vk">' + esc(x.kl) + '</span>' : '') + '</li>';
         }).join('') + '</ul>', false, '');
+        selitetty(vuoro, []);
         // Valitsimessa ei ole alkuperän linssiä (käyttäjän linjaus 12.11.2026): se tulee vasta valitun sanan selitykseen, eikä
         // valitsemiseen ole syytä houkutella ennen logosta.
       } catch (e) { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); }
