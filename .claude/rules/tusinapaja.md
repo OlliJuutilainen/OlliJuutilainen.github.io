@@ -192,10 +192,11 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä,
   ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
-  Muun kuin valitun salon napautus ei kierrä heti vaan kysyy salon luona (käyttäjän päätös): hiutale kirkastuu ja nimen
-  paikalle nimen puolelle tulee *(a) keskukseksi* ja *(b) paaluta* (sulatus ilman keskukseksi siirtymistä), yläkärjessä
-  hiutaleen oikealle yläviistoon; pidemmät tekstit eivät mahtuisi kapealla ruudulla. Keskukseksi siirtyminen on päämäärä
-  eikä välivaihe. Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
+  Muun kuin valitun salon napautus ei kierrä heti (käyttäjän päätös): hiutale kirkastuu, nimi piiloutuu ja hiutaleen kohdalle
+  kiteen kehää ulommalle samankeskiselle kehälle, hiutaleen ulkopuolelle, tulee lyhyt kaarinuoli kiertosuuntaan (ei tekstiä,
+  ei suoraan hiutaleesta lähtevä; käyttäjän päätös). Nuolen napautus tekee salosta maailman keskuksen (päämäärä eikä
+  välivaihe), saman hiutaleen toinen napautus sulattaa sen paalutettavaksi ja kiteen tyhjän kohdan napautus peruu.
+  Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli (perässä ohut pieni kuusikulmio, ohut varsi, kärkenä kapea suora kolmio: auringon säteen sukua, ei lovettu

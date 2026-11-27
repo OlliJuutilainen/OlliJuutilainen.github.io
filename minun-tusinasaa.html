@@ -272,16 +272,14 @@
   .valinnat .vaihtoehto + .vaihtoehto{ margin-left:1.2em }
   .valinnat.pino{ display:table; margin-left:auto; margin-right:auto; text-align:left }
   .valinnat.pino .vaihtoehto{ display:block; margin:2px 0 0 }
-  /* Muun kuin valitun salon napautus kysyy ensin (käyttäjän päätös): maailman keskukseksi vai paaluta uudelleen. Keskukseksi
-     siirtyminen ei ole pelkkä välivaihe muokkaukseen. Valinta tehdään salon luona (käyttäjän päätös): hiutale kirkastuu ja
-     nimen paikalle, nimen puolelle (yläpuoliskossa yllä, alapuoliskossa alla), tulee valintalista. Erillisenä elementtinä,
-     koska salko on itse nappi. */
-  .kysy{ position:absolute; z-index:2; transform:translate(-50%, 13px); font-size:12px; color:var(--muted); white-space:nowrap }
-  .kysy.yla{ transform:translate(-50%, calc(-100% - 13px)) }
-  /* Yläkärjessä lista on hiutaleen oikealla yläviistossa: suoraan yllä se nousisi otsikon päälle, alla osuisi sakaraan
-     ja keskellä kapealla ruudulla oikean yläkärjen nimeen. */
-  .kysy.oikea{ transform:translate(18px, calc(-100% + 6px)) }
-  .kysy .link{ color:var(--text) }
+  /* Muun kuin valitun salon napautus ei kierrä heti (käyttäjän päätös): hiutale kirkastuu, ja sen kohdalle kiteen kehää
+     ulommalle samankeskiselle kehälle, hiutaleen ulkopuolelle, tulee lyhyt kaarinuoli kiertosuuntaan (piirraKierto;
+     käyttäjän päätös). Nimi on samalla puolella, joten se piiloon. Erillisenä nappina, koska salko on itse nappi; piirros
+     napin keskeltä. Ei z-indeksiä: salot ovat DOMissa myöhemmin, joten päällekkäisellä alueella napautus menee hiutaleelle. */
+  .kierto{ position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; padding:0; border:0; background:none;
+    color:var(--text); cursor:pointer }
+  .kierto svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
+  .kierto:focus-visible{ outline:2px solid var(--muted); outline-offset:2px; border-radius:50% }
   .slot.kysytty{ color:var(--text) }
   .slot.kysytty .nm{ visibility:hidden }
   /* Paluuohje versaalilla (käyttäjän päätös). */
@@ -435,7 +433,7 @@
     <div id="ui" hidden>
       <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
-        <div class="kysy" id="kysy" hidden></div>
+        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" hidden><svg aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor"/></svg></button>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
@@ -879,6 +877,7 @@ function renderPanel(){
     const el = stage.querySelector(`.slot[data-id="${id}"]`), a = el._kulma;
     let b = kierros(a + muutos, kohde.get(id));
     if (Math.abs(b - a) > 180) b = kierros(a, kohde.get(id));
+    el._kohde = b;
     return [el, a, b];
   });
   $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
@@ -903,21 +902,8 @@ function renderPanel(){
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
     : `<button class="link poistu" type="button" id="poistuAuki" aria-expanded="${state.poistuAuki}" aria-controls="clearValinnat">Poistu</button>` +
       (state.poistuAuki ? valinnat('clearValinnat', 'clearIdle clearValinnat', [['clearAsk', 'räjäytä ja tuhoa paalupaikka'], ...(creds ? [['leaveAsk', 'poistu vähin äänin']] : [])]) : '');
-  const kysytty = state.slots.find(s => s.id === state.kysy);
-  if (!kysytty) state.kysy = null;
-  const ky = $('kysy');
-  ky.hidden = !kysytty;
-  /* Salon luona lyhyet tekstit: pidemmät eivät mahtuisi kapealla ruudulla kärkien väliin. */
-  ky.innerHTML = kysytty ? valinnat('kysyValinnat', 'pino kiintea', [['keskukseksi', 'keskukseksi'], ['paalutaUudelleen', 'paaluta']]) : '';
-  if (kysytty){
-    const a = kohde.get(kysytty.id), [x, y] = kidePaikka(a), yla = Math.abs(((a % 360) + 360) % 360 - 90) < 1;
-    ky.style.left = f2(x) + '%'; ky.style.top = f2(y) + '%'; ky.style.marginLeft = '0px';
-    ky.classList.toggle('oikea', yla);
-    ky.classList.toggle('yla', !yla && Math.sin(rad(a)) > 0);
-    const r = ky.getBoundingClientRect(), leveys = document.documentElement.clientWidth;   // ei ruudun reunan yli
-    if (r.right > leveys - 4) ky.style.marginLeft = f2(leveys - 4 - r.right) + 'px';
-    else if (r.left < 4) ky.style.marginLeft = f2(4 - r.left) + 'px';
-  }
+  if (!state.slots.some(s => s.id === state.kysy)) state.kysy = null;
+  piirraKierto();
   syncPick();
   renderMelt();
   paivitaLogo();
@@ -928,13 +914,38 @@ function renderPanel(){
 const valinnat = (id, luokat, lista) => `<span class="valinnat ${luokat}" id="${id}">` + lista.map(([bid, teksti], i) =>
   `<span class="vaihtoehto">${lista.length > 1 ? `<span class="kirjain">(${'ab'[i]})</span> ` : ''}<button class="link" type="button" id="${bid}">${teksti}</button></span>`).join(' ') + '</span>';
 function pinoaValinnat(){
-  document.querySelectorAll('.valinnat:not(.kiintea)').forEach(v => {
+  document.querySelectorAll('.valinnat').forEach(v => {
     v.classList.remove('pino');
     const o = [...v.querySelectorAll('.vaihtoehto')].map(x => Math.round(x.getBoundingClientRect().top));
     if (o.some(t => t !== o[0])) v.classList.add('pino');
   });
 }
 addEventListener('resize', pinoaValinnat);
+
+/* Kaarinuoli kysytyn salon kohdalla kiteen kehää KIERTO_ULOS px ulommalla samankeskisellä kehällä (hiutale 20 px, joten
+   väli hiutaleen kärkiin noin 5 px), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
+   maailman keskukseksi (alakärkeen lyhintä tietä; vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Pituus
+   KIERTO_PITUUS px kärkineen kehää pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
+const KIERTO_ULOS = 15, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
+function piirraKierto(){
+  const nuoli = $('kierto'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
+  nuoli.hidden = !el;
+  if (!el) return;
+  const a = el._kohde ?? el._kulma, suunta = Math.sign(270 + 360 * Math.round((a - 270) / 360) - a) || 1;
+  const W = stage.clientWidth, R = SADE / 100 * W + KIERTO_ULOS, deg = px => px / R * 180 / Math.PI;
+  if (!W){ nuoli.hidden = true; return; }   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
+  const p = t => [W / 2 + R * Math.cos(rad(t)), W / 2 - R * Math.sin(rad(t))];
+  const t0 = a - suunta * deg(KIERTO_PITUUS / 2), t2 = a + suunta * deg(KIERTO_PITUUS / 2), t1 = t2 - suunta * deg(KIERTO_KARKI[0]);
+  const [mx, my] = p(a), q = t => p(t).map((v, i) => v - [mx, my][i]);
+  const [x0, y0] = q(t0), [x1, y1] = q(t1), [x2, y2] = q(t2);
+  const tx = -Math.sin(rad(t2)) * suunta, ty = -Math.cos(rad(t2)) * suunta, [L, w] = KIERTO_KARKI;   // tangentti kärjessä
+  const [bx, by] = [x2 - tx * L, y2 - ty * L];
+  nuoli.style.left = f2(mx) + 'px'; nuoli.style.top = f2(my) + 'px';
+  const [kaari, karki] = nuoli.querySelectorAll('path');
+  kaari.setAttribute('d', `M${f2(x0)} ${f2(y0)}A${f2(R)} ${f2(R)} 0 0 ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
+  karki.setAttribute('d', `M${f2(x2)} ${f2(y2)}L${f2(bx + ty * w)} ${f2(by - tx * w)}L${f2(bx - ty * w)} ${f2(by + tx * w)}Z`);
+}
+addEventListener('resize', piirraKierto);
 
 /* Sovellusosion kopiointinapit: iPhonelle katselulinkki, Androidille koodi. */
 function copyText(t){
@@ -956,20 +967,17 @@ document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click'
 }));
 
 stage.addEventListener('click', e => {
-  const el = e.target.closest('.slot'); if (!el) return;
+  if (e.target.closest('#kierto')){ state.active = state.kysy; state.kysy = null; tallenna(); renderPanel(); return; }
+  const el = e.target.closest('.slot');
+  if (!el){ if (state.kysy){ state.kysy = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu nuolen
   const id = el.dataset.id;
   if (id === 'vapaa'){ state.melting = state.melting === 'uusi' ? null : 'uusi'; state.kysy = null; }
   else if (id === state.melting){ state.melting = null; state.kysy = null; }
   else if (id === state.active){ state.melting = state.active; state.kysy = null; }
-  /* Muu salko: ensin kysymys (maailman keskukseksi vai paaluta uudelleen); saman salon napautus peruu sen. */
-  else { state.kysy = state.kysy === id ? null : id; state.melting = null; }
+  /* Muu salko: ensin kaarinuoli (keskukseksi); saman salon toinen napautus sulattaa sen paalutettavaksi. */
+  else if (state.kysy === id){ state.melting = id; state.kysy = null; }
+  else { state.kysy = id; state.melting = null; }
   renderPanel();
-});
-$('kysy').addEventListener('click', e => {
-  const id = e.target.closest('button')?.id, s = state.kysy;
-  if (!s) return;
-  if (id === 'keskukseksi'){ state.active = s; state.kysy = null; tallenna(); renderPanel(); }
-  if (id === 'paalutaUudelleen'){ state.melting = s; state.kysy = null; renderPanel(); }
 });
 $('clear').addEventListener('click', e => {
   const id = e.target.closest('button')?.id;
@@ -1262,7 +1270,7 @@ function naytaSivu(s, uusi){
   $('etuPaalutus').hidden = palaava;
   $('aloita').hidden = palaava;
   $('toOwn').hidden = !palaava;
-  if (etu) alignCredit(); else pinoaValinnat();   // piilossa piirretty valintarivi mitataan vasta näkyvänä
+  if (etu) alignCredit(); else { pinoaValinnat(); piirraKierto(); }   // piilossa piirretty valintarivi mitataan vasta näkyvänä
   if (uusi){ history.pushState({ sivu }, '', location.href); window.scrollTo(0, 0); }
   paivitaLogo();
 }
