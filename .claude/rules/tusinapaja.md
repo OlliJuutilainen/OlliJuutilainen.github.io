@@ -155,7 +155,7 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
 Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun · oma · tusinasää (MOTS)* (käyttäjän päätös). Nimi on
 interpunktein: napissa välilyöntien kanssa, paneelin otsikossa ilman (käyttäjän päätös). Napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
-(aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mää” (SOTM)* (käyttäjän päätös); kapealla ruudulla
+(aforismi) on *MINUN·OMA·TUSINASÄÄ* ja sen alla *≈ sinun oma ”tusina-mää”*, ilman lyhenteitä (käyttäjän päätös); kapealla ruudulla
 `fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä). Logo on paneelissa samankokoinen kuin etusivulla, jossa
 sen koko tulee rivivälistä (käyttäjän päätös); aforismin paikka sekä avainnäkymän avain ja nimi mitoitetaan logosta.
 
@@ -200,9 +200,10 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
   kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kuusikulmion ulkopuolella ohut, pieni
-  yksikulmainen suuntanuoli, joka mukailee kuusikulmion ulospäin osoittavaa kulmaa loivennettuna: taite pienenee samassa suhteessa
-  kuin etäisyys napin keskeltä kasvaa, joten kaksinkertaisella etäisyydellä (26 px) sisäkulma on 150° (kaksitoistakulmion kulma). Kärki
-  sinne, minne salko kiertäisi (`suuntaNuoli`, sama `kierros` kuin kierrossa; käyttäjän päätökset).
+  yksikulmainen suuntanuoli, joka mukailee kuusikulmion ulospäin osoittavaa kulmaa loivennettuna ja reilusti irti siitä: sisäkulma
+  kultainen kulma 137,5°, kärkipuoli vajaan puolen kärjen verran häntää pidempi. Kuusikulmion säteen suuntaisten sivujen jatkeista
+  (yläkärjessä pystysivujen linjoista) kärjen huippu on täsmälleen omallaan eikä yli, ja häntä jää omastaan vajaaksi. Kärki sinne, minne salko kiertäisi (`suuntaNuoli`, sama
+  `kierros` kuin kierrossa; käyttäjän päätökset).
   Napin tai nuolen osoitus hiirellä näyttää viiveellä vihjeen *KESKUKSEEN* kuten avaimen vihje (käyttäjän päätös); nuoli
   on osa nappia, joten sen napautus kiertää. Vihjeen paikka valitaan osoitettaessa (`sijoitaVihje`) niin, ettei se peitä tekstiä,
   hiutaleita, Salkoni-kuvaa eikä nappia. Kehykset ja nappi tulevat esiin ja häipyvät
@@ -267,9 +268,9 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
   (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKOSUTKAUTUS
   syttyy pehmeästi vasta, kun avain on asettunut. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
-  Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
+  Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 1,2 s:n viiveellä (käyttäjän päätös) vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
-  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä versaalina (paino 400:n ja 600:n väliltä),
+  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* (ilman interpunktia; käyttäjän päätös) pystynä versaalina (paino 400:n ja 600:n väliltä),
   väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
   korkuiset; saa jatkua palstan ohi ruudun reunaan asti, ja vasta kun sekään ei riitä (kapea ruutu), koko pienenee, koska
   nimi ei rivity (käyttäjän päätös); se syttyy pehmeästi vasta, kun avain on asettunut. Arvo vain, kun laitteella on paneeli;

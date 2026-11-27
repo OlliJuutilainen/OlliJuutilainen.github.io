@@ -7,7 +7,8 @@
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
 // Haku-rivi: tekijä mukaan tai pois, asiasana. Supersalmiakki kieli-rivin alla kuten kori (mukaan, pois, ennalleen; myös
-// otsikko-osumat; rivinimien tekstit ja salmiakki oikealle tasattuina; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
+// otsikko-osumat; rivinimien tekstit ja salmiakki oikealle tasattuina; himmeä ilman sertifioituja; selite pelkkää tekstiä; rajaus
+// korien sarakkeessa vain valittuna, pois-tilassa yliviivattuna). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -97,8 +98,15 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('supersalmiakki lepotilassa haalea ruoste', await smVari() === 'haalea', await smVari());
   t('supersalmiakki: oma rivi kieli-rivin alla, ei tekstiä, selitteessä ei nappia', await page.evaluate(() => {
     const b = document.querySelector('button.salmiakki'), r = b && b.closest('.krivi');
-    return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 1 &&
-      b.textContent.trim() === '' && !!b.querySelector('svg') && !document.querySelector('.selite button'); }));
+    return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 2 &&
+      r.lastElementChild.classList.contains('sm-rajaus') && b.textContent.trim() === '' && !!b.querySelector('svg') && !document.querySelector('.selite button'); }));
+  // Rajaus: valittuna korien sarakkeessa himmeä versaalikursiivi, pois-tilassa yliviivattuna, lepotilassa piilossa (käyttäjän päätös).
+  const rajaus = () => page.evaluate(() => { const s = document.querySelector('.sm-rajaus'), c = getComputedStyle(s);
+    if (!s.getClientRects().length) return 'piilossa';
+    const x = s.getBoundingClientRect().left - document.querySelector('#suodatus .krivi .kk').getBoundingClientRect().left;
+    return [c.fontStyle, c.textTransform, c.textDecorationLine, Math.abs(x) < .01 ? 'korien x' : x, s.textContent].join(' / '); });
+  const RAJAUS = 'vain sivut, jotka ruosteinen salmiakki vahvistaa laadukkaasti latoutuviksi';
+  t('supersalmiakin rajaus lepotilassa piilossa', await rajaus() === 'piilossa', await rajaus());
   // Rivinimien tekstit ja salmiakki tasattuina oikealle: musteen oikea reuna kuvasta (rivin alue, korien vasemmalla puolella),
   // kulmat piilotettuina, koska ne riippuvat tekstin jälkeen eivätkä kuulu tasaukseen.
   const musteReunat = async () => {
@@ -130,6 +138,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('supersalmiakki mukaan: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 && await sm() === 'true mukaan false',
     (await nimet()).join(' | ') + ' / ' + await sm());
   t('supersalmiakki mukaan: täysi ruoste', await smVari() === 'ruoste', await smVari());
+  t('supersalmiakki mukaan: rajaus versaalikursiivina korien kohdalla', await rajaus() === 'italic / uppercase / none / korien x / ' + RAJAUS, await rajaus());
   t('supersalmiakki: tilarivi ja tyhjennä', await page.textContent('#s-nakyy') === 'sivustoja näkyvissä ' + superNimet.length + ' / ' + kaikki && await page.isVisible('#s-tyhjenna'));
   t('supersalmiakki: korin luku seuraa', Number(await page.textContent('button.kori[data-f="aihe"][data-v="filosofia"] .n')) === superFilo);
   await nappi('aihe', 'filosofia');
@@ -137,9 +146,10 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await nappi('aihe', 'filosofia'); await nappi('aihe', 'filosofia');
   await page.click('button.salmiakki');
   t('supersalmiakki pois: harmaa', await smVari() === 'harmaa', await smVari());
+  t('supersalmiakki pois: rajaus yliviivattuna', await rajaus() === 'italic / uppercase / line-through / korien x / ' + RAJAUS, await rajaus());
   t('supersalmiakki pois: ei sertifioituja', await nak() === kaikki - superNimet.length && !(await nimet()).some(x => superNimet.includes(x)) && await sm() === 'mixed pois false', await sm());
   await page.click('button.salmiakki');
-  t('supersalmiakki: kolmas napautus palauttaa', await nak() === kaikki && await sm() === 'false  false');
+  t('supersalmiakki: kolmas napautus palauttaa', await nak() === kaikki && await sm() === 'false  false' && await rajaus() === 'piilossa', await rajaus());
   await nappi('kieli', 'saksa');
   t('supersalmiakki himmeä, kun sertifioituja ei näy', await sm() === 'false  true');
   await page.click('button.salmiakki'); await page.click('#s-tyhjenna');
