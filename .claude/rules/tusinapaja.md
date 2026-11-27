@@ -150,7 +150,8 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 ## Minun oma tusinasää eli MOTS (hallintapaneeli)
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
-Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun oma tusinasää (MOTS)* (käyttäjän päätös).
+Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun·oma·tusinasää (MOTS)* (käyttäjän päätös). Napissa ja paneelin
+otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napissa MOTS on kursiivilla (käyttäjän päätös).
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -178,7 +179,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   luetaan logon poluista (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku).
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
-- *Pura paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Jätä paalupaikka* vain unohtaa paneelin
+- *Pura tämä paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu paalupaikalta* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
   (esim. Haakis) hallintalinkin avannut laite pääsee siitä eroon kaatamatta kaverin salkoja. Älä yhdistä näitä.
 - Leipäteksti IBM Plex Sans ja etusivun esimerkkinäkymä Source Sans 3 isännöitynä itse (`vendor/`, Fontsource, OFL,
