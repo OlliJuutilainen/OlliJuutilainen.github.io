@@ -189,13 +189,18 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Yli 120°:n kierto (vastakkainen kärki) on hitaampi ja lähtee
   pehmeästi, koska naapurin 700 ms olisi siinä levoton (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
+  Muun kuin valitun salon napautus ei kierrä heti vaan kysyy (käyttäjän päätös): *(a) maailman keskukseksi* vai
+  *(b) paaluta uudelleen* (sulatus ilman keskukseksi siirtymistä): keskukseksi siirtyminen on päämäärä eikä välivaihe.
+  Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
+- **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) …, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
+  muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
   eivät osu nimiin. Nimeä ei rivitetä eikä sakaraa lyhennetä (rivitys olisi pahin, sakaran lyhennys lievempi keino). Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
   puuttuminen kertoo sen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
-- Paneelin alla keskellä on versaali, laajentuva *POISTU* (kuten sovellusosion otsake, + / −), josta aukeaa rivi
-  *räjäytä ja tuhoa paalupaikka* TAI *poistu vähin äänin* (versaali TAI; käyttäjän päätös). Rivi piirretään uudelleen joka kerta, joten auki-tila on
+- Paneelin alla keskellä on versaali, laajentuva *POISTU* (kuten sovellusosion otsake, + / −), josta aukeavat
+  *(a) räjäytä ja tuhoa paalupaikka* ja *(b) poistu vähin äänin* (käyttäjän päätös). Rivi piirretään uudelleen joka kerta, joten auki-tila on
   `state.poistuAuki`, ei `<details>`.
   *Räjäytä ja tuhoa paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu vähin äänin* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
