@@ -191,7 +191,9 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
   sovellusosiota ole etusivulla (käyttäjän päätökset).
 - Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa. Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
   dataan ja yr.no:hon (käyttäjän päätös).
-- Logo sulkee avainnäkymän, jos se on auki; muuten paneelissa se vie etusivulle. Näkymä on historiassa (`history.state.sivu`),
+- Logo sulkee avainnäkymän, jos se on auki; muuten paneelissa se vie etusivulle ja etusivulla paneeliin, mutta etusivulla
+  vain, kun laitteen paneelissa on salko pystyssä (`salkoPystyssa`). Muuten etusivun logo ei ole linkki (ei `href`iä), jotta
+  ensipaalutukseen ei pääse logosta (käyttäjän päätös). Näkymä on historiassa (`history.state.sivu`),
   joten Takaisin palaa edelliseen näkymään; osoiterivin `replaceState`-kutsut säilyttävät tilan.
 - Ylätekstin ensimmäinen pala varaa 18 px oikean yläkulman avainmerkille: ilman sitä teksti osuu avaimeen 500–521 px:n leveydellä.
 
