@@ -32,13 +32,13 @@
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-italic.woff2) format('woff2') }
   :root{
     --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --soft:#7f8a93; --dim:#4b545c; --avain:#6a757e; --border:#2a3036;
-    --valinta:#8f9aa4;
+    --valinta:#8f9aa4; --tuote:#5e6870;
     --field:#0f1113; --err:#ff6b6b;
     --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
     color-scheme:dark;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --soft:#68737e; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df; --valinta:#515b64;
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --soft:#68737e; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df; --valinta:#515b64; --tuote:#939ca4;
       --field:#fff; --err:#c34242; color-scheme:light }
   }
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
@@ -148,13 +148,14 @@
   .merkki{ display:inline-block; width:.66em; height:.66em; vertical-align:.2em; margin-left:.02em; overflow:visible }
   .merkki.rengas{ margin-left:-.01em }
   .merkki:not(.rengas){ width:.6em; height:.6em; vertical-align:.24em }
-  /* AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (käyttäjän päätös). Yläindeksin koossa viiva vahvemmaksi,
-     muuten se jää alle pikselin levyiseksi. Vaakaviiva ulottuu hiutaleen kärkiä vasemmemmaksi: siirto pitää välin.
-     Siirto transformilla eikä marginaalilla, koska leveämpi rivi katkesi kynnysleveyksillä kahdeksi. */
-  .merkki.sula{ --sula-viiva:2.4; transform:translateX(.04em) }
+  /* AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (käyttäjän päätös). Yläindeksin koossa se katosi: piirros on
+     1,3-kertainen ja viiva vahvempi, jotta musteen määrä on RAAKAn renkaan luokkaa ja keskusta jää tyhjäksi.
+     Suurennus ja siirto transformilla eikä leveydellä tai marginaalilla, koska leveämpi rivi katkesi kynnysleveyksillä kahdeksi. */
+  .merkki.sula{ --sula-viiva:3.2; transform:translateX(.13em) scale(1.3) }
 
   /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla.
-     Valitsemattoman teksti --valinta (hiukan --mutedia kirkkaampi) ja tuotenimi --dim täytenä, yhä selvästi himmeämpänä. */
+     Valitsemattoman teksti --valinta (hiukan --mutedia kirkkaampi) ja tuotenimi --tuote (kolmannes --dimistä kohti --mutedia),
+     yhä selvästi himmeämpänä. */
   .pick{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
   .opt{ display:grid; gap:2px; align-content:space-between; justify-items:center; text-align:center; padding:8px 12px 2px; border-radius:8px; cursor:pointer;
     border:1px solid var(--border); background:none; color:var(--valinta) }
@@ -163,10 +164,10 @@
   .opt .sym i{ font-style:italic }
   .opt .sym .tk{ display:block; font-size:9px; font-style:italic; line-height:1.3; margin-top:3px; text-transform:uppercase; letter-spacing:.09em }
   .opt[data-lampo="raaka"] .sym .tk{ font-style:normal }
-  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--dim) }
+  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--tuote) }
   .opt .ref i{ font-style:italic }
   .opt .ref .tm{ margin-right:.2em }
-  .opt[aria-checked="true"] .ref{ color:var(--bg); opacity:.45 }
+  .opt[aria-checked="true"] .ref{ color:var(--bg); opacity:.55 }
   .opt .alt{ display:none }
   /* Ensimmäinen paalutus: tuotenimi isona, °C / TK pienenä. */
   .pick.tuotteet .opt{ padding:8px 12px 7px }
@@ -175,6 +176,7 @@
   .pick.tuotteet .opt .sym{ display:none }
   .pick.tuotteet .opt .alt{ display:block; font-size:9px; text-transform:uppercase; letter-spacing:.09em; opacity:.75; margin-top:5px }
   .pick.tuotteet .opt[data-lampo="avulias"] .alt{ font-style:italic }
+  .pick.tuotteet .merkki.sula{ transform:translateX(.22em) scale(1.3) }   /* ilman harvennusta S:n kursiivikärki on lähellä */
 
   .flabel{ display:block; font-size:12px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted); margin:0 0 6px }
   .flabel .lc{ text-transform:none; font-style:italic; letter-spacing:0 }
@@ -239,13 +241,15 @@
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
   /* Poistuminen (käyttäjän päätös): keskellä versaali, laajentuva POISTU kuten sovellusosion otsake (+ / −), josta aukeavat
-     räjäytys ja vähin äänin poistuminen. Merkki riippuu sanan perässä tasauksen ulkopuolella, joten sana on keskellä. Viiva on
-     sidottu edelliseen, joten kapealla ruudulla jälkimmäinen siirtyy kokonaisena. */
+     räjäytys ja vähin äänin poistuminen versaalin TAI:n erottamina. Merkki riippuu sanan perässä tasauksen ulkopuolella, joten
+     sana on keskellä. TAI kulkee jälkimmäisen kanssa (nowrap), joten kapealla ruudulla toinen rivi alkaa TAI poistu vähin äänin. */
   .clear .poistu{ font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; text-decoration:none; white-space:nowrap }
   .clear .poistu::after{ content:'+'; display:inline-block; width:0; text-indent:10px; font-size:15px; line-height:1; letter-spacing:0 }
   .clear .poistu[aria-expanded="true"]::after{ content:'−' }
   .clear .poistu:focus-visible{ outline:2px solid var(--muted); outline-offset:3px }
   .clearValinnat{ display:block; margin:6px 0 0 }
+  .clearValinnat .pari{ white-space:nowrap }
+  .clearValinnat .tai{ letter-spacing:.6px; text-transform:uppercase }
   /* Paluuohje versaalilla (käyttäjän päätös). */
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
@@ -330,7 +334,7 @@
   <div class="top">
     <a class="logoBox" id="logo" href="minun-tusinasaa.html" aria-label="TUSINASÄÄ 12, etusivu"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></a>
     <p class="toptext" id="toptext" hidden><span class="seg"><span class="nimi">TUSINASÄÄ 12</span> on&nbsp;henkilökohtainen sääsalkosi.</span> <span class="seg">Se välittää säästä (i)&nbsp;olennaisen ja (ii)&nbsp;nopeasti. Näin aikaa jää myös taivaalle katsomiseen.</span></p>
-    <p class="quote" id="quote"><span><span class="q1"><b>Minun·oma·tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
+    <p class="quote" id="quote"><span><span class="q1"><b>Minun·oma·tusinasää (MOTS)</b></span><br><span class="q2">≈ sinun oma ”tusina-mää” (SOTM)</span></span></p>
     <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M16.9 5.6L14.45 1.36L9.55 1.36L7.1 5.6L9.55 9.84L14.45 9.84ZM12 9.84V27.44"/></svg></button>
   </div>
 
@@ -469,9 +473,11 @@ const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${
    klo 12:sta, viimeisenä luku), joten salko seuraa logon muutoksia. Kuva on kiteen alakärjessä, ja auringon keskellä on
    valitun salon oma hiutale (kiteen nappi), ei kuvan omaa hiutaletta; hiutale on samankokoinen kuin logon luvun
    paikalle mahtuva (kärjet kehästä yhtä kaukana kuin logon luku). Leveys 56 px. Mitat logon yksiköissä (32).
-   Varsi on kehän paksuinen ja alkaa alimman säteen loven pohjalta. Jalka (käyttäjän päätös): horisonttina otsakkeen
-   MAAILMAN KESKUS (ilman kaksoispistettä) levyinen vaakaviiva (106,2 px, otsakkeen askelleveys; kuvaa leveämpi, SVG:n overflow
-   näyttää sen), sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä; varsi päättyy kehän
+   Varsi on kehän paksuinen ja alkaa alimman säteen loven pohjalta. Jalka (käyttäjän päätös): horisonttina vaakaviiva otsakkeen
+   MAAILMAN KESKUS (ilman kaksoispistettä) kursiivin ylälaidan päästä päähän, ei yli; päät (VAS, OIK) on mitattu musteesta,
+   ja ne ovat epäsymmetriset, koska otsake on keskitetty kaksoispisteineen ja kursiivin ylälaita on siirtynyt. Kun otsake tai
+   sen fontti muuttuu, mittaa uudelleen. Kuvaa leveämpi; SVG:n overflow näyttää sen. Sen päällä kuusikulmion (kärjet sivuilla)
+   yläpuolisko ääriviivana ja neljä sädettä; varsi päättyy kehän
    yläreunaan. Jalka on varren alaosan kohdalla eikä lisää korkeutta. Omana polkunaan: samassa polussa varren ja kehän
    päällekkäinen osa kumoutuisi vastakkaisten kiertosuuntien takia. */
 const salkoKuva = (() => {
@@ -480,11 +486,12 @@ const salkoKuva = (() => {
   const t = osat('tumma'), ulko = luvut(t[0])[1], sisa = luvut(t[1])[1], lovi = luvut(t[8])[5];
   const s3 = Math.sqrt(3), P = (sisa - ulko) * s3 / 2, PITUUS = 26, LEVEYS = 56, H = 32 + PITUUS;
   const yh = H - .8;
-  const VIIVA = 106.2 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
+  // Horisontti otsakkeen MAAILMAN KESKUS kursiivin ylälaidan päästä päähän (kuvan keskilinjasta, px): ei yli (käyttäjän päätös).
+  const VAS = 53.1 * 32 / LEVEYS, OIK = 49.9 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
   const puoli = r => [[16 + r, yh], [16 + r / 2, yh - r * s3 / 2], [16 - r / 2, yh - r * s3 / 2], [16 - r, yh]];
   const jalka = 'M' + [...puoli(RO), ...puoli(RI).reverse()].map(([x, y]) => f2(x) + ' ' + f2(y)).join('L') + 'Z' +
     [30, 60, 120, 150].map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
-    `M${f2(16 - VIIVA / 2)} ${f2(yh)}H${f2(16 + VIIVA / 2)}V${f2(yh + .8)}H${f2(16 - VIIVA / 2)}Z`;
+    `M${f2(16 - VAS)} ${f2(yh)}H${f2(16 + OIK)}V${f2(yh + .8)}H${f2(16 - VAS)}Z`;
   const varsi = `M${f2(16 - P / 2)} ${lovi}H${f2(16 + P / 2)}V${f2(yh - RO * s3 / 2 + .5)}H${f2(16 - P / 2)}Z`;
   const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;
   const k = (16 - sisa - .94) / 11.6 * 24, px = LEVEYS / 32;
@@ -495,15 +502,27 @@ const salkoKuva = (() => {
   };
 })();
 
-/* Aforismin rivit samasta vasemmasta reunasta: tasataan ensimmäisen kirjaimen musteesta, fonttien latauduttua uudelleen. */
+/* Aforismin rivit samasta vasemmasta reunasta: tasataan ensimmäisen kirjaimen musteesta, fonttien latauduttua uudelleen.
+   Kapealla ruudulla koko aforismi pienenee niin, että pidempi rivi mahtuu palstaan (em-mitat seuraavat). */
 function fitQuote(){
   const q = $('quote'), q1 = q.querySelector('.q1'), q2 = q.querySelector('.q2');
-  q1.style.paddingLeft = '0px'; q2.style.paddingLeft = '0px';
+  if (q.hidden) return;
   const ctx = fitQuote.ctx || (fitQuote.ctx = document.createElement('canvas').getContext('2d'));
   const inkLeft = (el, ch) => { const cs = getComputedStyle(el); ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; return -ctx.measureText(ch).actualBoundingBoxLeft; };
   const b1 = q1.querySelector('b') || q1;
-  const l1 = inkLeft(b1, (b1.textContent.trim()[0] || 'M').toUpperCase()), l2 = inkLeft(q2, q2.textContent.trim()[0] || 's');
-  q1.style.paddingLeft = Math.max(0, l2 - l1) + 'px'; q2.style.paddingLeft = Math.max(0, l1 - l2) + 'px';
+  const tasaa = () => {
+    q1.style.paddingLeft = '0px'; q2.style.paddingLeft = '0px';
+    const l1 = inkLeft(b1, (b1.textContent.trim()[0] || 'M').toUpperCase()), l2 = inkLeft(q2, q2.textContent.trim()[0] || 's');
+    q1.style.paddingLeft = Math.max(0, l2 - l1) + 'px'; q2.style.paddingLeft = Math.max(0, l1 - l2) + 'px';
+  };
+  q.style.fontSize = '';
+  tasaa();
+  const r = document.createRange(); r.selectNodeContents(q.firstElementChild);
+  const leveys = r.getBoundingClientRect().width, tilaa = q.parentElement.getBoundingClientRect().right - r.getBoundingClientRect().left;
+  if (leveys > tilaa && leveys > 0){
+    q.style.fontSize = Math.floor(parseFloat(getComputedStyle(q).fontSize) * (tilaa - 1) / leveys * 20) / 20 + 'px';   // 1 px varaa tasaukselle
+    tasaa();
+  }
 }
 fitQuote();
 addEventListener('resize', fitQuote);
@@ -827,7 +846,7 @@ function renderPanel(){
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
     : `<button class="link poistu" type="button" id="poistuAuki" aria-expanded="${state.poistuAuki}" aria-controls="clearValinnat">Poistu</button>` +
       (state.poistuAuki ? `<span class="clearIdle clearValinnat" id="clearValinnat"><button class="link" type="button" id="clearAsk">räjäytä ja tuhoa paalupaikka</button>` +
-        (creds ? `&nbsp;– <button class="link" type="button" id="leaveAsk">poistu vähin äänin</button>` : '') + `</span>` : '');
+        (creds ? ` <span class="pari"><span class="tai">tai</span> <button class="link" type="button" id="leaveAsk">poistu vähin äänin</button></span>` : '') + `</span>` : '');
   syncPick();
   renderMelt();
   paivitaLogo();
@@ -1146,6 +1165,7 @@ function naytaSivu(s, uusi){
   $('toptext').hidden = !etu;
   $('quote').hidden = etu;
   document.querySelector('.top').classList.toggle('eka', etu);
+  fitQuote();
   $('etuPaalutus').hidden = palaava;
   $('aloita').hidden = palaava;
   $('toOwn').hidden = !palaava;

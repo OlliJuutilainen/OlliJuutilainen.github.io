@@ -151,7 +151,9 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
 Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun·oma·tusinasää (MOTS)* (käyttäjän päätös). Napissa ja paneelin
-otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napin koko teksti on kursiivilla (käyttäjän päätös).
+otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
+(aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mää” (SOTM)* (käyttäjän päätös); kapealla ruudulla
+`fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä).
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -179,7 +181,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku). Salko on kiteen alakärjessä, ja
   auringon keskellä on valitun salon oma hiutale (kiteen nappi) kuvan oman hiutaleen kokoisena. Valittu salko kaikkinensa
   (kuva, hiutale, otsake ja nimi) on yhtä väriä, sivun kirkkainta `--brand` (tummassa valkoinen; käyttäjän päätös).
-  Jalka (käyttäjän päätös): nouseva aurinko eli otsakkeen MAAILMAN KESKUS levyinen (106,2 px, ilman kaksoispistettä) horisontti,
+  Jalka (käyttäjän päätös): nouseva aurinko eli horisontti otsakkeen MAAILMAN KESKUS kursiivin ylälaidan päästä päähän (ilman
+  kaksoispistettä; ei koskaan yli: päät `VAS`/`OIK` mitattu musteesta; mittaa uudelleen, jos otsake tai fontti muuttuu),
   sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä. Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
@@ -190,13 +193,14 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - Paneelin alla keskellä on versaali, laajentuva *POISTU* (kuten sovellusosion otsake, + / −), josta aukeaa rivi
-  *räjäytä ja tuhoa paalupaikka – poistu vähin äänin* (käyttäjän päätös). Rivi piirretään uudelleen joka kerta, joten auki-tila on
+  *räjäytä ja tuhoa paalupaikka* TAI *poistu vähin äänin* (versaali TAI; käyttäjän päätös). Rivi piirretään uudelleen joka kerta, joten auki-tila on
   `state.poistuAuki`, ei `<details>`.
   *Räjäytä ja tuhoa paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu vähin äänin* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
   (esim. Haakis) hallintalinkin avannut laite pääsee siitä eroon kaatamatta kaverin salkoja. Älä yhdistä näitä.
 - Lämpötilavalinnassa AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (`g-sula`, viivat sakaroiden väleissä), ei hiutale
-  (käyttäjän päätös). Yläindeksissä viiva on paksumpi (`--sula-viiva`), koska sulatuksen 1.9 jäisi alle pikselin.
+  (käyttäjän päätös). Yläindeksissä se on 1,3-kertainen ja viiva paksumpi (`--sula-viiva`), jotta se erottuu RAAKAn renkaan
+  veroisesti; suurennus transformilla, koska leveämpi merkki muuttaa nappien rivitystä. Tuotenimet ovat `--tuote`-sävyä.
 - Leipäteksti IBM Plex Sans ja etusivun esimerkkinäkymä Source Sans 3 isännöitynä itse (`vendor/`, Fontsource, OFL,
   latin-osajoukko), tummassa teemassa pohja `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
 
