@@ -257,7 +257,7 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   hampaina; kahvan ulkokulmien ja varren alapään pyöristys 1,5 px isossa avaimessa, käyttäjän päätös; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
-  sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja avain lähtee liikkeelle vasta 0,16 s:n tauon jälkeen
+  sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja avain lähtee liikkeelle vasta 0,11 s:n tauon jälkeen
   (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
   (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKOSUTKAUTUS
   vasta liikkeen loppupuolella. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.

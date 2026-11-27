@@ -305,7 +305,7 @@
   .kehys{ pointer-events:none }
   /* Kehykset ja kiertonappi tulevat esiin ja häipyvät pehmeästi (käyttäjän päätös); häipyessä ne jäävät paikalleen eikä
      nappia voi napauttaa. */
-  .kierto, .kehys{ opacity:0; visibility:hidden; pointer-events:none; transition:opacity .5s ease-out, visibility 0s .5s }
+  .kierto, .kehys{ opacity:0; visibility:hidden; pointer-events:none; transition:opacity .35s ease-out, visibility 0s .35s }
   .kierto.esilla, .kehys.esilla{ opacity:1; visibility:visible; transition:opacity .2s ease-in }
   .kierto.esilla{ pointer-events:auto }
   .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
@@ -1529,7 +1529,7 @@ function siirraAvain(kohde, muutos, esiin, myohemmin = []){
 }
 /* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja avain lähtee liikkeelle vasta AVAUS_TAUKO ms myöhemmin
    (käyttäjän päätös). Häivytyksen ja tauon aikana uusi napautus ei tee mitään. */
-const AVAUS_HAIVYTYS = 200, AVAUS_TAUKO = 160;
+const AVAUS_HAIVYTYS = 200, AVAUS_TAUKO = 110;
 let avausHaivytys = null;
 function avaaNakyma(){
   if (avausHaivytys) return;
