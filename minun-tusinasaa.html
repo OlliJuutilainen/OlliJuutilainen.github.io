@@ -531,15 +531,11 @@ if (document.fonts){
   if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitQuote);
 }
 
-/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit (seitsemän ensimmäistä, nyt-rivi mukaan lukien). --- */
+/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja kaksi seuraavaa (käyttäjän päätös). --- */
 const DEMO = [
   ['13:30', '0°', ['sinistä'], '—', '4 m/s', 'luoteesta', 1],
   ['klo 14', '0°', ['sangen sinistä'], '—', '4 m/s', 'pohjoisesta', 0],
-  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0],
-  ['klo 16', '-1°', ['NAUTTINEN HÄMÄRÄ (16:23)'], '—', '5 m/s', 'pohjoisesta', 0],
-  ['klo 17', '-1°', ['ASTRONOMINEN HÄMÄRÄ (17:17)'], '—', '5 m/s', 'pohjoisesta', 0],
-  ['klo 18', '-1°', ['SÄKKIPIMEÄ (18:08)'], '—', '4 m/s', 'pohjoisesta', 0],
-  ['klo 19', '-1°', ['»'], '—', '4 m/s', 'luoteesta', 0]
+  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0]
 ];
 $('demo').innerHTML = DEMO.map(([t, temp, desc, rain, w, dir, white]) => {
   const time = t.startsWith('klo') ? `<span class="mini">klo</span>${t.slice(4)}` : t;
