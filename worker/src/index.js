@@ -598,8 +598,10 @@ async function luinKirjoita(req, env) {
     logEvent("luin_post_short_key");
     return errorResponse("short_key", 403);
   }
-  const merk = body && body.m && typeof body.m === "object" && !Array.isArray(body.m) ? JSON.stringify(body.m) : "";
-  if (!merk && !md.trim()) return errorResponse("bad_payload", 400);
+  // Merkintäpaketti on posti.js:n paketti (v: 1); muu olio korvaisi laatikon merkinnät. Teksti ja merkinnät eivät kulje samassa
+  // pyynnössä (merkinnät tallentuisivat ja teksti putoaisi hiljaa).
+  const merk = body && body.m && typeof body.m === "object" && !Array.isArray(body.m) && body.m.v === 1 ? JSON.stringify(body.m) : "";
+  if (!merk && !md.trim() || merk && md.trim()) return errorResponse("bad_payload", 400);
   if (md.length > LUIN_MD_MAX || merk.length > LUIN_MERK_MAX) return errorResponse("too_large", 413);
   if (!env.LOCATIONS || typeof env.LOCATIONS.put !== "function") {
     logEvent("kv_error", { reason: "missing_binding" });
@@ -610,12 +612,19 @@ async function luinKirjoita(req, env) {
     return Object.assign(errorResponse("daily_limit", 429), { pysaytti: "paiva" });
   }
   const t = Date.now();
+  // KV:n virhe (tila täynnä, avainkohtainen kirjoitusraja) on palvelimen vika eikä pyynnön: 502, ei yleistä 400:aa.
+  // Ei 503: Latomo tulkitsee sen vanhaksi workeriksi.
+  try {
+    if (merk) await env.LOCATIONS.put(`luinm:${box}:${id}`, merk, { metadata: { t }, expirationTtl: LUIN_MERK_TTL });
+    else await env.LOCATIONS.put(`luin:${box}:${id}`, md, { metadata: { t }, expirationTtl: LUIN_TTL });
+  } catch (e) {
+    logEvent("kv_error", { reason: "put" });
+    return errorResponse("kv_error", 502);
+  }
   if (merk) {
-    await env.LOCATIONS.put(`luinm:${box}:${id}`, merk, { metadata: { t }, expirationTtl: LUIN_MERK_TTL });
     logEvent("luin_merk_post_200", { bytes: merk.length });
     return jsonResponse({ ok: true, id, t }, { headers: { "Cache-Control": "no-store" } });
   }
-  await env.LOCATIONS.put(`luin:${box}:${id}`, md, { metadata: { t }, expirationTtl: LUIN_TTL });
   logEvent("luin_post_200", { bytes: md.length });
   return jsonResponse({ ok: true, id, t }, { headers: { "Cache-Control": "no-store" } });
 }
@@ -662,8 +671,10 @@ async function handleLuin(req, env) {
 
   const aika = (k) => (k.metadata && Number.isFinite(Number(k.metadata.t)) ? Number(k.metadata.t) : 0);
   const [listed, mListed] = await Promise.all([
-    env.LOCATIONS.list({ prefix, limit: 200 }),
-    env.LOCATIONS.list({ prefix: mPrefix, limit: 200 }),
+    // 1000 on KV:n suurin sivu: sama yksi listaus kumpaakin kohden, mutta yli 200 avaimen laatikko (vuoden merkinnät, roskapalaute)
+    // ei enää katkea hiljaa aakkosjärjestyksen puoliväliin.
+    env.LOCATIONS.list({ prefix, limit: 1000 }),
+    env.LOCATIONS.list({ prefix: mPrefix, limit: 1000 }),
   ]);
   const texts = listed.keys.map((k) => ({ id: k.name.slice(prefix.length), t: aika(k) }));
   const merk = mListed.keys.map((k) => ({ id: k.name.slice(mPrefix.length), t: aika(k) }));
@@ -708,7 +719,8 @@ async function handlePalaute(req, env) {
   const md = "# Palaute: " + (rivi(k.nimi) || rivi(k.sposti) || "nimetön") + "\n\n" +
     [k.nimi && "Nimi: " + rivi(k.nimi), k.sposti && "Sähköposti: " + rivi(k.sposti), "Lähetetty " + aika,
       k.mista && "Sivulta: " + rivi(k.mista)].filter(Boolean).join("  \n") + "\n\n## Viesti\n\n" + k.viesti + "\n";
-  const id = "palaute-" + t.toString(36);
+  // Satunnainen pääte: samalla millisekunnilla tullut toinen palaute korvasi ensimmäisen.
+  const id = "palaute-" + t.toString(36) + "-" + Math.random().toString(36).slice(2, 6);
   await env.LOCATIONS.put(`luin:${box}:${id}`, md, { metadata: { t }, expirationTtl: LUIN_TTL });
   logEvent("palaute_200", { bytes: md.length });
   return jsonResponse({ ok: true, t }, { headers: { "Cache-Control": "no-store" } });
