@@ -44,37 +44,38 @@
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
   .wrap{ max-width:560px; margin:0 auto; padding-block:20px 32px;
     padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)) }
-  /* Logo 68,7 px; aforismi keskellä logon korkeudella, vasen reuna 30 px logon oikealta puolelta. */
+  /* Logo samankokoinen kuin etusivulla (2,930em × 19 px = 55,67 px, ks. .top.eka; käyttäjän päätös); aforismi keskellä
+     logon korkeudella, vasen reuna 30 px logon oikealta puolelta. Logon koosta riippuvat myös avainnäkymän avain ja nimi. */
   .top{ position:relative; display:flex; align-items:center; gap:16px; margin:0 0 22px }
-  .logoBox{ display:block; flex:none; line-height:0; margin-top:6.75px }
-  .logo{ display:block; width:68.7px; height:68.7px; color:var(--brand) }
+  .logoBox{ display:block; flex:none; line-height:0; margin-top:6.75px; font-size:19px }
+  .logo{ display:block; width:2.930em; height:2.930em; color:var(--brand) }
   /* Logo ilman taustaa tekstin värillä; vaaleassa teemassa säteet ovat suuremmat (android/scripts/tusinasaa-kuvake.js). */
   .logo .vaalea, .salko .vaalea{ display:none }
   @media (prefers-color-scheme: light){ .logo .tumma, .salko .tumma{ display:none } .logo .vaalea, .salko .vaalea{ display:inline } }
-  .quote{ position:absolute; left:0; right:0; top:6.75px; height:68.7px; margin:0; padding:0 0 0 98.7px;
+  .quote{ position:absolute; left:0; right:0; top:6.75px; height:55.67px; margin:0; padding:0 0 0 85.67px;
     display:flex; align-items:flex-start; justify-content:flex-start; text-align:left;
     /* Ylemmän rivin versaalien keskikohta logon keskikohdalle. */
-    padding-top:calc(34.35px - .7315em);
+    padding-top:calc(27.835px - .7315em);
     font-family:var(--body); font-style:italic; font-weight:400;
     font-size:17.5px; line-height:1.4; letter-spacing:.08em; color:var(--title); pointer-events:none }
   .quote .q1{ color:var(--brand) }
   .quote .q2{ letter-spacing:.04em; font-size:.88em; opacity:.72; font-family:var(--body); font-weight:300 }
   .quote span{ white-space:nowrap }
   .quote b{ text-transform:uppercase; font-size:1.04em }
-  @media (max-width:400px){ .quote{ padding-left:90.7px; font-size:16px; letter-spacing:.05em } .quote .q2{ letter-spacing:.025em } }
+  @media (max-width:400px){ .quote{ padding-left:77.67px; font-size:16px; letter-spacing:.05em } .quote .q2{ letter-spacing:.025em } }
   @media (max-width:375px){ .quote{ font-size:15px; letter-spacing:.035em } .quote .q2{ letter-spacing:.02em } }
 
   /* Etusivu: logo on kuin anfangi, kolmen rivin korkuinen: yläreuna ensimmäisen rivin versaalikorkeudella ja alareuna
      kolmannen rivin perusviivalla (logo 55,7 px, teksti 17 px, riviväli 1.3 eli 22,1 px, logon yläväli 4,69 px; mitattu
      getClientRects-perusviivoista, koska nimen sisältävä ensimmäinen rivi on 1 px muita korkeampi). Rivivälin muutos muuttaa
-     logoa kahden rivivälin verran ja yläväliä puolen verran; palstan sisennys on logo + 1,15em. Leveällä
+     logoa kahden rivivälin verran ja yläväliä puolen verran (ja paneelin samankokoista logoa sekä siitä mitoitettuja
+     aforismia, avainta ja nimeä); palstan sisennys on logo + 1,15em. Leveällä
      koko sisältö samassa palstassa logon oikealla; logo jää marginaaliin. Etusivun leipäteksti tiivis (käyttäjän päätös):
      17 px:n teksteissä riviväli 1.3, 15,5 px:n teksteissä 1.35. */
   .top.eka{ align-items:flex-start; gap:0; margin-bottom:18px }
   .top.eka .logoBox{ font-size:19px; margin:4.69px 1.15em 0 0 }
   /* Logo ilman linkkiä (etusivulla, kun laitteella ei ole pystyssä olevaa salkoa; paivitaLogo). */
   .logoBox:not([href]){ cursor:default }
-  .top.eka .logo{ width:2.930em; height:2.930em }
   .top.eka .toptext{ flex:1; min-width:0 }
   /* Oikean yläkulman avainmerkki: ensimmäinen pala ei saa ulottua sen alle (muuten 500–521 px:n leveydellä osuu). */
   .top.eka .toptext > .seg:first-child{ padding-right:18px }
@@ -142,8 +143,8 @@
      päätös). Varsi venyy, joten kärki pysyy mittasuhteissaan. */
   #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
   #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:10px; margin:0 3px }
-  #omaanSalkoon .varsi{ flex:1; height:1.6px; background:currentColor; margin-right:-1px }
-  #omaanSalkoon .karki{ flex:none; width:12px; height:5px }
+  #omaanSalkoon .varsi{ flex:1; height:1.3px; background:currentColor; margin-right:-1px }
+  #omaanSalkoon .karki{ flex:none; width:12px; height:4.4px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
   #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -311,7 +312,7 @@
   #paneeli + .foot{ margin-top:36px }
   /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Kahva on
      täytetty rengas, jonka ulkokulmat on pyöristetty 0,366 yksikön säteellä (isossa avaimessa 1,5 px; käyttäjän päätös)
-     ja sisäkulmat terävät; varsi omana suorakulmionaan. Harvinaisen
+     ja sisäkulmat terävät; varsi omana suorakulmionaan, jonka alapään kulmat on pyöristetty samoin (käyttäjän päätös). Harvinaisen
      tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
      taustaan yli 3); kirkastuu osoitettaessa --textiin, ei --brandiin: avauksen värisiirtymä lähtee osoitetusta väristä
      (myös kosketus ja näppäin), ja --brand veisi siltä liukuman. Merkki jää otsikkorivin yläpuolelle kaikilla
@@ -332,22 +333,26 @@
     .top > .avainNappi:hover::after{ opacity:1; visibility:visible; transition:opacity .15s .6s, visibility 0s .6s }
   }
   /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
-     kokoinen (ulkoapoteema 20,45 px; avain 110 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
+     kokoinen (ulkoapoteema 16,57 px; avain 89 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
      sisätyhjä 10 px), eli hieman kentän reunasta oikealle; ei linjausta logoon (käyttäjän päätös). Väri sivun kirkkain (--brand). Yläpuolelle enemmän ilmaa kuin alle:
      avain painuu kohti kenttää. Napautus sulkee. */
   .avainPaikka{ display:flex; justify-content:flex-start; margin:0 0 14px }
   .avainPaikka .avainNappi{ position:static; padding:8px; margin-left:3px; color:var(--brand) }
   .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--brand) }
   .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--text) }
-  .avainPaikka .avainNappi svg{ width:46.28px; height:109.89px }
-  /* Nimi avaimen oikealla puolella: pysty puolilihava versaali, väljästi harvennettu, --brand kuten avain (käyttäjän
-     päätös). Versaalien keskikohta kahvan kuusikulmion keskikohdassa (napin yläreunasta 8 + 20,44 px; versaalien keskikohta
-     ,77em − 1,64 px rivin yläreunasta, sovitettu musteesta 15–32 px:n koilla; perusviivan pyöristys heittää ±0,8 px). Väli kuusikulmion reunasta 22 px. Tavoitekoko: versaalit kehän
-     sisäpuolen korkuiset (28,58 px = 40,65 px:n fontti; käyttäjän päätös). Ei rivity, joten koko pienenee palstaan:
-     nimi vie 10,61em (8,93em + 14 × ,12em), avain ja välit 76,28 px. Ilman cqw-tukea 16 px. */
+  .avainPaikka .avainNappi svg{ width:37.5px; height:89.05px }
+  /* Nimi avaimen oikealla puolella: pysty versaali, väljästi harvennettu, --brand kuten avain (käyttäjän päätös). Paino
+     400:n ja 600:n väliltä (käyttäjän päätös): fontissa ei ole 500:aa, joten 400 ja ohut ääriviiva (,016em ≈ 500:n
+     runkoviiva). Versaalien keskikohta kahvan kuusikulmion keskikohdassa (napin yläreunasta 8 + 16,56 px; versaalien
+     keskikohta ,7261em − 0,48 px rivin yläreunasta, sovitettu litteiden versaalien musteesta 15–41 px:n koilla; perusviivan
+     pyöristys heittää ±1 px). Väli kuusikulmion reunasta 19 px. Versaalit ovat kehän sisäpuolen korkuiset (23,16 px = 32,94 px:n fontti;
+     käyttäjän päätös), ja nimi saa siksi jatkua palstan ohi ruudun reunaan (16 px:n marginaali) asti. Ei rivity, joten
+     kapeammalla koko pienenee: nimi vie 10,45em (8,64em + 14 × ,12em + varaa), avain ja välit 67,5 px palstan
+     vasemmasta reunasta, jonka etäisyys ruudun oikeaan reunaan on (100vw + 100cqw) / 2. Ilman cqw-tukea 16 px. */
   .avainPaikka{ container-type:inline-size }
-  .avainNimi{ order:1; align-self:flex-start; margin:calc(30.08px - .77em) 0 0 11px; white-space:nowrap;
-    font-weight:600; font-size:16px; font-size:min(40.65px, (100cqw - 76.28px) / 10.7); line-height:1.4; letter-spacing:.12em;
+  .avainNimi{ order:1; align-self:flex-start; margin:calc(25.04px - .7261em) 0 0 11px; white-space:nowrap;
+    font-weight:400; -webkit-text-stroke:.016em currentColor; font-size:16px;
+    font-size:min(32.94px, ((100vw + 100cqw) / 2 - 83.5px) / 10.45); line-height:1.4; letter-spacing:.12em;
     text-transform:uppercase; color:var(--brand) }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
@@ -388,7 +393,7 @@
     <a class="logoBox" id="logo" href="minun-tusinasaa.html" aria-label="TUSINASÄÄ 12, etusivu"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></a>
     <p class="toptext" id="toptext" hidden><span class="seg"><span class="nimi">TUSINASÄÄ 12</span> on&nbsp;henkilökohtainen sääsalkosi.</span> <span class="seg">Se välittää säästä (i)&nbsp;olennaisen ja (ii)&nbsp;nopeasti. Näin aikaa jää myös taivaalle katsomiseen.</span></p>
     <p class="quote" id="quote"><span><span class="q1"><b>Minun·oma·tusinasää (MOTS)</b></span><br><span class="q2">≈ sinun oma ”tusina-mää” (SOTM)</span></span></p>
-    <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" data-vihje="Salkosutkautukseen" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="currentColor" fill-rule="evenodd" d="M17.66 5.783A0.366 0.366 0 0 0 17.66 5.417L14.989 0.79A0.366 0.366 0 0 0 14.672 0.606L9.328 0.606A0.366 0.366 0 0 0 9.011 0.79L6.34 5.417A0.366 0.366 0 0 0 6.34 5.783L9.011 10.41A0.366 0.366 0 0 0 9.328 10.594L14.672 10.594A0.366 0.366 0 0 0 14.989 10.41ZM16.034 5.6L14.017 2.106L9.983 2.106L7.966 5.6L9.983 9.094L14.017 9.094Z"/><path fill="currentColor" d="M11.25 9.5H12.75V27.44H11.25Z"/></svg></button>
+    <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" data-vihje="Salkosutkautukseen" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="currentColor" fill-rule="evenodd" d="M17.66 5.783A0.366 0.366 0 0 0 17.66 5.417L14.989 0.79A0.366 0.366 0 0 0 14.672 0.606L9.328 0.606A0.366 0.366 0 0 0 9.011 0.79L6.34 5.417A0.366 0.366 0 0 0 6.34 5.783L9.011 10.41A0.366 0.366 0 0 0 9.328 10.594L14.672 10.594A0.366 0.366 0 0 0 14.989 10.41ZM16.034 5.6L14.017 2.106L9.983 2.106L7.966 5.6L9.983 9.094L14.017 9.094Z"/><path fill="currentColor" d="M11.25 9.5H12.75V27.074A0.366 0.366 0 0 1 12.384 27.44H11.616A0.366 0.366 0 0 1 11.25 27.074Z"/></svg></button>
   </div>
 
   <main>
@@ -440,7 +445,7 @@
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><span class="varsi"></span><svg class="karki" viewBox="0 0 12 4.4"><path d="M0 0L12 2.2L0 4.4Z" fill="currentColor"/></svg></span></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
@@ -924,10 +929,10 @@ function pinoaValinnat(){
 addEventListener('resize', pinoaValinnat);
 
 /* Kaarinuoli kysytyn salon kohdalla kiteen kehää KIERTO_ULOS px ulommalla samankeskisellä kehällä (hiutale 20 px, joten
-   väli hiutaleen kärkiin noin 11 px; lähempänä se näytti hiutaleen osalta), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
+   väli hiutaleen kärkiin noin 19 px; lähempänä se näytti hiutaleen osalta), keskitettynä hiutaleen kulmaan ja osoittaen siihen suuntaan, johon salko kiertyisi
    maailman keskukseksi (alakärkeen lyhintä tietä; vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Pituus
    KIERTO_PITUUS px kärkineen kehää pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const KIERTO_ULOS = 22, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
+const KIERTO_ULOS = 30, KIERTO_PITUUS = 20, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
 function piirraKierto(){
   const nuoli = $('kierto'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
   nuoli.hidden = !el;
@@ -970,15 +975,15 @@ document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click'
 stage.addEventListener('click', e => {
   if (e.target.closest('#kierto')){ state.active = state.kysy; state.kysy = null; tallenna(); renderPanel(); return; }
   const el = e.target.closest('.slot');
-  if (!el){ if (state.kysy){ state.kysy = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu nuolen
+  if (!el){ if (state.kysy){ state.kysy = null; state.melting = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu
   const id = el.dataset.id;
   if (id === 'vapaa'){ state.melting = state.melting === 'uusi' ? null : 'uusi'; state.kysy = null; }
   else if (id === state.melting){ state.melting = null; state.kysy = null; }
   else if (id === state.active){ state.melting = state.active; state.kysy = null; }
-  /* Muu salko: ensin kaarinuoli; saman hiutaleen toinen napautus on sama kytkin kuin nuoli (käyttäjän päätös). Muokattavaksi
-     salko sulatetaan keskuksena. */
-  else if (state.kysy === id){ state.active = id; state.kysy = null; tallenna(); }
-  else { state.kysy = id; state.melting = null; }
+  /* Muu salko (käyttäjän päätös): yksi napautus sulattaa sen heti muokattavaksi ja tuo lisäksi kaarinuolen, jolla sen saa
+     maailman keskukseksi; muuten matka muokkaukseen olisi pitkä ja mahdollisuudet vaikeita hahmottaa. Saman hiutaleen
+     uusi napautus peruu molemmat (edellinen haara). */
+  else { state.melting = id; state.kysy = id; }
   renderPanel();
 });
 $('clear').addEventListener('click', e => {
