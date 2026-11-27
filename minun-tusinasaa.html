@@ -1051,7 +1051,7 @@ function renderMelt(){
       <h3>${icon('sula')}Sulana: ${esc(nameOf(s.p))}</h3>
       <div class="field"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotussalon otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" value="${esc(nameOf(s.p))}" aria-label="Paikan kutsumanimi"></div></div>
       <div class="field"><span class="note">Paikka: ${esc(placeOf(s.p))}</span> <button class="link note" type="button" id="move">vaihda paikka</button><div id="moveBox" hidden>${hakuKentta()}</div></div>
-      <div class="actions"><button class="btn" type="button" id="freeze">Jäädytä</button><button class="link" type="button" id="remove">kaada salko</button><button class="link" type="button" id="cancel">peru</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
+      <div class="actions"><button class="btn" type="button" id="freeze">Jäädytä</button><button class="link" type="button" id="remove">Kaada salko</button><button class="link" type="button" id="cancel">Peru</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
   }
   $('t2').addEventListener('input', () => { $('t2').dataset.auto = '0'; });
 }
