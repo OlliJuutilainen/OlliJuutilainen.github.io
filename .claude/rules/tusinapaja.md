@@ -195,11 +195,13 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
-  katkoviivakuusikulmiolla ja tuo kiertonapin: samanlainen kuusikulmio 46 px hiutaleesta suoraan ulospäin (kaikissa kärjissä
-  samoin; kide on siksi alempana), sisällä pieni lähes täysi kippuranuoli salon kiertosuuntaan ja keskellä piste. Nimi
-  piiloutuu. Toinen napautus sulattaa salon muokattavaksi kehysten pysyessä, kolmas tai kiteen tyhjän kohdan napautus
-  peruu. Kiertonappi tekee salosta maailman keskuksen muokkauksen pysyessä auki. Valitun salon napautus sulattaa kuten ennen.
-  Kulmikkaat nuolet näyttivät liikennemerkeiltä, ja nuolen kärjen kanta on kohtisuoraan viivan päässä (käyttäjän päätös).
+  katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 31 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
+  siksi alempana): pieni kippuranuoli salon kiertosuuntaan katkoviivaympyrän sisällä, keskellä täytetty piste; kippura on
+  hiutaletta pienempi. Kippura suunnataan pelkällä kierrolla: kärki yläkulmissa suoraan alas, ylimmässä vasemmalle 8°
+  alaviistoon, alakulmissa kohti keskusta 12° alaviistoon. Hiiren alla kehyksen sisään kevyt harmaa täyttö. Nimi piiloutuu.
+  Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
+  kohdan napautus peruu kehykset. Kiertonappi tekee salosta maailman keskuksen. Valitun salon napautus sulattaa kuten ennen.
+  Kulmikkaat nuolet näyttivät liikennemerkeiltä; nuolen kärjen kanta on kohtisuoraan viivan päässä (käyttäjän päätös).
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
