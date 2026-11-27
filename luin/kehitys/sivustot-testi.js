@@ -49,12 +49,12 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await rivi('laji'); await rivi('kieli'); await rivi('aihe');
 
   await nappi('aihe', 'filosofia');
-  const filo = await nak(); t('filosofia mukaan', filo === 31, String(filo));
+  const filo = await nak(); t('filosofia mukaan', filo === 33, String(filo));
   await nappi('laji', 'alkuteksti'); await nappi('laji', 'kirjeet');
-  t('filosofia × alkuteksti/kirjeet = 13', await nak() === 13, String(await nak()));
+  t('filosofia × alkuteksti/kirjeet = 15', await nak() === 15, String(await nak()));
   await rivi('aihe'); await rivi('laji');
   t('supistetulla rivillä vain valitut korit', await nakyvatKorit('aihe') === 1 && await nakyvatKorit('laji') === 2 &&
-    await page.isVisible('button.kori[data-f="aihe"][data-v="filosofia"]') && await nak() === 13);
+    await page.isVisible('button.kori[data-f="aihe"][data-v="filosofia"]') && await nak() === 15);
   await page.click('button.kori[data-f="aihe"][data-v="filosofia"]');
   t('valitun korin napautus supistetulla rivillä vaihtaa tilan', await page.getAttribute('button.kori[data-f="aihe"][data-v="filosofia"]', 'data-tila') === 'pois' &&
     await nakyvatKorit('aihe') === 1);
