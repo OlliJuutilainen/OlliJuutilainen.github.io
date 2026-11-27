@@ -217,6 +217,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Henry Parlands Skrifter (`parland()`): vanha SLS-alusta, teksti `interface.php`:n JS-oliolitteraalista (`plJasenna()`, ei evalia),
   leikataan `slsRunko()`lla: sen muutos koskee myös Parlandia (aja `--sarja sls` ja `--sarja pl`). Kirjaksi kootaan vain teosryhmä
   (*Sönder …*, *Idealrealisation (1929)*), ei toimittajan ryhmiä. Testi `--sarja pl`.
+  Bokselskap.no (`bokselskap()`) ja Ludvig Holbergs Skrifter (`holberg()`), opas 7.5: koneisto (kommentti, tekstikritiikki, toisinto)
+  alaviitteiksi lemman perään yhteisellä `lemmaPaikka()`lla (Bokselskapin kommentti on editiosta riippuen lemman edellä tai perässä).
+  Bokselskapin sivun skripti korvaa koneiston kuvakkeilla ja poistaa tekstit, joten luvut haetaan aina palvelimen HTML:nä, myös
+  avattu; Holberg hakee koko teoksen ja kommentaarin tulostusnäkymästä (`doc.view=print`) lukunäkymästäkin. Kumpikin vain palvelimen
+  renderöimiä sivuja, ei rajapintoja. Testit `--sarja bs` ja `--sarja hb` (Peder Paars: 5,8 Mt:n tulostusnäkymä).
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
