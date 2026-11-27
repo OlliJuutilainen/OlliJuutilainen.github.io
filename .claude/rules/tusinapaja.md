@@ -15,6 +15,9 @@ hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat ver
 repoon `OlliJuutilainen/tusina-tavaraa` (kansio `github-io/arkisto/`). Älä tuo niitä takaisin, älä tutki niitä, älä vertaa
 niihin äläkä mainitse niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
 
+Kun käyttäjä nimeää Tusinasään sivujen värin (esim. *valkoinen*), hän tarkoittaa tummaa teemaa (käyttäjän päätös); vaalean
+teeman vastine on saman tokenin (esim. `--brand`) vaalea arvo.
+
 ## Tusinapajan tyylisäännöt
 
 `tusinapaja.html` näyttää tunneittaisen sään viidessä sarakkeessa: aika, lämpötila,
