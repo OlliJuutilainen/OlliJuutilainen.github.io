@@ -139,9 +139,9 @@
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
   /* Etusivun päänapit lihavoituina, MOTS kursiivilla (käyttäjän päätös). */
   #aloita, #omaan, #omaanSalkoon{ font-weight:700 }
-  /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
+  /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen (väli 26 px; isompi oli tarpeeton) iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
-  .omaan{ text-align:center; margin:44px 0 40px }
+  .omaan{ text-align:center; margin:26px 0 40px }
   /* Reipas nuoli tekstin alla, 3 px tekstiä lyhyempi kummastakin päästä, melkein kiinni päihin (käyttäjän päätös): ohut
      varsi ilman perää ja kärkenä kapea suora kolmio, auringon säteen sukua eikä lovettu navigaattorinuoli (käyttäjän
      päätös). Varsi venyy, joten kärki pysyy mittasuhteissaan. */
@@ -227,8 +227,15 @@
      vaakatason ylittäessään ja vaihtaa puolta näkymättömänä (asetaKulma). Paikka liikkuu kiteen kehää pitkin (kierra),
      joten left/top ilman CSS-siirtymää. */
   .slot{ position:absolute; transform:translate(-50%, -16px); display:grid; justify-items:center; gap:3px;
-    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted); transition:color .3s, opacity .35s }
-  .slot svg{ width:20px; height:20px; overflow:visible; transition:transform .3s }
+    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted);
+    transition:color calc(var(--siirto) * .45) ease-in-out, opacity .35s }
+  .slot svg{ width:20px; height:20px; overflow:visible; transition:transform calc(var(--siirto) * .45) ease-in-out }
+  /* Valitun vaihtuessa väri ja koko seuraavat kiertoa (käyttäjän päätös: 0,3 s:n vaihto töksähti): kierra asettaa
+     --siirto-muuttujaksi kierron keston. Lähtevä keskus himmenee ja pienenee kierron ensimmäisen 45 %:n aikana, saapuva
+     kirkastuu ja kasvaa viimeisen 60 %:n aikana. Ilman kiertoa --siirto on 0,6 s, joten muut vaihdot kestävät 0,27 s. */
+  .stage{ --siirto:.6s }
+  .slot.on{ transition:color calc(var(--siirto) * .6) ease-in-out calc(var(--siirto) * .4), opacity .35s }
+  .slot.on svg{ transition:transform calc(var(--siirto) * .6) ease-in-out calc(var(--siirto) * .4) }
   .slot .nm{ position:absolute; left:50%; top:calc(100% - 3px); transform:translateX(-50%);
     font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
   .slot.yla .nm{ top:auto; bottom:calc(100% - 3px) }
@@ -849,14 +856,15 @@ function asetaKulma(el, a){
 function kierra(liikkeet, valmis = () => {}){
   cancelAnimationFrame(kiertoRaf);
   if (!liikkeet.some(([, a, b]) => a !== b) || matchMedia('(prefers-reduced-motion: reduce)').matches){
-    liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); valmis(); return;
+    liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); stage.style.removeProperty('--siirto'); valmis(); return;
   }
   const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 2400 * Math.sqrt(kulma / 180);
+  stage.style.setProperty('--siirto', Math.round(kesto) + 'ms');   // väri ja koko kierron tahdissa (.slot)
   const alku = performance.now();
   const askel = nyt => {
     const p = Math.min(1, (nyt - alku) / kesto), e = KIERTO(p);
     liikkeet.forEach(([el, a, b]) => asetaKulma(el, a + (b - a) * e));
-    if (p < 1) kiertoRaf = requestAnimationFrame(askel); else valmis();
+    if (p < 1) kiertoRaf = requestAnimationFrame(askel); else { stage.style.removeProperty('--siirto'); valmis(); }
   };
   kiertoRaf = requestAnimationFrame(askel);
 }
@@ -893,7 +901,10 @@ function renderPanel(){
   state.slots.forEach(s => {
     const el = nappi(s.id), on = s.id === state.active, melting = s.id === state.melting;
     el.className = 'slot' + (on ? ' on' : '') + (melting ? ' melting' : '') + (s.id === state.kysy ? ' kysytty' : '');
-    el.innerHTML = icon(melting ? 'sula' : 'kide') + `<span class="nm">${esc(nameOf(s.p))}</span>`;
+    /* Kuva luodaan uudelleen vain kuvion vaihtuessa: uudella elementillä ei olisi koon siirtymää. */
+    const kuvio = melting ? 'sula' : 'kide';
+    if (el.querySelector('use')?.getAttribute('href') !== '#g-' + kuvio) el.innerHTML = icon(kuvio) + `<span class="nm">${esc(nameOf(s.p))}</span>`;
+    else el.querySelector('.nm').textContent = nameOf(s.p);
     el.setAttribute('aria-pressed', String(on));
     el.setAttribute('aria-label', `${titleOf(s.p)}${on ? ', valittu' : ''}`);
   });

@@ -193,7 +193,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot ovat rauhallisia:
   nopeus kasvaa rauhallisesti huippuunsa kultaisen leikkauksen kohdalla ja laskee siitä liukuvana jarrutuksena
-  (`KIERTO`; huippunopeus ei saa olla korkea), kesto 2,4 s × √(kulma / 180°) (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
+  (`KIERTO`; huippunopeus ei saa olla korkea), kesto 2,4 s × √(kulma / 180°) (käyttäjän päätös). Valitun vaihtuessa
+  hiutaleiden väri ja koko seuraavat kiertoa (`--siirto`): lähtevä himmenee alussa, saapuva kirkastuu lopussa. Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
@@ -207,7 +208,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   tulee esiin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt (otsake pysyy). Reunan paikkanimet eivät katoa
   (käyttäjän päätös: kaikkien samanaikainen ilmestyminen oli hassu); kierron aikana nimi häipyy vain alakärjen lähellä,
   jossa se kulkisi Salkoni-kuvan yli. Valitun salon napautus sulattaa kuten ennen.
-- **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
+- **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen (väli 26 px) ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
   säteen sukua, ei lovettu navigaattorinuoli; käyttäjän päätös).
