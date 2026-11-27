@@ -178,13 +178,13 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista lukua. Kehä ja säteet luetaan logon poluista
   (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku). Salko on kiteen alakärjessä, ja
   auringon keskellä on valitun salon oma hiutale (kiteen nappi) kuvan oman hiutaleen kokoisena. Valittu salko kaikkinensa
-  on muita kirkkaampi: kuva ja otsake `--text`, nimi `--brand` (käyttäjän päätös).
-  Jalka (käyttäjän päätös): nouseva aurinko eli otsakkeen MAAILMAN KESKUS levyinen (106,2 px, ilman kaksoispistettä) horisontti, sen päällä kuusikulmion (kärjet sivuilla)
-  yläpuolisko ääriviivana ja neljä sädettä, horisontin alla juuret lumihiutaleen puolikkaana (kolme sakaraa, kussakin kaksi
-  sivuhaaraa). Varsi ja juurten pääsakarat hohtavat: sisus `#fff` kummassakin teemassa. Ei lisää korkeutta.
+  (kuva, hiutale, otsake ja nimi) on yhtä väriä, sivun kirkkainta `--brand` (tummassa valkoinen; käyttäjän päätös).
+  Jalka (käyttäjän päätös): nouseva aurinko eli otsakkeen MAAILMAN KESKUS levyinen (106,2 px, ilman kaksoispistettä) horisontti,
+  sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä. Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
-  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
+  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Yli 120°:n kierto (vastakkainen kärki) on hitaampi ja lähtee
+  pehmeästi, koska naapurin 700 ms olisi siinä levoton (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas. Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
   puuttuminen kertoo sen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
