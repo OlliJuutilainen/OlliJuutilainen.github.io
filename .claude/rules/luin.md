@@ -197,6 +197,13 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sivua, muuten avoimen sivun osa; faksimilin koneluku käyttää `rbLohkot()`ia sanojen paikoista mitatuin reunoin. Pesukone hakee
   runeberg.orgia 2 s välein (Crawl-delay), joten ensimmäinen ajo täyttää välimuistin ja vasta toinen kokoaa teokset; testit
   `--sarja pr` ja `--sarja lb`. Kumpikin on md.js:n `KANTAJA`.
+  Avoin Kalevala (`avoinKalevala()`, opas 7.5) on TEI Publisher -sovellus: leike lukee asiakirjan rajapinnasta
+  (`/api/document/<polku>`, polku sivun `pb-document`ista), ei sivua. Huomautus haetaan merkinnän tunnuksesta, ei tyypistä
+  (lähteen tyyppinimissä on kirjoitusvirheitä). Lönnrotin alaviitteet (`table type=footnotes`, *3: 1.*) kohdistetaan juoksevasta
+  säelaskusta, koska painetussa numeroinnissa on poikkeamia. Runoluettelosta koko Kalevala (4,2 Mt, noin 18 000 alaviitettä:
+  raskain sovitteen leike). Sama muunnin (`akRunko()`) lukee SKS:n Kantelettaren (`/exist/apps/kanteletar`), jonka TEI on erilainen
+  (runo `div type=poem`, säenumero `l rend=number`, viite tekstissä): muutos koskee molempia. md.js pudottaa otsikon lopun
+  `[^x]`:n välilyönnin jälkeen, joten otsikon merkki liitetään ilman välilyöntiä. Testi `--sarja kal`.
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
@@ -245,12 +252,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (näkyvät linkkirivit, mukaan/pois, pois karsii pääkorin tai pääkielen; yhden sivuston kielet *muut kielet*; rivit aihe, laji ja kieli
   ladattaessa supistettuina, nimi avaa, supistettuna näkyvät vain valitut korit, käyttäjän päätös, ei muistia) löytävät sen,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
-  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
+  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä, johdantoa himmeämpänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
   Suodatuksessa kieli-rivin alla on pelkkä salmiakki (`button.salmiakki`, käyttäjän päätös; ei selitteeseen, joka on pelkkää tekstiä):
   rivinimien sarakkeessa listan salmiakkien koossa, toimii kuten kori (mukaan, pois, ennalleen; `tila.salmiakki`), myös otsikko-osumille.
   Lepotilassa se on haalea ruoste (`--ruoste-haalea`), mukaan täysi ruoste ja alleviivaus, pois harmaa ja yliviivaus (käyttäjän päätös).
-  Rivinimien tekstit ja salmiakki on tasattu oikealle musteen mukaan, kulmat riippuvat tekstin jälkeen tasauksen ulkopuolella, ja korit
+  Rivinimet ovat versaalina (HAKU, AIHE, LAJI, KIELI; käyttäjän päätös). Rivinimien tekstit ja salmiakki on tasattu oikealle musteen mukaan, kulmat riippuvat tekstin jälkeen tasauksen ulkopuolella, ja korit
   alkavat kaikilla riveillä samasta x:stä (käyttäjän päätökset; testi mittaa kuvasta): kun muutat rivinimiä, kulmaa tai salmiakkia, aja testi.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on. Listan selitteissä J. L. Runeberg on yksin mainittuna *Runeberg*,
@@ -272,6 +279,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR`, `NOT` ja sulut, operaattorit vain isoin kirjaimin; lainausmerkeissä kokonainen sana tai fraasi kuten lukimen haussa.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
+- **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
+  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
   *kaikkiruokainen*), *luonnontieteet* (ei *tiede*: luonnontieteet, matematiikka ja tekniikka; suomen laaja *tiede* kattaisi myös
@@ -650,10 +660,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Veto**: vierityksessä ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan). Sivutettuna **veto** pysähtyy
   vain portaille (`janaPysakit()`, laskettu kerran vetoa kohden). **Portaiden laki** (käyttäjän päätökset, koodin kommentissa):
   porras on sivu ja sivulla yksi porras (etusija majakka, haamu, merkkipaalu, kirjanmerkki, viimeinen sivu, väliporras);
-  merkkipaalut ovat alku, luvut ja osiot, **ei kohtia**; askel on 12,5 % sivumäärästä kokonaisiksi sivuiksi (puolikas ylöspäin,
-  vähintään 1: alle 12 sivua 1, 12 sivua 2); yli 25 %:n merkkipaaluväli (viimeinen kirjan loppuun, sivu N) jaetaan
-  `floor(väli / askel)` yhtä suureen osaan; viimeinen sivu, kirjanmerkit, majakka ja haamu eivät siirrä väliportaita.
-  Merkkipaaluton 12-sivuinen: joka toinen sivu. **Napautus** (alle `JANA_VETO_PX` = 10 px sivuliikettä) vie mihin kohtaan
+  merkkipaalut ovat alku, luvut ja osiot, **ei kohtia**; askel on **kymmenkanta**: pienin kahden potenssi, jolla veto ensimmäiseltä
+  sivulta viimeiselle (N − 1 sivua) tekee alle kymmenen hyppyä (1–10 sivua 1, 11–20 sivua 2, 21–40 sivua 4 …); jokainen merkkipaaluväli
+  (viimeinen viimeiselle sivulle) jaetaan `floor(väli / askel)` yhtä suureen osaan, joten mikään hyppy ei ole kahta askelta pitkä;
+  kirjanmerkit, majakka ja haamu eivät siirrä väliportaita. Merkkipaaluton 10-sivuinen: joka sivu, 11-sivuinen: joka toinen sivu. **Napautus** (alle `JANA_VETO_PX` = 10 px sivuliikettä) vie mihin kohtaan
   tahansa kuten vierityksessä, ja osuma näkyvän salmiakin musteen x-alueelle vie sen keskukseen (`janaSalmiakit`; vain napautus,
   ei veto). Muuta magneettia ei lisätä. Poikkeus kumpaankin lukutapaan: osuma piirrettyyn kirjanmerkin nauhaan vie tasan
   kirjanmerkkiin (`janaNauhat`). Liikkeessä päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran

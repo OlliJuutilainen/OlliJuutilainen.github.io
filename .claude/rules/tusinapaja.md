@@ -49,7 +49,7 @@ Sademäärä:
 
 Maa jäässä plussalla (käyttäjän päätös):
 
-- Lämpötilan perässä alaindeksinä Tusinasään hiutale (sama kuin AVULIAAN tuotemerkki), kun maan pinta on jäässä
+- Lämpötilan perässä alaindeksinä Tusinasään hiutale (sama kuin AVULIAAN tuotemerkki `oma-tusinasaa.html`:ssä), kun maan pinta on jäässä
   mutta lukema plussalla. Molemmissa lämpötilatiloissa, jokaisella rivillä, jolla ehto täyttyy.
 - Ehdot näkyvistä, pyöristetyistä lukemista (`groundFrozenUnderPlus`): maa enintään −1 (siis alle −0,5) ja
   **RAAKA** (°C) vähintään 1°, **AVULIAS** (TK) vähintään 0. TK:n ja maan eroa ei voi lukemasta arvata, joten
@@ -184,6 +184,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - *Pura tämä paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu paalupaikalta* vain unohtaa paneelin
   laitteelta (molemmat muistiavaimet ja osoiterivin hallintalinkki) eikä lähetä palveluun mitään: toisen profiilin
   (esim. Haakis) hallintalinkin avannut laite pääsee siitä eroon kaatamatta kaverin salkoja. Älä yhdistä näitä.
+- Lämpötilavalinnassa AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (`g-sula`, viivat sakaroiden väleissä), ei hiutale
+  (käyttäjän päätös). Yläindeksissä viiva on paksumpi (`--sula-viiva`), koska sulatuksen 1.9 jäisi alle pikselin.
 - Leipäteksti IBM Plex Sans ja etusivun esimerkkinäkymä Source Sans 3 isännöitynä itse (`vendor/`, Fontsource, OFL,
   latin-osajoukko), tummassa teemassa pohja `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
 

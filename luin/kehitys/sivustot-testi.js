@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]
 // Tarkistaa: kaikki sivustot alussa; korit mukaan (tai saman rivin sisällä, ja rivien välillä), pois karsii pääkorin tai
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
-// vaakavieritystä ja suodatus alle 400 px (supistettuna alle 200 px; rivit aihe, laji ja kieli supistettuina, nimi avaa, supistettuna
+// vaakavieritystä ja suodatus alle 440 px (supistettuna alle 235 px; rivit aihe, laji ja kieli supistettuina, nimi avaa, supistettuna
 // näkyvät vain valitut korit); ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
@@ -45,7 +45,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const m2 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
   await rivi('laji'); await rivi('kieli');
   const m3 = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
-  t('360 px: kaikki auki alle 400 px, ei vaakavieritystä', m3.korkeus < 400 && !m3.vaaka && m2.korkeus < m3.korkeus, JSON.stringify([m2, m3]));
+  t('360 px: kaikki auki alle 440 px, ei vaakavieritystä', m3.korkeus < 440 && !m3.vaaka && m2.korkeus < m3.korkeus, JSON.stringify([m2, m3]));
   await rivi('laji'); await rivi('kieli'); await rivi('aihe');
 
   await nappi('aihe', 'filosofia');
@@ -68,6 +68,15 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await nappi('kieli', 'englanti'); await nappi('kieli', 'englanti');
   const eiEn = await nak(); t('englanti pois (pääkieli) jättää muut', eiEn > 30 && eiEn < kaikki, String(eiEn));
   t('Perseus jää (pääkieli kreikka)', (await nimet()).includes('Perseus Digital Library'));
+  await page.click('#s-tyhjenna');
+  // Kaunokirjallinen: pääkorina vain kaunokirjallisuuden sivustoilla; pois jättää sivustot, joilla laji on toisena.
+  await nappi('laji', 'kaunokirjallinen');
+  const kauno = await nimet();
+  t('kaunokirjallinen mukaan', kauno.includes('Standard Ebooks') && kauno.includes('Project Gutenberg') && !kauno.includes('Stanford Encyclopedia of Philosophy'), kauno.length + '');
+  await nappi('laji', 'kaunokirjallinen');
+  const eiKauno = await nimet();
+  t('kaunokirjallinen pois karsii pääkorin, Gutenberg jää', !eiKauno.includes('Standard Ebooks') && !eiKauno.includes('Folger Shakespeare') &&
+    eiKauno.includes('Project Gutenberg') && eiKauno.includes('Stanford Encyclopedia of Philosophy'), eiKauno.length + '');
   await page.click('#s-tyhjenna');
   await page.fill('#s-haku', 'nagarjuna'); await page.waitForTimeout(50);
   t('haku nagarjuna (tarkkeeton) löytää GRETILin', (await nimet()).join('|').includes('GRETIL'), (await nimet()).join(' | '));
@@ -209,8 +218,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   // Fennomaanit (26.11.2026): piirin sivustot ja sivustot, joilla on piirin tekstejä (Runebergin teokset Gutenbergissa,
   // Wikisourcessa, Projekt Runebergissa ja Litteraturbankenissa).
   const fenno = await nimet();
-  t('fennomaanit: Snellman, SLS ja neljä sivustoa, joilla on piirin tekstejä', ['J. V. Snellmanin kootut teokset', 'SLS:n digitaaliset editiot', 'Project Gutenberg',
-    'Wikisource', 'Projekt Runeberg', 'Litteraturbanken'].every(n => fenno.includes(n)) && fenno.length === 6, fenno.join(' | '));
+  t('fennomaanit: Snellman, SLS, Avoin Kalevala ja neljä sivustoa, joilla on piirin tekstejä', ['J. V. Snellmanin kootut teokset', 'SLS:n digitaaliset editiot',
+    'Avoin Kalevala', 'Project Gutenberg', 'Wikisource', 'Projekt Runeberg', 'Litteraturbanken'].every(n => fenno.includes(n)) && fenno.length === 7, fenno.join(' | '));
   o = await osumat('runeberg');
   t('runeberg + fennomaanit: Gutenberg, SLS, Wikisource, Projekt Runeberg ja Litteraturbanken', ['Project Gutenberg', 'SLS:n digitaaliset editiot', 'Wikisource',
     'Projekt Runeberg', 'Litteraturbanken'].every(n => o.some(x => x.s === n)) && o.every(x => x.s !== 'Det Kgl. Biblioteks tekstportal'), [...new Set(o.map(x => x.s))].join(' | '));
