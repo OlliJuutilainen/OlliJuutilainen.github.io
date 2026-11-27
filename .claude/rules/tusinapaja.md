@@ -152,7 +152,7 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
 Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun·oma·tusinasää (MOTS)* (käyttäjän päätös). Napissa ja paneelin
 otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napissa MOTS on kursiivilla (käyttäjän päätös). Paneelin otsikko
-(aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mãã” (sotm)* (käyttäjän päätös); kapealla ruudulla
+(aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mää” (SOTM)* (käyttäjän päätös); kapealla ruudulla
 `fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä).
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
