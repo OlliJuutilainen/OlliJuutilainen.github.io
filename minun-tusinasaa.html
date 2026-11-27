@@ -734,7 +734,7 @@ function renderPanel(){
   $('appPaneeli').hidden = first || !creds;
   /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; poistuminen vain unohtaa paneelin tältä laitteelta. */
   $('clear').innerHTML = state.confirmClear
-    ? `Puretaanko koko salosto? Kaikki salot kaadetaan, maa möyhitään paalutusperustuksia myöten. Ihan OK? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
+    ? `Puretaanko koko salosto? Kaikki salot kaadetaan, maa möyhitään paalutusperustuksia myöten. Ihan OK? <button class="link danger" type="button" id="clearYes">PURETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
     : state.confirmLeave
     ? `Poistutaanko paalupaikalta? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">POISTU</button> · <button class="link" type="button" id="clearNo">peru</button>` +
       `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
