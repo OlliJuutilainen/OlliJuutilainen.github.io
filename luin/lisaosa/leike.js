@@ -11327,6 +11327,20 @@
   // Lähdeosion osasto kansiosta (sivun oma murupolku on ohjesivun polku).
   const AK_OSASTO = { runot: 'Runot', esipuheet: 'Esipuheet', artikkelit: 'Artikkelit', liitteet: 'Liitteet', nimiolehdet: 'Nimiölehdet' };
   const AK_MERKKI = /^\s*(?:[*←→↑↓+]|\d{1,3}[a-z]?)\s*$/;
+  // SKVR:n korostukset (hi rend ja samannimiset TEI:n ulkopuoliset elementit) kuten käyttöliittymä näyttää ne: I kursiivi,
+  // H harvennus ja FR kursiivi (Markdownissa kursiivi), KA (kaarella yhdistetyt kirjaimet: tš, oa) lihavointi, SUP ja SUB
+  // ylä- ja alaindeksi; VNSUP on säenumero, SMALLCAPS tekstiä.
+  const SK_HI = { I: 'em', H: 'em', FR: 'em', KA: 'strong', SUP: 'sup', SUB: 'sub' };
+  // Vierekkäiset samat korostukset yhdeksi (SKVR: <hi rend="I">Juoni.</hi><hi rend="FR">led …</hi>): *a**b* olisi lihavointi.
+  function skKorostukset(el) {
+    [...el.querySelectorAll('strong, em')].reverse().forEach(e => {
+      const v = e.nextSibling, n = v && v.nodeType === 3 && !v.data.trim() ? v.nextSibling : v;
+      if (!n || n.nodeType !== 1 || n.tagName !== e.tagName || !e.parentElement) return;
+      if (v !== n) e.append(v);
+      e.append(...n.childNodes);
+      n.remove();
+    });
+  }
   function akRunko(X, o) {
     const ln = n => n.localName, xid = n => n.getAttribute('xml:id') || n.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'id') || '';
     const lapset = n => [...n.childNodes];
@@ -11340,6 +11354,10 @@
       if (xid(n) && !huom.has('id:' + xid(n))) huom.set('id:' + xid(n), n);
       if (n.getAttribute('n') && !huom.has('n:' + n.getAttribute('n'))) huom.set('n:' + n.getAttribute('n'), n);
     }));
+    // SKVR: alaviitteet div type=references, jossa voi olla myös toisintoluettelo ab (muuten huomautusosa kuten yllä).
+    if (o.skvr) [...body.getElementsByTagNameNS('*', 'div')].filter(d => d.getAttribute('type') === 'references').forEach(d => [...d.children].forEach(n => {
+      if (ln(n) === 'note' && xid(n) && !huom.has('id:' + xid(n))) huom.set('id:' + xid(n), n);
+    }));
     const etsi = lab => {
       const i = xid(lab), n = lab.getAttribute('n');
       if (i) for (const k of [i, i.replace(/^[a-z]+-/i, ''), i.replace(/^c(?=litt)/, '')]) if (huom.has('id:' + k)) return huom.get('id:' + k);
@@ -11350,6 +11368,9 @@
       if (n.nodeType === 3) return [document.createTextNode(n.nodeValue.replace(/\s+/g, ' '))];
       if (n.nodeType !== 1) return [];
       const t = ln(n), sis = () => lapset(n).flatMap(huomInline);
+      if (o.skvr && (t === 'hi' || /^(SUP|SUB|KA|SMALLCAPS)$/.test(t))) {
+        const e = document.createElement(SK_HI[t === 'hi' ? n.getAttribute('rend') : t] || 'span'); e.append(...sis()); return [e];
+      }
       if (t === 'hi') {
         const r = n.getAttribute('rend') || '';
         const e = document.createElement(/super/i.test(r) ? 'sup' : /ital|under/i.test(r) ? 'em' : 'span');
@@ -11387,6 +11408,7 @@
         }
       };
       kay(lapset(note));
+      if (o.skvr) skKorostukset(v);
       kirjeYliviivaus(v);
       v.querySelectorAll('p').forEach(x => {
         while (x.firstChild && (x.firstChild.nodeName === 'BR' || x.firstChild.nodeType === 3 && !rivi(x.firstChild.nodeValue))) x.firstChild.remove();
@@ -11399,7 +11421,7 @@
     const tunnukset = new Map();
     const viite = (note, etuteksti = '') => {
       if (!etuteksti && tunnukset.has(note)) return tunnukset.get(note);
-      const t = huomTeksti(note);
+      const t = huomTeksti(o.skvr ? skViite(note) : note);
       if (!t) return '';
       const tunnus = o.etu + (++o.laskuri.n);
       o.maar.push(maaritelma(tunnus, etuteksti + t));
@@ -11412,6 +11434,21 @@
       if (n.nodeType === 3) return [document.createTextNode(n.nodeValue.replace(/\s+/g, ' '))];
       if (n.nodeType !== 1) return [];
       const t = ln(n), sis = () => lapset(n).flatMap(inline);
+      if (o.skvr) {
+        // SKVR:n viitemerkki (note tai REFNR target=#n1, teksti #1) viittaa references-osan huomautukseen. Merkin perässä
+        // tekstissä oleva † kuuluu painetun laitoksen merkkiin, kun huomautus alkaa samoin (#1† …): se poistetaan lopuksi.
+        if ((t === 'note' || t === 'REFNR') && n.getAttribute('target')) {
+          const kohde = huom.get('id:' + n.getAttribute('target').replace(/^#/, ''));
+          const tun = kohde ? viite(kohde) : '';
+          if (!tun) return [];
+          const s = paikka(tun);
+          if (/^\s*(?:\[\[)?\s*#\d+[a-z]?†/.test(kohde.textContent)) s.dataset.tikari = '1';
+          return [s];
+        }
+        if (t === 'hi' || /^(SUP|SUB|KA|SMALLCAPS)$/.test(t)) {
+          const e = document.createElement(SK_HI[t === 'hi' ? n.getAttribute('rend') : t] || 'span'); e.append(...sis()); return [e];
+        }
+      }
       if (t === 'label') {
         const note = etsi(n), merkki = AK_MERKKI.test(n.textContent);
         const tun = note ? viite(note) : '';
@@ -11437,7 +11474,9 @@
     const sae = l => {
       const s = document.createElement('span');
       // Kantelettaren numeroitu säe: <l rend="number"><hi rend="emph">5</hi> Väinämöisen …</l>.
-      const nroEl = /number/.test(l.getAttribute('rend') || '') && [...l.children].find(c => ln(c) === 'hi' && /^\s*\d{1,4}\s*$/.test(c.textContent));
+      const nroEl = /number/.test(l.getAttribute('rend') || '') && [...l.children].find(c => ln(c) === 'hi' && /^\s*\d{1,4}\s*$/.test(c.textContent))
+        // SKVR: joka viides säe <l rend="V"><hi rend="VNSUP">5</hi> …</l>.
+        || o.skvr && [...l.children].find(c => ln(c) === 'hi' && c.getAttribute('rend') === 'VNSUP' && rivi(c.textContent));
       s.append(...lapset(l).filter(c => c !== nroEl).flatMap(inline));
       saeN++;
       if (nroEl) {
@@ -11448,7 +11487,7 @@
       }
       // Säenumero ensimmäisestä tekstistä (merkkien jälkeen): 10. Hampahilleni, → 390., 540 Teräksillä.
       const w = document.createTreeWalker(s, NodeFilter.SHOW_TEXT);
-      for (let x = nroEl ? null : w.nextNode(); x; x = w.nextNode()) {
+      for (let x = nroEl || o.skvr ? null : w.nextNode(); x; x = w.nextNode()) {
         if (!rivi(x.nodeValue)) continue;
         const m = saeNro.exec(x.nodeValue);
         if (m && Math.abs(+m[1] - saeN) <= 5) {
@@ -11527,6 +11566,26 @@
     const lohko = (n, syv) => {
       if (n.nodeType !== 1) return;
       const t = ln(n);
+      if (t === 'div' && o.skvr && /^(text|normalized_text|references)$/.test(n.getAttribute('type') || '')) {
+        const ty = n.getAttribute('type');
+        // Normalisoitu teksti on haun apuväline (sama runo ilman erikoismerkkejä); huomautukset ovat alaviitteitä.
+        if (ty === 'normalized_text') return;
+        if (ty === 'references') { [...n.children].filter(c => ln(c) === 'ab').forEach(c => lohko(c, syv)); return; }
+        // Runoteksti on pelkkiä l-rivejä: säkeet (V) yhdeksi kappaleeksi, otsikkorivi (CPT), selitys (L) ja toimittajan
+        // huomautus (K) omiksi kappaleikseen; tyhjä säe on kappaleraja.
+        let p = null;
+        const sulje = q => { if (q && (rivi(q.textContent) || q.querySelector('span[data-v]'))) el.appendChild(q); };
+        for (const c of n.children) {
+          if (ln(c) !== 'l') { sulje(p); p = null; lohko(c, syv); continue; }
+          const s = sae(c);
+          if (!rivi(s.textContent) && !s.querySelector('span[data-v]')) { sulje(p); p = null; continue; }
+          if (/^(L|K|CPT)$/.test(c.getAttribute('rend') || '')) { sulje(p); p = null; const q = kpl(); q.appendChild(s); sulje(q); continue; }
+          if (p) p.appendChild(document.createElement('br')); else p = kpl();
+          p.appendChild(s);
+        }
+        sulje(p);
+        return;
+      }
       if (t === 'div') {
         if (huomOsa(n) || SIVUUTA.test(n.getAttribute('type') || '')) return;
         // Nimiöstä vain motto (Kantelettaren En tieä tekijätäni): nimi on otsikossa ja painotiedot etukentässä.
@@ -11601,8 +11660,38 @@
     const mi = [...X.getElementsByTagNameNS('*', 'msItem')].find(m => m.getAttribute('n') === '2' || m.getAttribute('class') === 'transcription');
     const sp = mi && [...mi.children].find(c => ln(c) === 'p');
     o.sisallys = sp && rivi(sp.textContent) ? lapset(sp).flatMap(inline) : null;
+    // SKVR: keruutiedot runon alkuun kuten käyttöliittymän otsakkeessa: normalisoitu alue ja pitäjä, painetun laitoksen
+    // otsakerivi (paikka, kerääjä, signum, päiväys) ja laulaja; koottuna ensin runotyypit.
+    const hdr = o.skvr && X.getElementsByTagNameNS('*', 'teiHeader')[0];
+    const tyypin = (nimi, ty) => [...hdr.getElementsByTagNameNS('*', nimi)].find(x => (x.getAttribute('type') || '') === ty);
+    if (hdr && tyypin('idno', 'nro')) {
+      const p = kpl();
+      const lisaa = solmut => {
+        const s = document.createElement('span'); s.append(...solmut);
+        if (!rivi(s.textContent) && !s.querySelector('span[data-v]')) return;
+        const a = s.firstChild, b = s.lastChild;
+        if (a && a.nodeType === 3) a.nodeValue = a.nodeValue.replace(/^\s+/, '');
+        if (b && b.nodeType === 3) b.nodeValue = b.nodeValue.replace(/\s+$/, '');
+        if (p.firstChild) p.appendChild(document.createElement('br'));
+        p.appendChild(s);
+      };
+      if (o.tyypit && o.tyypit.length) { const e = document.createElement('em'); e.textContent = o.tyypit.join(', '); lisaa([e]); }
+      lisaa([document.createTextNode([tyypin('region', 'standardized'), tyypin('settlement', 'standardized_municipality')].map(x => rivi(x && x.textContent)).filter(Boolean).join(', '))]);
+      const ots = hdr.getElementsByTagNameNS('*', 'title')[0], kyla = tyypin('settlement', 'non_standardized');
+      lisaa([document.createTextNode(rivi(kyla && kyla.textContent) + ' '), ...(ots ? lapset(ots).flatMap(inline) : [])]);
+      const lau = hdr.getElementsByTagNameNS('*', 'msItem')[0];
+      if (lau) lisaa(lapset(lau).flatMap(inline));
+      if (p.firstChild) el.appendChild(p);
+    }
     [...body.children].forEach(c => lohko(c, 0));
     kohdista();
+    if (o.skvr) el.querySelectorAll('span[data-tikari]').forEach(s => {
+      let x = s;
+      while (x && !x.nextSibling && x.parentNode && x.parentNode !== el && x.parentNode.nodeName !== 'P') x = x.parentNode;
+      x = x && x.nextSibling;
+      if (x && x.nodeType === 3 && /^†/.test(x.nodeValue)) x.nodeValue = x.nodeValue.slice(1);
+    });
+    if (o.skvr) skKorostukset(el);
     el.querySelectorAll('span[data-v]').forEach(s => s.replaceWith(merkki(s.dataset.v)));
     el.querySelectorAll('span').forEach(s => s.replaceWith(...s.childNodes));
     el.normalize();
@@ -11624,11 +11713,12 @@
       oikeus: cc ? { teksti: rivi(cc[1]), lahde: cc[2] } : null, editio: nimi('edition'), artikkeli: [...body.getElementsByTagNameNS('*', 'div')].some(d => d.getAttribute('type') === 'artikkeli') };
   }
   async function avoinKalevala() {
-    if (!/^(editiot|kalevala)\.finlit\.fi$/i.test(location.hostname)) return null;
+    if (!/^(editiot|kalevala|aineistot)\.finlit\.fi$/i.test(location.hostname)) return null;
     const pp = document.querySelector('pb-page[app-root]');
-    const juuri = (pp && pp.getAttribute('app-root')) || (/^\/exist\/apps\/(kalevala|kanteletar)(?=\/)/.exec(location.pathname) || [])[0];
-    const sov = (/\/(kalevala|kanteletar)$/.exec(juuri || '') || [])[1];
+    const juuri = (pp && pp.getAttribute('app-root')) || (/^\/exist\/apps\/(kalevala|kanteletar|skvr)(?=\/)/.exec(location.pathname) || [])[0];
+    const sov = (/\/(kalevala|kanteletar|skvr)$/.exec(juuri || '') || [])[1];
     if (!sov) return null;
+    if (sov === 'skvr') return skvr(juuri);
     const TEOS = { kalevala: 'Kalevala', kanteletar: 'Kanteletar' }[sov];
     const api = p => location.origin + juuri + '/api/document/' + encodeURIComponent(p);
     const maar = [], laskuri = { n: 0 };
@@ -11664,6 +11754,303 @@
       julkaistu: runo ? '1849' : R.painovuosi, toimittaja: runo ? kkLuettelo(R.vastuu) : '', sivusto: nimi,
       kustantaja: R.kustantaja || 'Suomalaisen Kirjallisuuden Seura', paikka: R.paikka || 'Helsinki', kohdat: R.kohtia ? 'yläindeksit' : '',
       lahde: osoite, polku: AK_OSASTO[polku.split('/')[0]] || '', eiPolkua: true, oikeus: R.oikeus, maar, naytto: nimi };
+  }
+
+  /* Suomen Kansan Vanhat Runot (SKVR; SKS, aineistot.finlit.fi/exist/apps/skvr, CC BY 4.0): TEI Publisher kuten Avoin
+     Kalevala, joten runo luetaan rajapinnasta (api/document/main%2Fskvr01100010.xml) samalla muuntimella (akRunko, o.skvr).
+     Sivun teksti piirtyy pb-view-komponenttien varjo-DOMiin, eikä Readability saa siitä runoa. teiHeader: msIdentifier
+     (collection I1, idno id 1., URN), title (painetun laitoksen otsakerivi Lönnrot A II 9, n. 12. - 24/4 1835.), msItem
+     (laulaja ja muistiinpanopaikka), settingDesc (normalisoitu alue, pitäjä ja vuosi), textClass (runotyypit catRef-tunnuksina).
+     Runko: div type=text l-riveinä (V säe, CPT otsikkorivi, L selitys, K toimittajan huomautus; säenumero hi rend=VNSUP joka
+     viidennessä), div type=normalized_text (haun apuväline, pois) ja div type=references (huomautukset note xml:id=n1, teksti
+     #1 …, ja toisintoluettelot ab). Viitemerkki on note tai REFNR target=#n1. Toimittajan täydennykset [ ] ovat tekstiä.
+     Runotyyppien nimiä ei ole runon TEI:ssä (taksonomia on 6 Mt), joten ne haetaan käyttöliittymän osarajapinnasta (api/parts,
+     xpath //teiHeader//textClass). Runon sivulta runo: otsikko SKVR I1 1 (SKVR:n viittaustapa), runotyypit alaotsikoksi ja
+     ladonta: asiakirja, jotta keruutiedot jäävät tekstiksi eivätkä md.js tee niistä ja lyhyestä runosta otsikkolohkon tietorivejä.
+     Runoluettelosta ja hausta näkyvän sivun runot (enintään SK_RUNOT) yhdeksi tekstiksi, runo ##-otsikkona ja runotyypit
+     keruutietojen alussa. Vanhat esipuheet (alkulauseet/) samalla muuntimella. Ei mainoksia eikä lahjoituspyyntöä (Matomo). */
+  const SK_NIMI = 'Suomen Kansan Vanhat Runot';
+  const SK_RUNOT = 50;
+  // Huomautus ilman painetun laitoksen merkkiä (#1, #1a, [[#1 …]]); risti (#1† …) jää alkuun.
+  function skViite(note) {
+    const k = note.cloneNode(true);
+    const w = k.ownerDocument.createTreeWalker(k, NodeFilter.SHOW_TEXT);
+    for (let x = w.nextNode(); x; x = w.nextNode()) {
+      if (!rivi(x.nodeValue)) continue;
+      x.nodeValue = x.nodeValue.replace(/^(\s*\[\[)?\s*#\d+(?:[a-z](?=[\s†*]))?\.?[ \t]*/, '$1');
+      break;
+    }
+    return k;
+  }
+  // Runon tunnus kuten käyttöliittymän otsikossa: SKVR I1 1, SKVR I1 2 a), julkaisematon JR 00001.
+  function skTunnus(X) {
+    const id = [...X.getElementsByTagNameNS('*', 'idno')].find(x => x.getAttribute('type') === 'id');
+    const kok = X.getElementsByTagNameNS('*', 'collection')[0];
+    const nro = rivi(id && id.textContent).replace(/\.$/, '');
+    if (!nro) return '';
+    return kok && rivi(kok.textContent) ? 'SKVR ' + rivi(kok.textContent) + ' ' + nro : 'JR ' + nro;
+  }
+  async function skTyypit(juuri, polku, X) {
+    if (!X.getElementsByTagNameNS('*', 'catRef').length) return [];
+    const u = location.origin + juuri + '/api/parts/' + encodeURIComponent(polku) + '/json?odd=teipublisher.odd&view=single&xpath=' + encodeURIComponent('//teiHeader//textClass');
+    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 15000);
+    const j = await fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.json() : null).catch(() => null).finally(() => clearTimeout(ajastin));
+    if (!j || typeof j.content !== 'string') return [];
+    return [...jasenna(j.content).querySelectorAll('.tei-catRef')].map(a => rivi(a.textContent).replace(/^[-–]\s*/, '')).filter(Boolean);
+  }
+  // Lisenssi: runoissa CC-BY 4.0: https://creativecommons.org/licenses/by/4.0, esipuheissa SKS:n tekijänoikeus.
+  function skOikeus(X) {
+    const a = [...X.getElementsByTagNameNS('*', 'availability')].map(x => rivi(x.textContent)).join(' ');
+    const cc = /CC[- ]BY((?:-NC)?(?:-SA|-ND)?)\s*(\d\.\d)/i.exec(a);
+    if (cc) return { teksti: 'CC BY' + cc[1].toUpperCase() + ' ' + cc[2], lahde: 'https://creativecommons.org/licenses/by' + cc[1].toLowerCase() + '/' + cc[2] + '/' };
+    return a ? { teksti: a, lahde: location.origin + location.pathname } : null;
+  }
+  async function skvr(juuri) {
+    const api = p => location.origin + juuri + '/api/document/' + encodeURIComponent(p);
+    const maar = [], laskuri = { n: 0 };
+    const vuosi = X => { const d = [...X.getElementsByTagNameNS('*', 'date')].find(x => x.getAttribute('type') === 'standardized');
+      const t = rivi(d && d.textContent); return /^\d{4}(-\d\d){0,2}$/.test(t) ? t : ''; };
+    if (/\/(runoluettelo[\w-]*|haku)\.html$/.test(location.pathname)) {
+      // Luettelo ja haku: näkyvän sivun runot (runoluettelon pb-link path, haun linkit main/skvr….xml?action=search#…).
+      const polut = [...new Set([...document.querySelectorAll('pb-link[path], a[href]')]
+        .map(a => (/^(?:\/exist\/apps\/skvr\/)?((?:main|jr)\/[\w.-]+\.xml)(?:[?#]|$)/.exec(a.getAttribute('path') || a.getAttribute('href') || '') || [])[1])
+        .filter(Boolean))].slice(0, SK_RUNOT);
+      if (!polut.length) return null;
+      const runot = [];
+      for (let i = 0; i < polut.length; i += 4) runot.push(...await Promise.all(polut.slice(i, i + 4).map(async p => {
+        const X = await psXml(api(p));
+        return X && skTunnus(X) ? { X, tyypit: await skTyypit(juuri, p, X) } : null;
+      })));
+      const el = document.createElement('div'), tunnukset = [];
+      let kohtia = 0, oikeus = null;
+      runot.filter(Boolean).forEach((r, i) => {
+        const R = akRunko(r.X, { etu: 'sk' + (i + 1) + 'v', laskuri, maar, koko: true, runo: '', skvr: true, tyypit: r.tyypit });
+        if (!R) return;
+        const h = document.createElement('h2'); h.textContent = skTunnus(r.X);
+        el.append(h, ...R.el.childNodes); kohtia += R.kohtia; tunnukset.push(skTunnus(r.X)); oikeus = oikeus || skOikeus(r.X);
+      });
+      if (!tunnukset.length) return null;
+      // Otsikko tunnusten välistä (SKVR I1 1–14), kysely alaotsikoksi (runotyyppi tai hakusana).
+      const osa = t => /^(.*?)\s+(\d\S*(?:\s+[a-z]\))?)$/.exec(t) || [t, t, ''];
+      const a = osa(tunnukset[0]), b = osa(tunnukset[tunnukset.length - 1]);
+      const sama = tunnukset.every(t => osa(t)[1] === a[1]);
+      const otsikko = tunnukset.length < 2 ? tunnukset[0] : sama ? a[1] + ' ' + a[2] + '–' + b[2] : tunnukset[0] + ' – ' + tunnukset[tunnukset.length - 1];
+      const kysely = rivi(new URLSearchParams(location.search).get('query')).replace(/^"(.*)"$/, '$1');
+      return { html: irrota([el]).innerHTML, otsikko, alaotsikko: /[:#]/.test(kysely) ? '' : kysely, tyyppi: 'kaunokirjallinen', sivusto: SK_NIMI,
+        kustantaja: 'Suomalaisen Kirjallisuuden Seura', paikka: 'Helsinki', kohdat: kohtia ? 'yläindeksit' : '', lahde: osoite, eiPolkua: true,
+        oikeus, maar, naytto: SK_NIMI + ' (' + tunnukset.length + ' runoa)' };
+    }
+    const pd = document.querySelector('pb-document[path]');
+    const polku = pd ? pd.getAttribute('path') : (new RegExp('^' + juuri.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&') + '/(.+\\.xml)$').exec(decodeURIComponent(location.pathname)) || [])[1];
+    if (!polku) return null;
+    const X = await psXml(api(polku));
+    if (!X) return null;
+    const tun = skTunnus(X);
+    const tyypit = tun ? await skTyypit(juuri, polku, X) : [];
+    const R = akRunko(X, { etu: 'sk', laskuri, maar, koko: false, runo: '', skvr: true });
+    if (!R || kkSanoja(R.el) < 3) return null;
+    if (tun) return { html: irrota([R.el]).innerHTML, otsikko: tun, alaotsikko: tyypit.join(', '), tyyppi: 'kaunokirjallinen', julkaistu: vuosi(X),
+      sivusto: SK_NIMI, kustantaja: 'Suomalaisen Kirjallisuuden Seura', paikka: 'Helsinki', ladonta: 'asiakirja', kohdat: R.kohtia ? 'yläindeksit' : '',
+      lahde: location.origin + location.pathname, eiPolkua: true, oikeus: skOikeus(X), maar, naytto: SK_NIMI };
+    // Vanha esipuhe: SKVR:n niteen alkulause (alkuperäinen painovuosi lähdetiedoista).
+    const bibl = X.getElementsByTagNameNS('*', 'bibl')[0], bd = bibl && bibl.getElementsByTagNameNS('*', 'date')[0];
+    const nimi = rivi(R.otsikko);
+    return { html: irrota([R.el]).innerHTML, otsikko: /^SKVR/.test(nimi) ? nimi : 'SKVR ' + nimi, tekija: kkLuettelo(R.tekijat),
+      julkaistu: rivi(bd && bd.textContent), sivusto: SK_NIMI, kustantaja: R.kustantaja || 'Suomalaisen Kirjallisuuden Seura', paikka: R.paikka || 'Helsinki',
+      lahde: location.origin + location.pathname, eiPolkua: true, oikeus: skOikeus(X), maar, naytto: SK_NIMI };
+  }
+
+  /* Kalliope (kalliope.org; vanhempi tanskalainen lyriikka ja muunkielistä runoutta): Next.js, ja palvelin renderöi sivun, jonka
+     __NEXT_DATA__-JSONissa on koko teksti (pageProps.text.blocks[].lines: [teksti, { num, displayNum, html, hr }], [''] on
+     säkeistöraja) ja teoksen sivulla sisällys (pageProps.toc: text ja section, osaston tekstit content-listassa). Readability antoi
+     runon säe kappaleena, säkeistöt ja säenumerot katosivat, eikä teoksen sivulta tullut tekstejä. Runon ja teoksen sivulta koko
+     kokoelma: sisällys teoksen sivulta, tekstit omilta sivuiltaan KL_RINNAKKAIN kerrallaan, enintään KL_RAJA (yli rajan runon
+     sivulta sen osasto tai runo yksin, teoksen sivulta alku ja Luinin huomautus); teoksen ainoa teksti leikataan yksin. Osasto ja
+     runo otsikoiksi (title_prefix eteen, suptitles ja subtitles kursiivina perään), säkeistöt kenoviivariveinä, näkyvä säenumero
+     (displayNum, joka viides) yläindeksiksi rivin alkuun. Rivin HTML: i ja w (harvennus) kursiiviksi, b lihavoinniksi, note
+     alaviitteeksi (editorial="true" on Kalliopen huomautus: alkuun Kalliope: kuten sivun Noter-luettelossa), pb n sivunumeroksi
+     {n} (vakiosivut: s.; pelkkä faksimilen kuvanumero ei ole sivunumero), hr väliviivaksi, muut (small, a, versenum) tekstiksi.
+     Runon ja teoksen huomautukset (notes, ei credits) alaviitteiksi otsikkoon. Muut laitokset (variants) ja asiasanat jäävät pois.
+     Etukenttään tekijä, teos, vuosi sekä lähteen kustantaja ja paikka (bibliography tai lähderivi Tekijä: Teos, Kustantaja, Paikka,
+     vuosi). Sivuston mukaan tekstejä saa käyttää mihin tahansa (tekijän kuolemasta 70 vuotta); ei mainoksia eikä lahjoituspyyntöä. */
+  const KL_RAJA = 250, KL_RINNAKKAIN = 6;
+  const KL_OIKEUS = 'Det er tilladt at bruge indholdet i Kalliope til hvad man måtte ønske.';
+  function klData(d) {
+    const s = d && d.getElementById('__NEXT_DATA__');
+    try { const j = s && JSON.parse(s.textContent); return (j && j.props && j.props.pageProps) || null; } catch (e) { return null; }
+  }
+  const klTeksti = h => rivi(jasenna('<div>' + String(h || '') + '</div>').body.textContent);
+  // Rivit kappaleiksi; o: { maar, laskuri, sivuja }. Säe kenoviivariviksi, [''] kappaleraja, näkyvä numero yläindeksiksi.
+  function klRivit(lohkot, o) {
+    const ulos = [];
+    const inl = n => {
+      if (n.nodeType === 3) return [document.createTextNode(n.nodeValue)];
+      if (n.nodeType !== 1) return [];
+      const t = n.nodeName.toLowerCase(), sis = () => [...n.childNodes].flatMap(inl);
+      if (/^(i|em|w)$/.test(t)) { const e = document.createElement('em'); e.append(...sis()); return [e]; }
+      if (/^(b|strong)$/.test(t)) { const e = document.createElement('strong'); e.append(...sis()); return [e]; }
+      if (/^(sup|sub)$/.test(t)) { const e = document.createElement(t); e.append(...sis()); return [e]; }
+      if (t === 'br') return [document.createElement('br')];
+      if (t === 'note') {
+        const v = document.createElement('div'); v.append(...sis());
+        const teksti = muunna(v.innerHTML, 'inlined').trim().replace(/\s*\n+\s*/g, ' ');
+        if (!teksti) return [];
+        const tun = 'kl' + (++o.laskuri.n);
+        o.maar.push(maaritelma(tun, (n.getAttribute('editorial') === 'true' ? 'Kalliope: ' : '') + teksti));
+        return [merkki(tun)];
+      }
+      if (t === 'pb') { const s = rivi(n.getAttribute('n')); if (!/^\d{1,4}$/.test(s)) return []; o.sivuja++; return [document.createTextNode('{' + s + '}')]; }
+      if (t === 'hr') { const e = document.createElement('hr'); return [e]; }
+      return sis();
+    };
+    for (const b of lohkot || []) {
+      let p = null, odottaa = [];
+      const sulje = () => { if (p && rivi(p.textContent)) ulos.push(p); p = null; };
+      for (const l of b.lines || []) {
+        const t = String(l[0] || ''), op = l[1] || {};
+        if (op.hr) { sulje(); ulos.push(document.createElement('hr')); continue; }
+        if (!rivi(t)) { sulje(); continue; }
+        const solmut = op.html ? [...jasenna('<div>' + t + '</div>').body.firstChild.childNodes].flatMap(inl) : [document.createTextNode(t)];
+        if (solmut.some(x => x.nodeName === 'HR')) { sulje(); ulos.push(document.createElement('hr')); continue; }
+        const s = document.createElement('span'); s.append(...odottaa, ...solmut); odottaa = [];
+        s.normalize();
+        // Sisennys (sitovat välilyönnit) pois; pelkkä sivunumero siirtyy seuraavan rivin alkuun.
+        if (s.firstChild && s.firstChild.nodeType === 3) s.firstChild.nodeValue = s.firstChild.nodeValue.replace(/^[\s ]+/, '');
+        if (s.lastChild && s.lastChild.nodeType === 3) s.lastChild.nodeValue = s.lastChild.nodeValue.replace(/[\s ]+$/, '');
+        if (!rivi(s.textContent.replace(/\{\d+\}|XLUINVIITE\w+?X/g, ''))) { odottaa = [...s.childNodes]; continue; }
+        if (b.type === 'poetry' && op.displayNum) { const sup = document.createElement('sup'); sup.textContent = String(op.displayNum); s.prepend(sup, ' '); o.kohtia++; }
+        if (p) p.appendChild(document.createElement('br')); else p = document.createElement('p');
+        p.append(...s.childNodes);
+      }
+      if (odottaa.length) { if (!p) p = document.createElement('p'); p.append(...odottaa); }
+      sulje();
+    }
+    return ulos;
+  }
+  // Otsikkorivit ([[teksti, {…}], …]) tekstiksi.
+  const klOts = rivit => rivi((rivit || []).map(r => klTeksti(r && r[0])).filter(Boolean).join(' '));
+  // Huomautukset (notes) otsikon alaviitteiksi; credits (digitoija) pois.
+  function klHuom(notes, o) {
+    return (notes || []).filter(x => x && x.type !== 'credits').map(x => {
+      const v = document.createElement('div');
+      v.innerHTML = (x.content_html || []).map(r => String(r[0] || '')).filter(r => rivi(r)).map(r => '<p>' + r + '</p>').join('');
+      v.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+      const t = muunna(v.innerHTML, 'inlined').trim();
+      if (!t) return '';
+      const tun = 'kl' + (++o.laskuri.n);
+      o.maar.push(maaritelma(tun, (x.editorial ? 'Kalliope: ' : '') + t));
+      return 'XLUINVIITE' + tun + 'X';
+    }).join('');
+  }
+  // Teksti otsikkoineen; taso 2–4.
+  function klRunko(t, taso, o) {
+    const ulos = [];
+    const h = document.createElement('h' + Math.min(4, taso));
+    h.textContent = rivi((t.title_prefix ? klTeksti(t.title_prefix) + ' ' : '') + klTeksti(t.title));
+    const m = klHuom(t.notes, o);
+    if (m) h.append(m);
+    ulos.push(h);
+    [t.suptitles, t.subtitles].forEach(x => (x || []).forEach(rivit => {
+      const s = klOts(rivit);
+      if (s) { const p = document.createElement('p'), e = document.createElement('em'); e.textContent = s; p.appendChild(e); ulos.push(p); }
+    }));
+    return ulos.concat(klRivit(t.blocks, o));
+  }
+  // Lähteen kustantaja ja paikka: bibliography tai lähderivi Tekijä: <i>Teos</i>, Kustantaja, Paikka, vuosi. / Paikka: Kustantaja, vuosi.
+  function klJulkaisu(w) {
+    const s = w && w.sources && w.sources.default;
+    if (!s) return {};
+    const b = s.bibliography;
+    if (b) return { kustantaja: rivi(b.publisher), paikka: rivi(b.place), toimittaja: kkLuettelo((b.editors || []).filter(e => e.type === 'editor').map(e => rivi(e.name)).filter(Boolean)) };
+    const r = klTeksti(s.source), nimi = klTeksti(w.title), i = r.indexOf(nimi + ', ');
+    if (i < 0) return {};
+    const loppu = r.slice(i + nimi.length + 2).replace(/,?\s*\d{4}\.?$/, '');
+    if (/\b(udg|red|bd|bind|oplag|udgave)\b/i.test(loppu)) return {};
+    let m = /^([^,:]+): ([^,:]+)$/.exec(loppu);
+    if (m) return { paikka: m[1], kustantaja: m[2] };
+    m = /^([^,:]+), ([^,:]+)$/.exec(loppu);
+    return m ? { kustantaja: m[1], paikka: m[2] } : {};
+  }
+  async function kalliope() {
+    if (!/(^|\.)kalliope\.org$/i.test(location.hostname)) return null;
+    const u = /^\/([a-z]{2})\/(text|work)\/([^/?#]+)(?:\/([^/?#]+))?\/?$/.exec(location.pathname);
+    if (!u || (u[2] === 'work') !== !!u[4]) return null;
+    const kieli = u[1], oma = klData(document);
+    // Sivun sisäinen siirtymä ei vaihda __NEXT_DATA__a: jos se on toisen sivun, haetaan osoitteen sivu.
+    let tx = null, poetId = u[3], workId = u[4];
+    if (u[2] === 'text') {
+      const pp = oma && oma.text && oma.text.id === u[3] ? oma : klData(await hae(osoite));
+      if (!pp || !pp.text || !pp.poet || !pp.work) return null;
+      tx = pp; poetId = pp.poet.id; workId = pp.work.id;
+    }
+    const wsivu = location.origin + '/' + kieli + '/work/' + poetId + '/' + workId;
+    const wp = oma && oma.toc && oma.work && oma.work.id === workId && oma.poet && oma.poet.id === poetId ? oma : klData(await hae(wsivu));
+    const w = (wp && wp.work) || (tx && tx.work), runoilija = (wp && wp.poet) || (tx && tx.poet);
+    if (!w || !runoilija) return null;
+    const nm = runoilija.name || {};
+    const tekija = rivi([nm.firstname, nm.lastname].filter(Boolean).join(' ')) || rivi(nm.fullname);
+    const vuosi = /^\d{4}$/.test(String(w.year)) ? String(w.year) : '';
+    const julk = klJulkaisu(w);
+    const o = { maar: [], laskuri: { n: 0 }, sivuja: 0, kohtia: 0 };
+    const yhteiset = { tekija, tyyppi: 'kaunokirjallinen', julkaistu: vuosi, sivusto: 'Kalliope', kustantaja: julk.kustantaja || '',
+      paikka: julk.paikka || '', toimittaja: julk.toimittaja || '', lahde: osoite, eiPolkua: true,
+      oikeus: { teksti: KL_OIKEUS, lahde: location.origin + '/da/about/kalliope' } };
+    // Sisällys: osastot ja tekstit järjestyksessä.
+    const kohdat = [];
+    const kay = (lista, taso, osasto) => (lista || []).forEach(x => {
+      if (x && x.type === 'section') { const k = { taso, otsikko: klOts(x.title) }; kohdat.push(k); kay(x.content, taso + 1, k); }
+      else if (x && x.type === 'text' && x.id) kohdat.push({ id: x.id, taso, osasto });
+    });
+    kay(wp && wp.toc, 0, null);
+    let valitut = kohdat, huom = '';
+    const tekstit = () => valitut.filter(k => k.id);
+    if (tekstit().length > KL_RAJA) {
+      const oma2 = tx && kohdat.find(k => k.id === tx.text.id);
+      const os = oma2 && oma2.osasto, osan = os ? kohdat.filter(k => k === os || k.osasto === os) : [];
+      if (tx) valitut = os && osan.filter(k => k.id).length <= KL_RAJA ? osan : [];
+      else { const n = tekstit().length; let i = 0; valitut = kohdat.filter(k => !k.id || ++i <= KL_RAJA); huom = '[Teksti on lähteessä pidempi: mukana on ' + KL_RAJA + ' ensimmäistä tekstiä ' + n + ':stä.]'; }
+    }
+    // Yksi teksti: leikataan yksin (runon sivulta, kun kokoelma ei ole saatavilla tai on liian suuri).
+    if (tekstit().length < 2) {
+      const t = tx ? tx.text : null;
+      if (!t) {
+        const yksi = tekstit()[0];
+        const d = yksi && klData(await hae(location.origin + '/' + kieli + '/text/' + yksi.id));
+        if (!d || !d.text) return null;
+        return klYksi(d.text);
+      }
+      return klYksi(t);
+    }
+    function klYksi(t) {
+      const el = document.createElement('div');
+      el.append(...klRivit(t.blocks, o));
+      if (kkSanoja(el) < 3) return null;
+      const lahde = t.source && t.source.source && w.sources && w.sources.default && t.source.source === w.sources.default.source ? t.source : null;
+      return Object.assign({}, yhteiset, { html: irrota([el]).innerHTML, otsikko: rivi((t.title_prefix ? klTeksti(t.title_prefix) + ' ' : '') + klTeksti(t.title)),
+        otsikkoMerkit: klHuom(t.notes, o), teos: klTeksti(w.title), sivut: lahde && /^\d+(-\d+)?$/.test(String(lahde.pages)) ? String(lahde.pages) : '',
+        kohdat: o.kohtia ? 'yläindeksit' : '', vakiosivut: o.sivuja ? 's.' : '', maar: o.maar, naytto: 'Kalliope' });
+    }
+    // Tekstit omilta sivuiltaan (avoimen runon tiedot sivulta).
+    const ids = tekstit().map(k => k.id), saatu = new Map();
+    if (tx) saatu.set(tx.text.id, tx.text);
+    for (let i = 0; i < ids.length; i += KL_RINNAKKAIN) {
+      await Promise.all(ids.slice(i, i + KL_RINNAKKAIN).filter(id => !saatu.has(id)).map(async id => {
+        const d = klData(await hae(location.origin + '/' + kieli + '/text/' + id));
+        if (d && d.text && d.text.id === id) saatu.set(id, d.text);
+      }));
+    }
+    const el = document.createElement('div');
+    for (const k of valitut) {
+      if (!k.id) { const h = document.createElement('h' + Math.min(4, 2 + k.taso)); h.textContent = k.otsikko; if (k.otsikko) el.appendChild(h); continue; }
+      const t = saatu.get(k.id);
+      if (t) { el.append(...klRunko(t, 2 + k.taso, o)); continue; }
+      const p = document.createElement('p'); p.textContent = '[Teksti puuttuu: lähteen sivua ei saatu haettua.]'; el.appendChild(p);
+    }
+    if (huom) { const p = document.createElement('p'); p.textContent = huom; el.appendChild(p); }
+    if (saatu.size < 2) return null;
+    return Object.assign({}, yhteiset, { html: irrota([el]).innerHTML, otsikko: klTeksti(w.title), otsikkoMerkit: klHuom(wp && wp.notes, o),
+      kohdat: o.kohtia ? 'yläindeksit' : '', vakiosivut: o.sivuja ? 's.' : '', maar: o.maar,
+      naytto: 'Kalliope (' + klTeksti(w.title) + ', ' + saatu.size + ' tekstiä)' });
   }
 
   /* Henrik Ibsens skrifter (ibsen.uio.no; Universitetet i Oslo, Senter for Ibsen-studier; HIS): näytelmät, runot, kirjeet ja asiaproosa
@@ -15898,7 +16285,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, hudoc, finlex, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, kalliope, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, hudoc, finlex, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

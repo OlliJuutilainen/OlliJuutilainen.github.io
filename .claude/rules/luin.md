@@ -209,6 +209,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   raskain sovitteen leike). Sama muunnin (`akRunko()`) lukee SKS:n Kantelettaren (`/exist/apps/kanteletar`), jonka TEI on erilainen
   (runo `div type=poem`, säenumero `l rend=number`, viite tekstissä): muutos koskee molempia. md.js pudottaa otsikon lopun
   `[^x]`:n välilyönnin jälkeen, joten otsikon merkki liitetään ilman välilyöntiä. Testi `--sarja kal`.
+  SKVR (`skvr()`) kulkee samassa muuntimessa ehdolla `o.skvr` (l-rivit kappaleiksi, references-huomautukset, keruutiedot):
+  aja sekä `--sarja kal` (leikkeiden pitää pysyä tavulleen ennallaan) että `--sarja skvr --elava` (runoluettelo ja haku piirtyvät
+  vasta sivun skriptistä). Yksittäisen runon `ladonta: asiakirja` pitää keruutiedot ja lyhyen runon tekstinä (muuten md.js tekee
+  niistä otsikkolohkon tietorivejä).
+  Kalliope (`kalliope()`): runon ja teoksen sivulta koko kokoelma teoksen sivun sisällyksestä, tekstit omilta sivuiltaan; pesukoneen
+  ensimmäinen ajo täyttää välimuistin (lisäosan haku ehtii aikakatkaisuun), vasta toinen kokoaa. Testi `--sarja kl`.
   Henrik Ibsens skrifter (`ibsen()`, opas 7.5): runko on `#content` (näytelmät, kirjeet) tai `#contentBrev` (runot), tekstisivun
   tunnistaa kolofonista. Kommentaari ja tekstikritiikki ovat erillisiä paloja (`img.sakkommentar[hx-get]`, `*_xref`), jotka haetaan
   `IB_RINNAKKAIN` kerrallaan; palvelin kuristaa tiheät haut (403), joten `ibHae()` yrittää uudelleen. Selain koodaa palan osoitteen
@@ -293,7 +299,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
-  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Henrik Ibsens skrifter, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, SKVR, Henrik Ibsens skrifter, Kalliope, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
   (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
