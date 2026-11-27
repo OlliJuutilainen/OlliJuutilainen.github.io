@@ -192,7 +192,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Muun kuin valitun salon napautus ei kierrä heti vaan kysyy (käyttäjän päätös): *(a) maailman keskukseksi* vai
   *(b) paaluta uudelleen* (sulatus ilman keskukseksi siirtymistä): keskukseksi siirtyminen on päämäärä eikä välivaihe.
   Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
-- **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) …, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
+- **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) … kursiivilla, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
   muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
   eivät osu nimiin. Nimeä ei rivitetä eikä sakaraa lyhennetä (rivitys olisi pahin, sakaran lyhennys lievempi keino). Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
