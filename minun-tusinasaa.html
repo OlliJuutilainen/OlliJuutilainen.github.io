@@ -143,8 +143,9 @@
   .merkki.rengas{ margin-left:-.01em }
   .merkki:not(.rengas){ width:.6em; height:.6em; vertical-align:.24em }
   /* AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (käyttäjän päätös). Yläindeksin koossa viiva vahvemmaksi,
-     muuten se jää alle pikselin levyiseksi. Vaakaviiva ulottuu hiutaleen kärkiä vasemmemmaksi: marginaali pitää välin. */
-  .merkki.sula{ --sula-viiva:2.4; margin-left:.07em }
+     muuten se jää alle pikselin levyiseksi. Vaakaviiva ulottuu hiutaleen kärkiä vasemmemmaksi: siirto pitää välin.
+     Siirto transformilla eikä marginaalilla, koska leveämpi rivi katkesi kynnysleveyksillä kahdeksi. */
+  .merkki.sula{ --sula-viiva:2.4; transform:translateX(.04em) }
 
   /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla.
      Valitsemattoman teksti --valinta (hiukan --mutedia kirkkaampi) ja tuotenimi --dim täytenä, yhä selvästi himmeämpänä. */
