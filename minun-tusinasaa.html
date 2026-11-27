@@ -65,21 +65,21 @@
   @media (max-width:375px){ .quote{ font-size:15px; letter-spacing:.035em } .quote .q2{ letter-spacing:.02em } }
 
   /* Etusivu: logo on kuin anfangi, kolmen rivin korkuinen: yläreuna ensimmäisen rivin versaalikorkeudella ja alareuna
-     kolmannen rivin perusviivalla (logo 68,7 px, teksti 17 px, riviväli 28 px, logon yläväli 7,6 px). Leveällä koko
+     kolmannen rivin perusviivalla (logo 64,5 px, teksti 17 px, riviväli 26 px, logon yläväli 6,7 px). Leveällä koko
      sisältö samassa palstassa logon oikealla; logo jää marginaaliin. Paneelissa logo vie etusivulle. */
   .top.eka{ align-items:flex-start; gap:0; margin-bottom:18px }
-  .top.eka .logoBox{ font-size:19px; margin:7.6px 1.15em 0 0; cursor:default }
-  .top.eka .logo{ width:3.616em; height:3.616em }
+  .top.eka .logoBox{ font-size:19px; margin:6.7px 1.15em 0 0; cursor:default }
+  .top.eka .logo{ width:3.394em; height:3.394em }
   .top.eka .toptext{ flex:1; min-width:0 }
   /* Oikean yläkulman avainmerkki: ensimmäinen pala ei saa ulottua sen alle (muuten 500–521 px:n leveydellä osuu). */
   .top.eka .toptext > .seg:first-child{ padding-right:18px }
-  .toptext{ margin:0; font-size:17px; line-height:28px }
-  @media (min-width:480px){ #etusivu > *{ margin-left:90.5px } }
+  .toptext{ margin:0; font-size:17px; line-height:26px }
+  @media (min-width:480px){ #etusivu > *{ margin-left:86.3px } }
   /* Nimi kuin ohjelman otsikkorivillä: lihava, pienempi ja harvennettu; täysvalkoinen vain ensimmäinen. */
   .nimi{ font-weight:700; font-size:.84em; letter-spacing:.07em; color:var(--brand) }
   .second .nimi{ color:inherit }
-  .second{ font-size:17px; line-height:1.5; margin:36px 0 30px }
-  .lede2{ font-size:17px; line-height:1.5; margin:0 0 18px }
+  .second{ font-size:17px; line-height:1.4; margin:36px 0 30px }
+  .lede2{ font-size:17px; line-height:1.4; margin:0 0 18px }
   .lede2 b{ font-weight:600 }
   /* Rivinvaihdot ehdotettuihin kohtiin: pala pysyy yhdessä, jos mahtuu, ja rivittyy sisältä vain tarvittaessa. */
   .seg{ display:inline-block; text-wrap:balance }
@@ -122,7 +122,8 @@
     color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px }
   #t2{ text-transform:uppercase }
   #t2::placeholder{ text-transform:none }
-  .btn{ font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer; border:1px solid var(--text); background:var(--text); color:var(--bg) }
+  /* Täytetty nappi sivun kirkkaimmalla sävyllä (--brand): tummassa teemassa --textin harmaa näytti himmeältä. */
+  .btn{ font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer; border:1px solid var(--brand); background:var(--brand); color:var(--bg) }
   .btn:disabled{ opacity:.45; cursor:default }
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -143,7 +144,7 @@
   .pick{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
   .opt{ display:grid; gap:2px; align-content:space-between; justify-items:center; text-align:center; padding:8px 12px 2px; border-radius:8px; cursor:pointer;
     border:1px solid var(--border); background:none; color:var(--valinta) }
-  .opt[aria-checked="true"]{ background:var(--text); border-color:var(--text); color:var(--bg) }
+  .opt[aria-checked="true"]{ background:var(--brand); border-color:var(--brand); color:var(--bg) }
   .opt .sym{ font-size:18px; line-height:1.2; color:inherit }
   .opt .sym i{ font-style:italic }
   .opt .sym .tk{ display:block; font-size:9px; font-style:italic; line-height:1.3; margin-top:3px; text-transform:uppercase; letter-spacing:.09em }
@@ -338,7 +339,7 @@
       <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin (mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>) avoimesta datasta.</p>
       <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
       <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
-      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun oma tusinasää</button></p>
+      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun oma tusinasää (MOTS)</button></p>
     </section>
     <div id="paneeli">
     <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
