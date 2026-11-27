@@ -66,9 +66,11 @@
 
   /* Etusivu: logo on kuin anfangi, kolmen rivin korkuinen: yläreuna ensimmäisen rivin versaalikorkeudella ja alareuna
      kolmannen rivin perusviivalla (logo 64,5 px, teksti 17 px, riviväli 26 px, logon yläväli 6,7 px). Leveällä koko
-     sisältö samassa palstassa logon oikealla; logo jää marginaaliin. Paneelissa logo vie etusivulle. */
+     sisältö samassa palstassa logon oikealla; logo jää marginaaliin. */
   .top.eka{ align-items:flex-start; gap:0; margin-bottom:18px }
-  .top.eka .logoBox{ font-size:19px; margin:6.7px 1.15em 0 0; cursor:default }
+  .top.eka .logoBox{ font-size:19px; margin:6.7px 1.15em 0 0 }
+  /* Logo ilman linkkiä (etusivulla, kun laitteella ei ole pystyssä olevaa salkoa; paivitaLogo). */
+  .logoBox:not([href]){ cursor:default }
   .top.eka .logo{ width:3.394em; height:3.394em }
   .top.eka .toptext{ flex:1; min-width:0 }
   /* Oikean yläkulman avainmerkki: ensimmäinen pala ei saa ulottua sen alle (muuten 500–521 px:n leveydellä osuu). */
@@ -578,6 +580,7 @@ function viesti(text, kind, html){
   if (html) el.innerHTML = html; else el.textContent = text || '';
   $('ui').hidden = true;
   $('appPaneeli').hidden = true;
+  paivitaLogo();
 }
 function setTila(text, kind, retry){
   const el = $('tila');
@@ -736,6 +739,7 @@ function renderPanel(){
       (creds ? ` [<button class="link" type="button" id="leaveAsk">jätä paalupaikka</button>]` : '') + `</span>`;
   syncPick();
   renderMelt();
+  paivitaLogo();
 }
 
 /* Sovellusosion kopiointinapit: iPhonelle katselulinkki, Androidille koodi. */
@@ -1040,7 +1044,7 @@ $('melt').addEventListener('click', async e => {
 
 /* --- Etusivu ja paneeli: sama sivu, kaksi näkymää. Kävijä, jonka laitteella ei ole paneelia, aloittaa etusivulta;
    palaava (paneeli laitteella) aloittaa paneelista ja pääsee etusivulle logosta. Palaavan etusivulla paalutuskehotuksen
-   tilalla on nappi takaisin paneeliin. Näkymä on historiassa, jotta Takaisin palaa edelliseen näkymään. --- */
+   tilalla on nappi takaisin paneeliin, ja logo vie sinne, jos salko on pystyssä. Näkymä on historiassa, jotta Takaisin palaa edelliseen näkymään. --- */
 let sivu = 'paneeli';
 function naytaSivu(s, uusi){
   sivu = s === 'etusivu' ? 'etusivu' : 'paneeli';
@@ -1055,6 +1059,17 @@ function naytaSivu(s, uusi){
   $('toOwn').hidden = !palaava;
   if (etu) alignCredit();
   if (uusi){ history.pushState({ sivu }, '', location.href); window.scrollTo(0, 0); }
+  paivitaLogo();
+}
+/* Logo vie paneelista etusivulle ja etusivulta paneeliin, mutta etusivulla vain, kun laitteen paneelissa on salko
+   pystyssä: ensipaalutukseen ei pääse logosta, joten silloin logo ei ole linkki (käyttäjän päätös). Kutsutaan, kun
+   näkymä, tunnukset tai salot muuttuvat (naytaSivu, renderPanel, viesti). */
+const salkoPystyssa = () => !!creds && !$('ui').hidden && state.slots.length > 0;
+function paivitaLogo(){
+  const logo = $('logo'), etu = sivu === 'etusivu', linkki = !etu || salkoPystyssa();
+  if (linkki){ logo.setAttribute('href', 'minun-tusinasaa.html'); logo.removeAttribute('role'); }
+  else { logo.removeAttribute('href'); logo.setAttribute('role', 'img'); }
+  logo.setAttribute('aria-label', !linkki ? 'TUSINASÄÄ 12' : etu ? 'TUSINASÄÄ 12, Minun oma tusinasää' : 'TUSINASÄÄ 12, etusivu');
 }
 $('aloita').addEventListener('click', () => {
   /* Ilman paneelia paneelinäkymä on aina ensipaalutus, myös jos osoitteen linkki näytti virheen. */
@@ -1250,12 +1265,14 @@ function suljeNakyma(){
   $('avainInfo').setAttribute('aria-expanded', 'false');
 }
 avainNappi.addEventListener('click', () => { if (nakyma.hidden) avaaNakyma(); else suljeNakyma(); });
-/* Logo: avainnäkymässä sulkee sen (käyttäjän päätös), paneelissa vie etusivulle. */
+/* Logo: avainnäkymässä sulkee sen (käyttäjän päätös), paneelissa vie etusivulle ja etusivulla paneeliin, jos salko on
+   pystyssä (paivitaLogo). */
 $('logo').addEventListener('click', e => {
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
   e.preventDefault();
   if (!nakyma.hidden) suljeNakyma();
   else if (sivu !== 'etusivu') naytaSivu('etusivu', true);
+  else if (salkoPystyssa()) naytaSivu('paneeli', true);
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nakyma.hidden) suljeNakyma(); });
 $('avainInfo').addEventListener('click', () => {
