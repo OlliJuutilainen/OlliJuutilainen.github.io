@@ -202,12 +202,17 @@
   .arm{ stroke:var(--dim); stroke-width:.5 }
   .arm.free{ stroke-dasharray:1.4 1.6 }
   .core{ fill:var(--dim) }
-  /* Hiutaleen keskipiste on kärjessä (yläreunasta sisätyhjä 6 px + puolet 20 px:n hiutaleesta), nimi sen alla. Paikka
-     liikkuu kiteen kehää pitkin (kierra), joten left/top ilman CSS-siirtymää. */
+  /* Hiutaleen keskipiste on kärjessä (yläreunasta sisätyhjä 6 px + puolet 20 px:n hiutaleesta). Nimi on kiteen
+     ulkopuolella: yläpuoliskon kärjissä hiutaleen yllä (.yla), alapuoliskon alla, joten keskeltä tulevat sakarat eivät osu
+     nimiin eikä sakaroita tarvitse lyhentää eikä nimiä rivittää (käyttäjän päätös). Kierron aikana nimi häipyy
+     vaakatason ylittäessään ja vaihtaa puolta näkymättömänä (asetaKulma). Paikka liikkuu kiteen kehää pitkin (kierra),
+     joten left/top ilman CSS-siirtymää. */
   .slot{ position:absolute; transform:translate(-50%, -16px); display:grid; justify-items:center; gap:3px;
     background:none; border:0; padding:6px; cursor:pointer; color:var(--muted); transition:color .3s }
   .slot svg{ width:20px; height:20px; overflow:visible; transition:transform .3s }
-  .slot .nm{ font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
+  .slot .nm{ position:absolute; left:50%; top:calc(100% - 3px); transform:translateX(-50%);
+    font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
+  .slot.yla .nm{ top:auto; bottom:calc(100% - 3px) }
   .slot.on{ color:var(--brand) }
   /* Valitun hiutale on Salkoni-kuvan auringon keskellä samassa koossa kuin kuvan oma hiutale (--valittu, renderPanel);
      nimi näkyy kiteen alla otsakerivillä (#now). */
@@ -747,8 +752,10 @@ const KIERTO = bezier(.3, .7, .2, 1), PITKA_KIERTO = bezier(.45, 0, .25, 1);
 let kiertoRaf = 0;
 function asetaKulma(el, a){
   el._kulma = a;
-  const [x, y] = kidePaikka(a);
+  const [x, y] = kidePaikka(a), s = Math.sin(rad(a)), nm = el.querySelector('.nm');
   el.style.left = f2(x) + '%'; el.style.top = f2(y) + '%';
+  el.classList.toggle('yla', s > 0);
+  if (nm) nm.style.opacity = f2(Math.min(1, Math.abs(s) / .5));   // levossa kärjet ovat vähintään 30° vaakatasosta
   const arm = $('arms').querySelector(`line[data-id="${el.dataset.id}"]`);
   if (arm){ const [ax, ay] = kidePaikka(a, SADE * KARKI); arm.setAttribute('x2', f2(ax)); arm.setAttribute('y2', f2(ay)); }
 }
