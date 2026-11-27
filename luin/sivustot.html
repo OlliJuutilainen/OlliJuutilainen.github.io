@@ -113,8 +113,11 @@
     border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   .s-haku input:focus { outline: none; border-color: var(--harmaa); }
   .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
-  .krivi .ots { font-style: italic; color: var(--harmaa); }
-  .krivi button.ots { justify-self: start; display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
+  /* Rivinimet ja salmiakki tasattuina oikealle (käyttäjän päätös): musteen oikea reuna samassa x:ssä, korien alusta .29 em.
+     Napin kulma ylittää laatikon .13 em, joten haku (kulmaton) on sen verran oikeammalla ja salmiakki samoin. Mitattu kuvasta. */
+  .krivi .ots { font-style: italic; color: var(--harmaa); justify-self: end; margin-right: .42em; }
+  .krivi span.ots { margin-right: .28em; }
+  .krivi button.ots { display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
     font-size: inherit; text-align: left; }
   /* Kulma kuten osumaryhmissä: oikealle, auki alas. */
   .krivi button.ots::after { content: ''; flex: none; width: .36em; height: .36em; margin: 0 0 .1em .42em;
@@ -127,16 +130,16 @@
   button.kori[data-tila="mukaan"] { color: var(--muste); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
   button.kori[data-tila="pois"] { color: var(--harmaa); text-decoration: line-through; }
   button.kori.nolla { color: var(--viiva); }
-  /* Supersalmiakki kieli-rivin alla (käyttäjän päätös: pelkkä salmiakki): rivinimien sarakkeessa, jonka x on sama kuin listan
-     salmiakkien sarakkeen, ja samankokoisena kuin listassa. Toimii kuten kori: mukaan (2 px:n alleviivaus musteella), pois
-     (harmaa ja yliviivattu), ennalleen; himmeä, kun näkyvissä ei ole yhtään sertifioitua. Mitat pikseleinä kuten listan
-     merkissä (viewBoxin yksikkö 19,5 / 11,2 px): salmiakin muste x 4,18–15,32 ja y 6,0–22,0 napin yläreunasta. */
-  .krivi button.salmiakki { position: relative; display: block; width: 37px; height: 28px; min-height: 0; padding: 0; border: 0;
-    color: var(--ruoste); }
-  .krivi button.salmiakki svg { position: absolute; left: 0; top: 4.25px; width: 19.5px; height: 19.5px; overflow: visible; fill: currentColor; }
+  /* Supersalmiakki kieli-rivin alla (käyttäjän päätös: pelkkä salmiakki): rivinimien sarakkeessa niiden tavoin oikealle tasattuna
+     ja samankokoisena kuin listassa. Toimii kuten kori: mukaan (2 px:n alleviivaus musteella), pois (harmaa ja yliviivattu),
+     ennalleen; himmeä, kun näkyvissä ei ole yhtään sertifioitua. Mitat pikseleinä kuten listan merkissä (viewBoxin yksikkö
+     19,5 / 11,2 px): muste y 6,0–22,0 napin yläreunasta; vaakaan svg, viiva ja yliviivaus on sidottu napin oikeaan reunaan. */
+  .krivi button.salmiakki { position: relative; display: block; justify-self: end; margin-right: .42em; width: 37px; height: 28px;
+    min-height: 0; padding: 0; border: 0; color: var(--ruoste); }
+  .krivi button.salmiakki svg { position: absolute; right: calc(-3.5px - .13em); top: 4.25px; width: 19.5px; height: 19.5px; overflow: visible; fill: currentColor; }
   .krivi button.salmiakki .r { fill: none; stroke: currentColor; stroke-width: 1.05; stroke-linejoin: miter; }
-  .krivi button.salmiakki::after { content: ''; position: absolute; left: 4.18px; width: 11.14px; top: 25px; height: 2px; }
-  .krivi button.salmiakki::before { content: ''; position: absolute; left: 1.75px; width: 16px; top: 13.25px; height: 1.5px; }
+  .krivi button.salmiakki::after { content: ''; position: absolute; right: calc(.68px - .13em); width: 11.14px; top: 25px; height: 2px; }
+  .krivi button.salmiakki::before { content: ''; position: absolute; right: calc(-1.75px - .13em); width: 16px; top: 13.25px; height: 1.5px; }
   .krivi button.salmiakki[data-tila="mukaan"]::after { background: var(--muste); }
   .krivi button.salmiakki[data-tila="pois"] { color: var(--harmaa); }
   .krivi button.salmiakki[data-tila="pois"]::before { background: var(--harmaa); }
