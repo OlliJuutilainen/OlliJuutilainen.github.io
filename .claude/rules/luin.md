@@ -167,8 +167,29 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `#documentUrl`: sivun osoitteen #-osa (`eng#{"itemid":…}`) katoaa leikkeen osoitteesta. Finlex (`finlex()`): vain oikeuskäytäntö (säädökset
   yleiselle leikkeelle, käyttäjän linjaus: luettavaa, ei tietokantoja); luokkanimissä on käännöksen tiiviste (`uKldUa_akomaNtoso`), joten
   valitsimet ovat loppuosasta. Kumpikin on skriptisovellus: aja `--sarja hudoc` ja `--sarja finlex` aina `--elava`lla.
+  WiBiLex (`wibilex()`, die-bibel.de) luetaan palvelimen renderöimästä sivusta: sivun oma skripti korvaa artikkelin otsattomassa
+  selaimessa 404-sivulla (sen rajapinta vastaa 400), joten `--sarja wibilex` ajetaan ilman `--elava`a. CloudFront antaa curlille 403:n
+  mutta selaimelle sivun, joten pesukone hakee die-bibel.de:n sivut selaimella. Themelioksen (`themelios()`) julkaisuaika tulee numeron
+  sivulta (`/themelios/issue/51-2/`), ei sivun JSON-LD:stä (siirtopäivä).
+  TextGrid (`textgrid()`, opas 7.5): teossivulla teksti on sivun TEI-muunnoksessa; laitoksen ja kokoelman sivu kootaan
+  TextGridin koostepalvelusta (`textgridlab.org/1.0/aggregator/html/textgrid:<tunnus>`, CORS sallittu), ei portaalin `?mode=xml`-näkymästä,
+  joka katkeaa kolmen sekunnin muunnosrajaan. Vakiosivujen laitos on HTML-kommentissa `milestone (sigel)`: kommentit eivät saa kadota
+  ennen sivujen lukua. Pesukone antaa textgridlab.orgin vastaukset CORS-otsakkeella; testi `--sarja tg`.
+  Schelling Nachlass-Edition (`schellingNachlass()`): lukuteksti kuten sivun oletusnäkymä, ja sivun skriptin muutokset (ponnahduskääreet,
+  täydennysten värit, KaTeX) puretaan, jotta leike on sama skriptin kanssa ja ilman; testi `--sarja schelling` (myös `--elava`, samat tulokset).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
+  Persée (`persee()`, opas 7.5) hakee artikkelin sivut samasta osoitteesta kuin sivun htmx (`/doc/page/<asiakirja>/<sivu>`, HTML),
+  `PE_RINNAKKAIN` kerrallaan uudelleenyrityksin; robots.txt sallii vain hakukoneet, joten pesukone hakee persee.fr:ää vain nimetyllä `--sarja persee`lla (ei kaikkien sarjojen
+  ajossa) ja sekunnin välein (käyttäjän päätös: lisäosa hakee vain avatun artikkelin sivut kuten sivu itse).
+  Etukentän `vakiosivut` on lyhyt viite ilman sivua (*Dogan 1960,*), jotta kopion lyhyt viite on (Dogan 1960, 27). Koneluvun siivouksen
+  ehdot (juokseva otsake, tavutus, kappaleliitos, viitemerkit) on mitattu `--sarja persee`lla (myös `--elava`lla sama): älä löysää mittaamatta.
+  Cambridge Core (`cambridge()`): `pmcNumeroviitteet()` vain, kun kirjallisuus on numeroitu (tekijä–vuosi-linkin teksti on pelkkä vuosi,
+  joka näyttäisi sille numerolta); testi `--sarja cambridge`.
+  OJS:n artikkelin ja gallerian tunnus voi olla polkunimi (`[^/]+`: Journal für Psychologie, Athenea Digital, Quaderns de Psicologia); testi `--sarja ojs4`.
+  Classics in the History of Psychology (`chp()`, opas 7.5) kokoaa kirjan hakemistosivun (`index.htm`) linkeistä myös luvun sivulta
+  (enintään `KK_RAJA`). Sivut ovat windows-1252:ta vain sivun metassa, joten pesukone antaa tavut sellaisinaan kuten avesta.orgin.
+  Sitovien välilyöntien lausekkeessa ei saa olla `(?:\u00a0|\s)`-vaihtoehtoa kvanttorin sisällä (`\s` sisältää sen; jumittaa välilehden). Testi `--sarja chp`.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
   numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös (käyttäjän päätös: Kielet-asetuksen *käännös* on silloin analyysi), kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
   Wisdom Library (`wisdomlib()`, opas 7.5) kokoaa puun (kirja, osa tai luku, tekstisivulta yläluku, enintään `KK_RAJA`);
@@ -209,6 +230,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   raskain sovitteen leike). Sama muunnin (`akRunko()`) lukee SKS:n Kantelettaren (`/exist/apps/kanteletar`), jonka TEI on erilainen
   (runo `div type=poem`, säenumero `l rend=number`, viite tekstissä): muutos koskee molempia. md.js pudottaa otsikon lopun
   `[^x]`:n välilyönnin jälkeen, joten otsikon merkki liitetään ilman välilyöntiä. Testi `--sarja kal`.
+  SKVR (`skvr()`) kulkee samassa muuntimessa ehdolla `o.skvr` (l-rivit kappaleiksi, references-huomautukset, keruutiedot):
+  aja sekä `--sarja kal` (leikkeiden pitää pysyä tavulleen ennallaan) että `--sarja skvr --elava` (runoluettelo ja haku piirtyvät
+  vasta sivun skriptistä). Yksittäisen runon `ladonta: asiakirja` pitää keruutiedot ja lyhyen runon tekstinä (muuten md.js tekee
+  niistä otsikkolohkon tietorivejä).
+  Kalliope (`kalliope()`): runon ja teoksen sivulta koko kokoelma teoksen sivun sisällyksestä, tekstit omilta sivuiltaan; pesukoneen
+  ensimmäinen ajo täyttää välimuistin (lisäosan haku ehtii aikakatkaisuun), vasta toinen kokoaa. Testi `--sarja kl`.
   Henrik Ibsens skrifter (`ibsen()`, opas 7.5): runko on `#content` (näytelmät, kirjeet) tai `#contentBrev` (runot), tekstisivun
   tunnistaa kolofonista. Kommentaari ja tekstikritiikki ovat erillisiä paloja (`img.sakkommentar[hx-get]`, `*_xref`), jotka haetaan
   `IB_RINNAKKAIN` kerrallaan; palvelin kuristaa tiheät haut (403), joten `ibHae()` yrittää uudelleen. Selain koodaa palan osoitteen
@@ -217,6 +244,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Henry Parlands Skrifter (`parland()`): vanha SLS-alusta, teksti `interface.php`:n JS-oliolitteraalista (`plJasenna()`, ei evalia),
   leikataan `slsRunko()`lla: sen muutos koskee myös Parlandia (aja `--sarja sls` ja `--sarja pl`). Kirjaksi kootaan vain teosryhmä
   (*Sönder …*, *Idealrealisation (1929)*), ei toimittajan ryhmiä. Testi `--sarja pl`.
+  Bokselskap.no (`bokselskap()`) ja Ludvig Holbergs Skrifter (`holberg()`), opas 7.5: koneisto (kommentti, tekstikritiikki, toisinto)
+  alaviitteiksi lemman perään yhteisellä `lemmaPaikka()`lla (Bokselskapin kommentti on editiosta riippuen lemman edellä tai perässä).
+  Bokselskapin sivun skripti korvaa koneiston kuvakkeilla ja poistaa tekstit, joten luvut haetaan aina palvelimen HTML:nä, myös
+  avattu; Holberg hakee koko teoksen ja kommentaarin tulostusnäkymästä (`doc.view=print`) lukunäkymästäkin. Kumpikin vain palvelimen
+  renderöimiä sivuja, ei rajapintoja. Testit `--sarja bs` ja `--sarja hb` (Peder Paars: 5,8 Mt:n tulostusnäkymä).
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
@@ -295,7 +327,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
-  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Henrik Ibsens skrifter, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  Folger, Faded Page, Folktexts, Gutenberg-DE, TextGrid, Litteraturbanken, Avoin Kalevala, SKVR, Henrik Ibsens skrifter, Kalliope, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
   (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei

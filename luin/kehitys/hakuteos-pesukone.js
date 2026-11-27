@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit sekä augustinus.it:n Augustinus ja GRETILin sanskritteksit ja laparola.netin Uusi testamentti, PubMedin tiivistelmät ja The Conversationin artikkelit sekä Girardian Lectionaryn, Phenomenology Onlinen, Lacan Onlinen, Hedgehog Review'n ja The Immanent Framen kirjoitukset sekä Springer Naturen (BMC, Springer, nature.com), PLOSin, Frontiersin ja journal.fi:n pdf-lehden artikkelit sekä Wisdom Libraryn, Bibliotheca Augustanan, Access to Insightin, Hume Texts Onlinen, Perseids CTS:n, CELTin, Standard Ebooksin, Rousseau Onlinen, PROPYLÄENin, Hamannin HKB:n, schleiermacher digitalin, Humboldtin kirjeiden, Liviuksen ja avesta.orgin tekstit sekä Avoimen Kalevalan ja Kantelettaren runot ja asiakirjat sekä Henrik Ibsens skrifterin näytelmät, kirjeet ja runot ja Henry Parlands Skrifterin tekstit sekä HUDOCin ja Finlexin oikeustapaukset Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit sekä augustinus.it:n Augustinus ja GRETILin sanskritteksit ja laparola.netin Uusi testamentti, PubMedin tiivistelmät ja The Conversationin artikkelit sekä Girardian Lectionaryn, Phenomenology Onlinen, Lacan Onlinen, Hedgehog Review'n ja The Immanent Framen kirjoitukset sekä Springer Naturen (BMC, Springer, nature.com), PLOSin, Frontiersin ja journal.fi:n pdf-lehden artikkelit sekä Wisdom Libraryn, Bibliotheca Augustanan, Access to Insightin, Hume Texts Onlinen, Perseids CTS:n, CELTin, Standard Ebooksin, Rousseau Onlinen, PROPYLÄENin, Hamannin HKB:n, schleiermacher digitalin, Humboldtin kirjeiden, Liviuksen ja avesta.orgin tekstit sekä Avoimen Kalevalan ja Kantelettaren runot ja asiakirjat sekä Henrik Ibsens skrifterin näytelmät, kirjeet ja runot ja Henry Parlands Skrifterin tekstit sekä HUDOCin ja Finlexin oikeustapaukset sekä WiBiLexin ja Themelioksen artikkelit sekä Persée- ja Cambridge Core -lehtien artikkelit sekä TextGrid Repositoryn teokset ja Schellingin Nachlass-Editionin tekstit sekä Bokselskap.no:n kirjat ja Ludvig Holbergs Skrifterin teokset sekä Classics in the History of Psychologyn tekstit ja kirjat sekä OJS-lehtien omin polkunimin julkaistut artikkelit (Journal für Psychologie, Athenea Digital, Quaderns de Psicologia) sekä SKVR:n runot ja Kalliopen kokoelmat Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--elava] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|laparola|pubmed|tc|viisi|lehdet|laake|laake2|wl|ba|ati|hume|cts|celt|se|rousseau|propylaen|hkb|schleiermacher|wvh|livius|avesta|zk|pr|lb|kal|ib|pl|hudoc|finlex] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--elava] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|laparola|pubmed|tc|viisi|lehdet|laake|laake2|wl|ba|ati|hume|cts|celt|se|rousseau|propylaen|hkb|schleiermacher|wvh|livius|avesta|zk|pr|lb|kal|ib|pl|hudoc|finlex|wibilex|themelios|persee|cambridge|tg|schelling|bs|hb|chp|ojs4|skvr|kl] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -517,11 +517,100 @@ const SARJAT = {
   finlex: ['fi/oikeuskaytanto/korkein-oikeus/ennakkopaatokset/2024/1', 'fi/oikeuskaytanto/korkein-oikeus/ennakkopaatokset/1995/1',
     'fi/oikeuskaytanto/korkein-hallinto-oikeus/ennakkopaatokset/2024/1', 'fi/oikeuskaytanto/hovioikeudet/2026/helsinki/10512110',
     'sv/rattspraxis/hogsta-domstolen/prejudikat/2024/1'].map(p => 'https://www.finlex.fi/' + p),
+  // Classics in the History of Psychology: sosiaalipsykologian artikkelit eri vuosikymmeniltä ja sivupohjilta (Word 97, käsin
+  // kirjoitettu, Word 2003): Festinger ja Carlsmith (alaviitteet, versaaliotsikot, REFERENCES), Triplett (1898, sivumerkit),
+  // Clark ja Clark (numeroidut lähdeviitteet #f-ankkurein), Allport (alaviitteet ja lähdeviitteet erikseen, DIR-lainaukset),
+  // Bruner ja Goodman (otsikossa vuosi, tekijät seuraavalla rivillä, toimittajan huomautus ennen nimiötä), Sherifin Robbers Cave
+  // koottuna luvusta (taulukot, sivumerkit otsikoissa), symposium eri tekijöiltä hakemistosivulta ja Jamesin Principles koottuna
+  // luvusta (kaksi nidettä, 29 sivua).
+  chp: ['Festinger/index.htm', 'Triplett/', 'Clark/Self-cons/', 'Allport/frame.htm', 'Bruner/Value/', 'Sherif/chap7.htm', 'FrustAgg/index.htm',
+    'James/Principles/prin10.htm'].map(p => 'https://psychclassics.yorku.ca/' + p),
+  // OJS-lehdet, joiden artikkelin ja gallerian osoitteessa on polkunimi numeron sijaan: Journal für Psychologie, Athenea Digital ja
+  // Quaderns de Psicologia artikkelisivulta ja HTML-gallerian sivulta.
+  ojs4: ['https://journal-fuer-psychologie.de/article/view/0942-2285-2026-1-31', 'https://journal-fuer-psychologie.de/article/view/0942-2285-2026-1-31/html',
+    'https://atheneadigital.net/article/view/v26-n3-valtierra-apaez-benitez', 'https://atheneadigital.net/article/view/v26-n3-valtierra-apaez-benitez/3481',
+    'https://quadernsdepsicologia.cat/article/view/v28-n2-feitosa-guirra-ribeiro-etal', 'https://quadernsdepsicologia.cat/article/view/v28-n2-feitosa-guirra-ribeiro-etal/2253-html-pt'],
   pl: ['5#itemId=5_1008', '1#itemId=1_30', '1#itemId=1_9', '2#itemId=2_89', '3#itemId=3_1040', '5#itemId=5_1002']
     .map(p => 'https://parland.sls.fi/index.php?p=texts&bookId=' + p),
+  // WiBiLex (die-bibel.de, Angular SSR): Filon (AT), Logos (UT, kreikkaa), Monotheismus (AT, kuvat, kolme otsikkotasoa, letzte
+  // Änderung), Aas (lyhin, heprea ja kreikka), Hahn (UT), Omrit (UT, 14 kuvaa), Bibelfilme (pisin, 29 000 sanaa, 42 luetteloa) ja
+  // Menschensohn (WiBiLexin hakemiston osoite, jonka sivu on Gute Nachricht Bibelin sanaselitys). CloudFront torjuu curlin (403)
+  // mutta palvelee selainta: pesukone hakee sivut selaimella (alla). Ilman --elava: sivun skripti korvaa artikkelin
+  // otsattomassa selaimessa 404-sivulla (sovelluksen rajapinta vastaa 400).
+  wibilex: ['altes-testament/philo-von-alexandrien', 'neues-testament/logos', 'altes-testament/monotheismus-at', 'altes-testament/aas',
+    'neues-testament/hahn', 'neues-testament/omrit', 'neues-testament/bibelfilme-nt', 'neues-testament/menschensohn']
+    .map(p => 'https://www.die-bibel.de/ressourcen/wibilex/' + p),
+  // Themelios (The Gospel Coalition): 1975 ja 1986 (viitteet linkittämättä viivan alla), 2002 ja 2005 (Uusi Paavali-näkökulma,
+  // taulukot), 2016 (Wordin _ftn-viitteet), 2026 (Modern Footnotes, tiivistelmä), arvioartikkeli 2026 (93 viitettä) ja kirja-arviot
+  // 2011 (kustannustiedot) ja 2026.
+  themelios: ['article/inerrancy-and-new-testament-exegesis', 'article/paul-and-the-law-observations-on-some-recent-debates',
+    'article/mistakes-of-the-new-perspective-on-paul', 'article/justification-ecclesiology-and-the-new-perspective',
+    'article/john-barclays-paul-and-the-gift-and-the-new-perspective-on-paul', 'article/retrieving-athanasius-ruled-readings-and-trinitarian-exegesis',
+    'article/lamb-of-the-free-a-review-article', 'review/the-new-moody-atlas-of-the-bible', 'review/genesis-alexander']
+    .map(p => 'https://www.thegospelcoalition.org/themelios/' + p + '/'),
+  // Persée: koneluetut sivut haetaan palvelimelta sivu kerrallaan. Revue française de sociologie 1960 (viitteet (1), taulukot
+  // kuvina), Annales 1958 (viitteet sivuittain 1., 2., merkit usein kadonneet), Annales 1929 (merkit sanaan liimattuina) ja saman
+  // numeron arvio (sivun keskeltä alkava asiakirja), L'Année psychologique 1904 (54 sivua, sotkuiset juoksevat otsakkeet),
+  // MEFR 2008 (juokseva numerointi, viite jatkuu seuraavalle sivulle, kuvat) ja L'Année psychologique 2008 (kirjallisuus,
+  // kirjeenvaihtajan huomautus sähköposteineen).
+  persee: ['rfsoc_0035-2969_1960_num_1_1_1734', 'ahess_0395-2649_1958_num_13_4_2781', 'ahess_0003-441x_1929_num_1_1_1033',
+    'ahess_0003-441x_1929_num_1_1_1048_t1_0104_0000_4', 'psy_0003-5033_1904_num_11_1_3675', 'mefr_1123-9891_2008_num_120_2_10550',
+    'psy_0003-5033_2008_num_108_2_30971'].map(p => 'https://www.persee.fr/doc/' + p),
+  // Cambridge Core: avoimet artikkelit eri aloilta (Hegel Bulletin, Medical History 98 alaviitettä, Kantian Review, Religious
+  // Studies, JRAS 105 alaviitettä), vapaasti luettava vanha artikkeli numeroviittauksin [25] (European Psychiatry 2005), avoin
+  // artikkeli yläindeksiviittauksin ja kuvina olevin taulukoin (BJPsych Open), tilaajille suljettu artikkeli ja pelkkänä pdf:nä
+  // julkaistu hyväksytty käsikirjoitus (tiivistelmäleikkeet).
+  cambridge: ['hegel-bulletin/article/hegel-on-childless-marriage/E06064BD601FAFF4EBF6816440995C5C',
+    'medical-history/article/have-you-a-table-epistemic-instability-experimental-tabulation-and-the-presentation-of-medical-statistics-in-and-after-the-indian-plague-commission-18989/6F3E8B6FBB4E4374018400A369FA9C2D',
+    'kantian-review/article/how-to-use-someone-merely-as-a-means/4DDF60DF29EB55D3DF64633B8BBC9C96',
+    'religious-studies/article/worldview-studies/F3445C11686C131AA1FC36533944AB45',
+    'journal-of-the-royal-asiatic-society/article/from-pedlar-to-industrial-pioneer-and-back-a-jewish-merchant-in-modernising-afghanistan-1920s1940s/C2756665A751A27B8AC4F36DEADBAE1D',
+    'european-psychiatry/article/mental-illness-stigma-concepts-consequences-and-initiatives-to-reduce-stigma/3AE7283F0F35980994B4BD71E92C3C08',
+    'bjpsych-open/article/antidepressant-use-and-risk-of-adverse-outcomes-populationbased-cohort-study/6AAA6943E55F8B08DD9E25155E72931F',
+    'hegel-bulletin/article/hegel-and-colonialism/61B53799DD191018664EE38446E0915D',
+    'european-psychiatry/article/childhood-trauma-and-functional-impairment-in-adult-adhd-mediating-roles-of-symptoms-and-depression/89E11A9883CC87D843F13ADE4CACFECA']
+    .map(p => 'https://www.cambridge.org/core/journals/' + p),
+  // TextGrid Repository (Digitale Bibliothek): romaani säkeineen ja tähtirivein (Ofterdingen), runo (Mnemosyne), runokokoelma
+  // koottuna kokoelmasivulta ([Hymnen]), fragmentit laitossivulta (Schlegelin Athenaeum-fragmentit), säedraama (Der zerbrochne
+  // Krug), proosadraama (Die Räuber) ja essee alaviitteineen (Über naive und sentimentalische Dichtung).
+  // Schelling Nachlass-Edition: Nachschrift (Illinois: 67 reunamerkintää, toimittajan huomautukset; Koosen: lehdet, huomautus
+  // lemmoineen), Sämmtliche Werken teksti alaviitteineen (Philosophie der Offenbarung, Buch 1: SW XIII; Clara: SW IX), Weltalterin
+  // käsikirjoitus (reunamerkinnät, Bogen-numerot, kaava), Berliner Einleitung (poistot, peruttu poisto, alamerkintä) ja kirje Goethelle.
+  schelling: ['8527', '7746', '8534', '8201', '7479', '8121', '106'].map(n => 'https://schelling.badw.de/text/' + n + '/'),
+  tg: ['sv8t.0', 'qdvk.0', 'qfgd.0', 'v37c.0', 'r0sb.0', 'v0fv.0', 'v0fk.0'].map(p => 'https://textgridrep.org/browse/' + p),
+  // Bokselskap.no (NSL): romaani luvun sivulta (Sult 2023: kommentti lemman perässä, tekstikritiikki, 1. painoksen sivut), toimittajan
+  // johdanto yksin, kirjekokoelma kirjeen sivulta (Collett: kirjeen tiedot, poistot, käsikirjoituksen sivut alkavat joka kirjeessä),
+  // runokokoelma (Haugtussa 2010: kommentti lemman edellä, 465 varianttia), Obstfelderin Digte (käsikirjoitusvariantit), proosanäytelmä
+  // (Agnete 2024), Holbergin komedia (Jeppe 2012: kohtaukset h2) ja Peder Paars nimiösivulta (tekijän alaviitteet, sivunumerot alkavat
+  // uudelleen, # merkitsemätön sivu).
+  bs: ['sult/forste-stykke', 'sult/innledning', 'collettbrev1864_68/1desember1864la', 'haugtussa/heime', 'digte/jegser', 'agnete/forste-akt',
+    'jeppe/1akt', 'pederpaars/tittelside'].map(p => 'https://www.bokselskap.no/boker/' + p),
+  // Ludvig Holbergs Skrifter: komedia lukunäkymän näytöksestä (Jeppe: 782 kommenttia, variantit, tekstikritiikki, sivut M3r…), sen
+  // modernisointi ja johdanto, Niels Klimin käännös (proosa, kääntäjä nimessä), Epistler I (82 epistolaa, Holbergin alaviitteet) ja
+  // Peder Paars (säkeet, 4 077 kommenttia; tulostusnäkymä 5,8 Mt). Leike hakee koko teoksen ja kommentaarin tulostusnäkymästä.
+  hb: ['skuespill%2FJeppe%2FJeppe.page;toc.depth=1;brand=;chunk.id=act1', 'skuespill%2FJeppe%2FJeppe_mod.page;toc.depth=1;brand=;chunk.id=start',
+    'skuespill%2FJeppe%2FJeppe_innl.page;toc.depth=1;brand=;chunk.id=start', 'niels_klim%2FNiels_Klim_overs.page;toc.depth=1;brand=;chunk.id=start',
+    'epistler%2FEpTom1.page;toc.depth=1;brand=;chunk.id=start', 'Paars%2FPaars.page;toc.depth=1;brand=;chunk.id=start']
+    .map(p => 'https://holbergsskrifter.no/holberg-public/view?docId=' + p),
+  // Suomen Kansan Vanhat Runot (SKVR, Avoimen Kalevalan muuntimella): Lönnrotin muistiinpano (toimittajan täydennykset,
+  // alaviitteet), Boreniuksen murretranskriptio (otsikkorivi, kaarimerkit, †-viitteet), pisin runo (proosarivit ja vanhan
+  // lähteen *)-viitteet), inkeriläinen tarkekirjoitus (REFNR), loitsu ohjeineen, toisintoluettelo (ab), lyhyt runo
+  // toimittajan huomautuksin, julkaisematon runo (JR), vanha esipuhe sekä runoluettelo ja runotyypin haku (useampi runo
+  // yhdeksi tekstiksi). Luettelot piirtyvät vasta sivun skriptistä: aja --elava.
+  skvr: ['main/skvr01100010.xml', 'main/skvr01100020.xml', 'main/skvr09100831.xml', 'main/skvr04147950.xml', 'main/skvr07228070.xml',
+    'main/skvr03103810.xml', 'main/skvr06136490.xml', 'jr/j00001.xml', 'alkulauseet/I1_alkusanat.xml', 'runoluettelo.html',
+    'haku.html?query=%22Kanteleen%20soitto%22&coll=main&field=themes'].map(p => 'https://aineistot.finlit.fi/exist/apps/skvr/' + p),
+  // Kalliope: runosivulta ja teoksen sivulta koko kokoelma. Aarestrupin Digte (101 runoa, osasto), Oehlenschlägerin Digte
+  // (kirjoittajan ja toimittajan alaviitteet, proosaesipuhe), Grundtvigin Roskilde-Riim (sivunvaihdot, keskitetty omistus),
+  // Bellmanin Fredmans epistlar (ruotsi, numeroidut otsikot), Baudelairen Les Fleurs du mal (ranska, osastot), Tegnérin
+  // yksittäinen runo (lähteen bibliografiatiedot) ja Andersenin Digte (teoksen huomautukset).
+  kl: ['da/text/aarestrup1838a3', 'da/work/oehlenschlaeger/1803', 'da/work/grundtvig/1814a', 'da/work/bellman/1790',
+    'da/work/baudelaire/1857', 'da/work/tegner/1964-1', 'da/work/andersen/1830'].map(p => 'https://kalliope.org/' + p),
 };
 const SARJA = otaArvo('--sarja');
-const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
+// persee.fr:n robots.txt sallii vain hakukoneet: sen sivut haetaan vain, kun sarjaa pyydetään nimeltä (--sarja persee).
+const ERIKSEEN = new Set(['persee']);
+const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.entries(SARJAT).filter(([k]) => !ERIKSEEN.has(k)).flatMap(([, v]) => v);
 const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
 fs.mkdirSync(VALI, { recursive: true });
@@ -543,6 +632,8 @@ function valimuisti(url, post) {
     if (/avesta\.org/.test(url)) cp.execFileSync('sleep', ['2']);
     // runeberg.org: robots.txt Crawl-delay 2.
     if (/runeberg\.org/.test(url)) cp.execFileSync('sleep', ['2']);
+    // persee.fr: robots.txt kieltää yleiset haravat, joten sivujen palat sekunnin välein (lisäosa hakee vain avatun artikkelin).
+    if (/persee\.fr/.test(url)) cp.execFileSync('sleep', ['1']);
     const koodi = cp.execFileSync('curl', ['-sSLg', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org|eur-lex\.europa\.eu|publishing\.umich\.edu|link\.springer\.com|nature\.com|journal\.fi/.test(url) ? [] : ['-A', /augustinus\.it/.test(url) ? 'Mozilla/5.0 (X11; Linux x86_64) Firefox/128.0' : 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
     if (koodi !== '200') { fs.writeFileSync(f + '.puuttuu', koodi); fs.rmSync(f, { force: true }); }
     else if (HAASTE.test(fs.readFileSync(f, 'utf8').slice(0, 20000))) { fs.writeFileSync(f + '.puuttuu', 'haaste'); fs.rmSync(f, { force: true }); haasteet.add(url); }
@@ -561,6 +652,21 @@ const palvelin = http.createServer((q, r) => {
   await new Promise(r => palvelin.once('listening', r));
   const PAIK = 'http://127.0.0.1:' + palvelin.address().port + '/';
   const b = await chromium.launch();
+  // die-bibel.de: CloudFront antaa curlille ja Playwrightin rajapintahaulle 403:n mutta selaimelle sivun, joten puuttuvat sivut
+  // haetaan välimuistiin selaimella (vain asiakirja, ei sivun skriptejä; 3 s väli).
+  const selaimella = OSOITTEET.map(u => u.split('#')[0]).filter(u => /^https?:\/\/www\.die-bibel\.de\//.test(u) && !fs.existsSync(vmTiedosto(u)));
+  if (selaimella.length) {
+    const c = await b.newContext();
+    await c.route(/^https?:/, r => r.request().resourceType() === 'document' ? r.continue() : r.abort());
+    const s = await c.newPage();
+    for (const u of selaimella) {
+      const v = await s.goto(u, { waitUntil: 'commit', timeout: 30000 }).catch(() => null);
+      if (v && v.status() === 200) { fs.writeFileSync(vmTiedosto(u), await v.text()); fs.rmSync(vmTiedosto(u) + '.puuttuu', { force: true }); }
+      else console.log('  (die-bibel.de: ' + (v ? v.status() : 'ei vastausta') + ' ' + u + ')');
+      await s.waitForTimeout(3000);
+    }
+    await c.close();
+  }
   const ctx = await b.newContext();
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
@@ -574,9 +680,16 @@ const palvelin = http.createServer((q, r) => {
     }
     // avesta.org: palvelin ei kerro merkistöä, ja osa sivuista on ISO-8859-1:tä (Dhallan §), joten tavut sellaisinaan ja
     // text/html ilman charsetia kuten palvelimelta: selain päättelee merkistön sivun metasta tai oletuksesta.
-    if (/^https?:\/\/www\.avesta\.org\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    // Classics in the History of Psychology: sama (Word 97:n windows-1252 vain sivun metassa, palvelin antaa pelkän text/html).
+    if (/^https?:\/\/(www\.avesta\.org|psychclassics\.yorku\.ca)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h === null ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ body: fs.readFileSync(vmTiedosto(u)), contentType: 'text/html' });
+    }
+    // TextGrid: koostepalvelu ja metatiedot ovat toisella palvelimella (textgridlab.org), joka sallii CORSin; välimuistin vastaukseen
+    // sama otsake, muuten selain hylkää sivun haun.
+    if (/^https?:\/\/textgridlab\.org\//.test(u) && /^(fetch|xhr)$/.test(r.request().resourceType())) {
+      const h = valimuisti(u);
+      return h ? r.fulfill({ body: h, contentType: /\/metadata$/.test(u) ? 'text/xml; charset=utf-8' : 'text/html; charset=utf-8', headers: { 'access-control-allow-origin': '*' } }) : r.fulfill({ status: 404, body: '' });
     }
     // VLE: sivun omat skriptit ja ajax.php (POST) välimuistista; muut palvelimet (reCAPTCHA, Pinterest, MathJax) estetään.
     if (/^https?:\/\/www\.vle\.lt\//.test(u) && /^(script|fetch|xhr)$/.test(r.request().resourceType())) {
@@ -585,7 +698,7 @@ const palvelin = http.createServer((q, r) => {
       const tyyppi = /\.js(\?|$)/.test(u) ? 'text/javascript' : /ajax\.php/.test(u) ? 'application/json' : 'text/html; charset=utf-8';
       return h ? r.fulfill({ body: h, contentType: tyyppi }) : r.fulfill({ status: 404, body: '' });
     }
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co|books\.openbookpublishers\.com|fadedpage\.com|archive\.org|folger\.edu|gwern\.net|lareviewofbooks\.org|themarginalian\.org|3-16am\.co\.uk|eur-lex\.europa\.eu|caselaw\.nationalarchives\.gov\.uk|pmc\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov|rips-irsp\.com|utrechtlawreview\.org|openpsychologydata\.metajnl\.com|journalofcognition\.org|vacarme\.org|laviedesidees\.fr|booksandideas\.net|lmsi\.net|remue\.net|politicalconcepts\.org|projectvox\.org|embryo\.asu\.edu|cdli\.earth|magazines\.gorky\.media|fabula\.org|sites\.pitt\.edu|digital\.library\.upenn\.edu|chs\.harvard\.edu|zeithistorische-forschungen\.de|bombmagazine\.org|psychopen\.eu|projekt-gutenberg\.org|bookofconcord\.org|vatican\.va|edition-open-sources\.org|edition-open-access\.de|mprl-series\.mpg\.de|raamattu\.fi|laparola\.net|theconversation\.com|pubmed\.ncbi\.nlm\.nih\.gov|lmaleidykla\.lt|newtonproject\.ox\.ac\.uk|thelatinlibrary\.com|gretil\.sub\.uni-goettingen\.de|girardianlectionary\.net|phenomenologyonline\.com|lacanonline\.com|hedgehogreview\.com|tif\.ssrc\.org|sls\.fi|snellman\.kootutteokset\.fi|popups\.uliege\.be|religion-online\.org|isidore\.co|tekster\.kb\.dk|journals\.publishing\.umich\.edu|philological\.bham\.ac\.uk|philological\.cal\.bham\.ac\.uk|link\.springer\.com|biomedcentral\.com|nature\.com|journals\.plos\.org|frontiersin\.org|journal\.fi|wisdomlib\.org|tha\.de|accesstoinsight\.org|davidhume\.org|cts\.perseids\.org|research\.ucc\.ie|celt\.ucc\.ie|standardebooks\.org|rousseauonline\.ch|goethe-biographica\.de|hamann-ausgabe\.de|schleiermacher-digital\.de|wvh-briefe\.bbaw\.de|livius\.org|zettelkasten\.de|runeberg\.org|litteraturbanken\.se|editiot\.finlit\.fi|ibsen\.uio\.no|hudoc\.echr\.coe\.int|finlex\.fi)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co|books\.openbookpublishers\.com|fadedpage\.com|archive\.org|folger\.edu|gwern\.net|lareviewofbooks\.org|themarginalian\.org|3-16am\.co\.uk|eur-lex\.europa\.eu|caselaw\.nationalarchives\.gov\.uk|pmc\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov|rips-irsp\.com|utrechtlawreview\.org|openpsychologydata\.metajnl\.com|journalofcognition\.org|vacarme\.org|laviedesidees\.fr|booksandideas\.net|lmsi\.net|remue\.net|politicalconcepts\.org|projectvox\.org|embryo\.asu\.edu|cdli\.earth|magazines\.gorky\.media|fabula\.org|sites\.pitt\.edu|digital\.library\.upenn\.edu|chs\.harvard\.edu|zeithistorische-forschungen\.de|bombmagazine\.org|psychopen\.eu|projekt-gutenberg\.org|bookofconcord\.org|vatican\.va|edition-open-sources\.org|edition-open-access\.de|mprl-series\.mpg\.de|raamattu\.fi|laparola\.net|theconversation\.com|pubmed\.ncbi\.nlm\.nih\.gov|lmaleidykla\.lt|newtonproject\.ox\.ac\.uk|thelatinlibrary\.com|gretil\.sub\.uni-goettingen\.de|girardianlectionary\.net|phenomenologyonline\.com|lacanonline\.com|hedgehogreview\.com|tif\.ssrc\.org|sls\.fi|snellman\.kootutteokset\.fi|popups\.uliege\.be|religion-online\.org|isidore\.co|tekster\.kb\.dk|journals\.publishing\.umich\.edu|philological\.bham\.ac\.uk|philological\.cal\.bham\.ac\.uk|link\.springer\.com|biomedcentral\.com|nature\.com|journals\.plos\.org|frontiersin\.org|journal\.fi|wisdomlib\.org|tha\.de|accesstoinsight\.org|davidhume\.org|cts\.perseids\.org|research\.ucc\.ie|celt\.ucc\.ie|standardebooks\.org|rousseauonline\.ch|goethe-biographica\.de|hamann-ausgabe\.de|schleiermacher-digital\.de|wvh-briefe\.bbaw\.de|livius\.org|zettelkasten\.de|runeberg\.org|litteraturbanken\.se|editiot\.finlit\.fi|aineistot\.finlit\.fi|kalliope\.org|ibsen\.uio\.no|hudoc\.echr\.coe\.int|finlex\.fi|die-bibel\.de|thegospelcoalition\.org|persee\.fr|cambridge\.org|textgridrep\.org|schelling\.badw\.de|bokselskap\.no|holbergsskrifter\.no|holbergsskrifter\.dk|psychclassics\.yorku\.ca|journal-fuer-psychologie\.de|atheneadigital\.net|quadernsdepsicologia\.cat)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       // Standard Ebooksin lukusivut tulevat XHTML:nä (application/xhtml+xml), joten sivu on selaimessa XML-asiakirja kuten oikeasti.
       const xhtml = /^https?:\/\/standardebooks\.org\/ebooks\/.+\/text(\/|$)/.test(u) && r.request().resourceType() === 'document';
@@ -599,7 +712,7 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/finlex\.fi/.test(url) ? ['fx', ...osat.slice(5)] : /hudoc\.echr/.test(url) ? ['hd', (/[?&]i=([\d-]+)/.exec(url) || [])[1] || 'x'] : /runeberg\.org/.test(url) ? ['pr', ...osat.slice(3)] : /editiot\.finlit\.fi/.test(url) ? ['kal', ...osat.slice(5)] : /ibsen\.uio\.no/.test(url) ? ['ib', osat[osat.length - 1].replace(/\?.*$/, '')] : /parland\.sls\.fi/.test(url) ? ['pl', url.split('#itemId=')[1] || 'x'] : /litteraturbanken\.se/.test(url) ? ['lb', osat[4], osat[6], osat[8] || '', osat[9] || ''] : /livius\.org|avesta\.org/.test(url) ? osat.slice(-2) : /schleiermacher-digital/.test(url) ? ['sd', osat[3], url.split('id=')[1] || ''] : /wvh-briefe/.test(url) ? ['wvh', (/(\d+)(?:\?view=\w+)?$/.exec(url) || [])[1] || 'x'] : /hamann-ausgabe\.de/.test(url) ? ['hkb', osat[osat.length - 1]] : /standardebooks\.org/.test(url) ? ['se', osat[5], osat[osat.length - 1]] : /cts\.perseids/.test(url) ? osat.slice(4) : /davidhume\.org/.test(url) ? ['hume', ...osat.slice(osat.indexOf('texts') + 1)] : /publishing\.umich/.test(url) ? [osat[3], osat[osat.length - 1]] : /frontiersin\.org/.test(url) ? osat.slice(-2, -1) : /edition-open|mprl-series/.test(url) ? osat.slice(2, -1) : /newtonproject/.test(url) ? ['newton', osat[osat.length - 1]] : /thelatinlibrary/.test(url) ? osat.slice(-2) : /girardianlectionary|phenomenologyonline|lacanonline|hedgehogreview|tif\.ssrc/.test(url) ? [osat[2].replace(/^www\./, '').split('.')[0], osat[osat.length - 1]] : /augustinus\.it/.test(url) ? ['aug', ...osat.slice(-3)] : /popups\.uliege/.test(url) ? ['popups', url.split('id=')[1]] : /journals\.vu\.lt|revistas\.ucm\.es|psychopen\.eu/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook|projekt-gutenberg|bookofconcord|sls\.fi|isidore\.co|philological/.test(url) ? osat.slice(-2) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /cdli\.earth|fabula\.org|zeithistorische/.test(url) ? osat.slice(-2) : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/textgridrep\.org/.test(url) ? ['tg', osat[osat.length - 1]] : /schelling\.badw\.de/.test(url) ? ['sch', ...osat.slice(3)] : /holbergsskrifter\./.test(url) ? ['hb', ((/docId=([^;&]+)/.exec(decodeURIComponent(url)) || [])[1] || 'x').split('/').pop().replace(/\.page$/, '')] : /bokselskap\.no/.test(url) ? ['bs', ...osat.slice(4)] : /finlex\.fi/.test(url) ? ['fx', ...osat.slice(5)] : /cambridge\.org\/core/.test(url) ? ['cam', osat[osat.length - 2].slice(0, 40)] : /psychclassics\./.test(url) ? ['chp', ...osat.slice(3).filter(Boolean)] : /journal-fuer-psychologie|atheneadigital|quadernsdepsicologia/.test(url) ? [osat[2].split('.')[0], ...osat.slice(osat.indexOf('view') + 1)] : /aineistot\.finlit\.fi/.test(url) ? ['skvr', ...osat.slice(6)] : /kalliope\.org/.test(url) ? ['kl', ...osat.slice(3)] : /die-bibel\.de/.test(url) ? ['wbl', osat[osat.length - 1]] : /thegospelcoalition\.org/.test(url) ? ['them', osat[osat.length - 1]] : /hudoc\.echr/.test(url) ? ['hd', (/[?&]i=([\d-]+)/.exec(url) || [])[1] || 'x'] : /runeberg\.org/.test(url) ? ['pr', ...osat.slice(3)] : /editiot\.finlit\.fi/.test(url) ? ['kal', ...osat.slice(5)] : /ibsen\.uio\.no/.test(url) ? ['ib', osat[osat.length - 1].replace(/\?.*$/, '')] : /parland\.sls\.fi/.test(url) ? ['pl', url.split('#itemId=')[1] || 'x'] : /litteraturbanken\.se/.test(url) ? ['lb', osat[4], osat[6], osat[8] || '', osat[9] || ''] : /livius\.org|avesta\.org/.test(url) ? osat.slice(-2) : /schleiermacher-digital/.test(url) ? ['sd', osat[3], url.split('id=')[1] || ''] : /wvh-briefe/.test(url) ? ['wvh', (/(\d+)(?:\?view=\w+)?$/.exec(url) || [])[1] || 'x'] : /hamann-ausgabe\.de/.test(url) ? ['hkb', osat[osat.length - 1]] : /standardebooks\.org/.test(url) ? ['se', osat[5], osat[osat.length - 1]] : /cts\.perseids/.test(url) ? osat.slice(4) : /davidhume\.org/.test(url) ? ['hume', ...osat.slice(osat.indexOf('texts') + 1)] : /publishing\.umich/.test(url) ? [osat[3], osat[osat.length - 1]] : /frontiersin\.org/.test(url) ? osat.slice(-2, -1) : /edition-open|mprl-series/.test(url) ? osat.slice(2, -1) : /newtonproject/.test(url) ? ['newton', osat[osat.length - 1]] : /thelatinlibrary/.test(url) ? osat.slice(-2) : /girardianlectionary|phenomenologyonline|lacanonline|hedgehogreview|tif\.ssrc/.test(url) ? [osat[2].replace(/^www\./, '').split('.')[0], osat[osat.length - 1]] : /augustinus\.it/.test(url) ? ['aug', ...osat.slice(-3)] : /popups\.uliege/.test(url) ? ['popups', url.split('id=')[1]] : /journals\.vu\.lt|revistas\.ucm\.es|psychopen\.eu/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook|projekt-gutenberg|bookofconcord|sls\.fi|isidore\.co|philological/.test(url) ? osat.slice(-2) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /cdli\.earth|fabula\.org|zeithistorische/.test(url) ? osat.slice(-2) : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url.split('#')[0])) { console.log('=====', nimi, haasteet.has(url.split('#')[0]) ? 'ei saatu (tarkistussivu)' : 'ei saatu'); continue; }
     // Yhden artikkelin virhe (sovite tai md.js kaatuu) kirjataan ja ajo jatkuu; ennen se pysäytti koko sarjan, eikä kaatavaa
     // leikettä ollut tallessa. Leike tallennetaan ennen Latomoa.
