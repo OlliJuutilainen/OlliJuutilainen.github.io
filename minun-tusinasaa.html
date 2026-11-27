@@ -1026,7 +1026,7 @@ function piirraKierto(){
 /* Suuntanuoli (käyttäjän päätös): ohut, pieni, hennosti kaareutuva nuoli napin kuusikulmion ulkopuolella, kaarena napin
    keskipisteen ympäri hiutaleesta poispäin. Kärki osoittaa sinne, minne salko kiertäisi alakärkeen (s: 1 vastapäivään,
    −1 myötäpäivään; sama kierros kuin renderPanelissa). Kärki on kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const SUUNTA = { r: 18, puoli: 28, karki: 3.2, leveys: .85 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
+const SUUNTA = { r: 20, puoli: 25, karki: 3.2, leveys: .85 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
 function suuntaNuoli(a, s){
   const { r, puoli, karki, leveys } = SUUNTA;
   const P = (f, q = r) => f2(q * Math.cos(rad(f))) + ' ' + f2(-q * Math.sin(rad(f)));
