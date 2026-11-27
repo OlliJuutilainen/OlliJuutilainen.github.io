@@ -657,6 +657,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   joten se ei siirrä kirjanmerkkejä eikä näy haussa. Muualla ja ilman `-`/`+`:aa (GitHubin `[!NOTE]`) lainaus on ennallaan. Avaus
   asettelee tekstin samaan kohtaan (`toggle` → `asettele(tila.ankkuri)`), eikä otsikkorivin napautus käännä sivua.
 - Regexien `\b` ei toimi ä:n perässä; käytä `(?![\p{L}\p{N}])`.
+- **md.js:n syöte on vihamielinen** (verkkoleike, postilaatikko, `#u=`): ei sisäkkäisiä tai peräkkäisiä valinnaisia kvanttoreita
+  rivin loppuun (`\s*…\s*$`, `(.*?)\s*#*\s*$` olivat kuutiollisia), ei haun toistoa jokaisesta avaajasta (`parit()`, `eiSulje`),
+  ja määritelmät prototyypittömiin olioihin (`Object.create(null)`). Kokeile uusi regex muutaman tuhannen välilyönnin rivillä.
 - **`md.js?v=<SHA-1:n alku>`**: luin.html ja Latomo lataavat md.js:n versiotunnisteella, koska Pages antaa `max-age=600`
   ja selain pitää vanhan version. Kun muutat md.js:ää (myös kommenttia), päivitä tunniste (`md-testi.js` huomauttaa unohduksesta):
   `V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html`
@@ -899,6 +902,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   siistitä pois. Sääntö ja ohje ovat `luin/posti.js`:ssä, lisäosassa kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset kulkevat Durable Objectin laskurin `LuinRaja`
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikaan ei rajoita. Koodia ei kirjoiteta repoon.
+  Worker hylkää merkintäpaketin ilman `v: 1`:tä ja pyynnön, jossa on sekä teksti että merkinnät; laatikon listaus on 1000 avainta.
   Pino hakee laatikon enintään minuutin välein ja tyhjän haun jälkeen kerran uudelleen (`haePinoon()`): KV:n listaus näyttää
   edellisen minuutin sisällä luetun tilan. Ei jatkuvaa kyselyä: ilmaistasolla listauksia on 1000 päivässä, ja haku tekee kaksi. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
