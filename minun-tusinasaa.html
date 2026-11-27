@@ -137,12 +137,11 @@
   /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
   .omaan{ text-align:center; margin:44px 0 40px }
-  /* Reipas nuoli tekstin alla, 3 px tekstiä lyhyempi kummastakin päästä, melkein kiinni päihin (käyttäjän päätös): perässä
-     varren ohuinen kuusikulmio (9,2 px kärjestä kärkeen), ohut varsi ja kärkenä kapea suora kolmio, auringon säteen sukua
-     eikä lovettu navigaattorinuoli (käyttäjän päätös). Varsi venyy, joten perä ja kärki pysyvät mittasuhteissaan. */
+  /* Reipas nuoli tekstin alla, 3 px tekstiä lyhyempi kummastakin päästä, melkein kiinni päihin (käyttäjän päätös): ohut
+     varsi ilman perää ja kärkenä kapea suora kolmio, auringon säteen sukua eikä lovettu navigaattorinuoli (käyttäjän
+     päätös). Varsi venyy, joten kärki pysyy mittasuhteissaan. */
   #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
-  #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:12px; margin:0 3px }
-  #omaanSalkoon .pera{ flex:none; width:12px; height:12px; overflow:visible; margin-right:-1.4px }
+  #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:10px; margin:0 3px }
   #omaanSalkoon .varsi{ flex:1; height:1.6px; background:currentColor; margin-right:-1px }
   #omaanSalkoon .karki{ flex:none; width:12px; height:5px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
@@ -439,7 +438,7 @@
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><svg class="pera" viewBox="-6 -6 12 12"><path d="M-4.6 0L-2.3 -3.98L2.3 -3.98L4.6 0L2.3 3.98L-2.3 3.98Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
@@ -531,7 +530,7 @@ const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${
    MAAILMAN KESKUS (ilman kaksoispistettä) kursiivin ylälaidan päästä päähän, ei yli; päät (VAS, OIK) on mitattu musteesta,
    ja ne ovat epäsymmetriset, koska otsake on keskitetty kaksoispisteineen ja kursiivin ylälaita on siirtynyt. Kun otsake tai
    sen fontti muuttuu, mittaa uudelleen. Kuvaa leveämpi; SVG:n overflow näyttää sen. Sen päällä kuusikulmion (kärjet sivuilla)
-   yläpuolisko ääriviivana ja neljä sädettä; varsi päättyy kehän
+   yläpuolisko ääriviivana ja kuusi sädettä (12°, 38° ja 64° kummallakin puolella; käyttäjän päätös); varsi päättyy kehän
    yläreunaan. Jalka on varren alaosan kohdalla eikä lisää korkeutta. Omana polkunaan: samassa polussa varren ja kehän
    päällekkäinen osa kumoutuisi vastakkaisten kiertosuuntien takia. */
 const salkoKuva = (() => {
@@ -544,7 +543,7 @@ const salkoKuva = (() => {
   const VAS = 53.1 * 32 / LEVEYS, OIK = 49.9 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
   const puoli = r => [[16 + r, yh], [16 + r / 2, yh - r * s3 / 2], [16 - r / 2, yh - r * s3 / 2], [16 - r, yh]];
   const jalka = 'M' + [...puoli(RO), ...puoli(RI).reverse()].map(([x, y]) => f2(x) + ' ' + f2(y)).join('L') + 'Z' +
-    [30, 60, 120, 150].map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
+    [12, 38, 64].flatMap(a => [a, 180 - a]).map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
     `M${f2(16 - VAS)} ${f2(yh)}H${f2(16 + OIK)}V${f2(yh + .8)}H${f2(16 - VAS)}Z`;
   const varsi = `M${f2(16 - P / 2)} ${lovi}H${f2(16 + P / 2)}V${f2(yh - RO * s3 / 2 + .5)}H${f2(16 - P / 2)}Z`;
   const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;

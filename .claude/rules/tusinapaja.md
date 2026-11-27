@@ -186,7 +186,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (kuva, hiutale, otsake ja nimi) on yhtä väriä, sivun kirkkainta `--brand` (tummassa valkoinen; käyttäjän päätös).
   Jalka (käyttäjän päätös): nouseva aurinko eli horisontti otsakkeen MAAILMAN KESKUS kursiivin ylälaidan päästä päähän (ilman
   kaksoispistettä; ei koskaan yli: päät `VAS`/`OIK` mitattu musteesta; mittaa uudelleen, jos otsake tai fontti muuttuu),
-  sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä. Ei lisää korkeutta.
+  sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja kuusi sädettä (12°, 38° ja 64° kummallakin puolella;
+  käyttäjän päätös). Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä,
@@ -199,8 +200,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
-  reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (perässä ohut kuusikulmio 9,2 px kärjestä kärkeen, ohut varsi,
-  kärkenä kapea suora kolmio: auringon säteen sukua, ei lovettu navigaattorinuoli; käyttäjän päätös).
+  reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
+  säteen sukua, ei lovettu navigaattorinuoli; käyttäjän päätös).
 - **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) … kursiivilla, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
   muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
