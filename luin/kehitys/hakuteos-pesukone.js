@@ -581,7 +581,9 @@ const SARJAT = {
     .map(p => 'https://holbergsskrifter.no/holberg-public/view?docId=' + p),
 };
 const SARJA = otaArvo('--sarja');
-const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
+// persee.fr:n robots.txt sallii vain hakukoneet: sen sivut haetaan vain, kun sarjaa pyydetään nimeltä (--sarja persee).
+const ERIKSEEN = new Set(['persee']);
+const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.entries(SARJAT).filter(([k]) => !ERIKSEEN.has(k)).flatMap(([, v]) => v);
 const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
 fs.mkdirSync(VALI, { recursive: true });
