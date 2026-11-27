@@ -151,7 +151,7 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
 Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun·oma·tusinasää (MOTS)* (käyttäjän päätös). Napissa ja paneelin
-otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napissa MOTS on kursiivilla (käyttäjän päätös).
+otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napin koko teksti on kursiivilla (käyttäjän päätös).
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -208,7 +208,9 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
 - Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää (MOTS)* -nappi, eikä
   sovellusosiota ole etusivulla (käyttäjän päätökset).
 - Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa. Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
-  dataan ja yr.no:hon (käyttäjän päätös).
+  dataan ja yr.no:hon (käyttäjän päätös); *Ilmatieteen laitoksen* ja koko sulkeet *(mm. yr.no)* kursiivilla (käyttäjän päätös).
+- Leipäteksti on tiivis (käyttäjän päätös): riviväli 1.3 17 px:n ja 1.35 15,5 px:n teksteissä. Logo on ylätekstin anfangi,
+  joten sen koko ja yläväli seuraavat ylätekstin riviväliä (laskutapa CSS-kommentissa).
 - Logo sulkee avainnäkymän, jos se on auki; muuten paneelissa se vie etusivulle ja etusivulla paneeliin, mutta etusivulla
   vain, kun laitteen paneelissa on salko pystyssä (`salkoPystyssa`). Muuten etusivun logo ei ole linkki (ei `href`iä), jotta
   ensipaalutukseen ei pääse logosta (käyttäjän päätös). Näkymä on historiassa (`history.state.sivu`),
