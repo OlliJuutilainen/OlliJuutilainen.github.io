@@ -49,8 +49,8 @@
   .logoBox{ display:block; flex:none; line-height:0; margin-top:6.75px }
   .logo{ display:block; width:68.7px; height:68.7px; color:var(--brand) }
   /* Logo ilman taustaa tekstin värillä; vaaleassa teemassa säteet ovat suuremmat (android/scripts/tusinasaa-kuvake.js). */
-  .logo .vaalea{ display:none }
-  @media (prefers-color-scheme: light){ .logo .tumma{ display:none } .logo .vaalea{ display:inline } }
+  .logo .vaalea, .salko .vaalea{ display:none }
+  @media (prefers-color-scheme: light){ .logo .tumma, .salko .tumma{ display:none } .logo .vaalea, .salko .vaalea{ display:inline } }
   .quote{ position:absolute; left:0; right:0; top:6.75px; height:68.7px; margin:0; padding:0 0 0 98.7px;
     display:flex; align-items:flex-start; justify-content:flex-start; text-align:left;
     /* Ylemmän rivin versaalien keskikohta logon keskikohdalle. */
@@ -196,6 +196,8 @@
   .slot.free:hover, .slot.free:focus-visible{ color:var(--muted) }
   .slot.melting{ color:var(--text) }
   .now{ text-align:center; margin:2px 0 0; font-size:15px }
+  /* Salko Salkoni-otsakkeen yllä (koko ja väri: salkoKuva). */
+  .now .salko{ display:block; margin:0 auto 6px; color:var(--muted); overflow:visible }
   .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--muted); margin:0 0 3px }
   .now a{ text-decoration:none }
   .now a:hover, .now a:focus-visible{ text-decoration:underline; text-underline-offset:3px }
@@ -433,6 +435,22 @@ $('sprite').innerHTML =
   `<symbol id="g-rengas" viewBox="0 0 24 24" overflow="visible"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.8"/></symbol>` +
   `<symbol id="g-vapaa" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 2.4" d="${hex(12, 12, 9)}"/></symbol>`;
 const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${id}"/></svg>`;
+/* Salko Salkoni-otsakkeen yllä (käyttäjän päätös): kuin avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista
+   lukua, ja kehän sisällä salkojen hiutale. Kehä ja säteet otetaan logon poluista (android/scripts/tusinasaa-kuvake.js:
+   kehä kaksi osapolkua, sitten 12 sädettä alkaen klo 12:sta, viimeisenä luku), joten salko seuraa logon muutoksia.
+   Varsi on kehän paksuinen kuten avaimessa ja alkaa alimman säteen loven pohjalta; hiutaleen kärjet ovat kehästä yhtä
+   kaukana kuin logon luku. Mitat logon yksiköissä (32). */
+const salkoKuva = (() => {
+  const osat = luokka => $('logo').querySelector('.' + luokka).getAttribute('d').split(/(?=M)/);
+  const luvut = o => o.match(/-?[\d.]+/g).map(Number);
+  const t = osat('tumma'), ulko = luvut(t[0])[1], sisa = luvut(t[1])[1], lovi = luvut(t[8])[5];
+  const paksuus = (sisa - ulko) * Math.sqrt(3) / 2, PITUUS = 26, LEVEYS = 28, H = 32 + PITUUS;
+  const varsi = `M${f2(16 - paksuus / 2)} ${lovi}H${f2(16 + paksuus / 2)}V${H}H${f2(16 - paksuus / 2)}Z`;
+  const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;
+  const k = f2((16 - sisa - .94) / 11.6 * 24);
+  return `<svg class="salko" viewBox="0 0 32 ${H}" width="${LEVEYS}" height="${f2(LEVEYS * H / 32)}" aria-hidden="true">` +
+    polku('tumma') + polku('vaalea') + `<use href="#g-kide" x="${f2(16 - k / 2)}" y="${f2(16 - k / 2)}" width="${k}" height="${k}"/></svg>`;
+})();
 
 /* Aforismin rivit samasta vasemmasta reunasta: tasataan ensimmäisen kirjaimen musteesta, fonttien latauduttua uudelleen. */
 function fitQuote(){
@@ -701,7 +719,7 @@ function renderPanel(){
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
-  $('now').innerHTML = act ? `<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').innerHTML = act ? `${salkoKuva}<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
   $('now').hidden = first;
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;

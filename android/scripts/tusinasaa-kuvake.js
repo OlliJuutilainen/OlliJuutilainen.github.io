@@ -99,6 +99,7 @@ function kiilat() {
   return d;
 }
 
+// Osapolkujen järjestys (kehä, 12 sädettä klo 12:sta, luku) on sovittu: minun-tusinasaa.html:n salko lukee kehän ja säteet logosta.
 const TAYTE = kuusikulmio(ULKO) + kuusikulmio(SISA, true) + sateet() + kiilat();
 const tayte = k => kuusikulmio(ULKO) + kuusikulmio(SISA, true) + sateet(k) + kiilat();
 
