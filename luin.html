@@ -7693,16 +7693,17 @@
   // 1) Yksikkö on sivu: porras on sivu, ja samalla sivulla on yksi porras (etusija: majakka, haamu, merkkipaalu,
   //    kirjanmerkki, viimeinen sivu, väliporras).
   // 2) Merkkipaalut ovat tekstin alku, luvut ja osiot (otsikot ja yläindeksien osiot); kohdat eivät ole portaita.
-  // 3) Askel on 12,5 % sivumäärästä lähimpään kokonaiseen sivuun, puolikas ylöspäin, vähintään sivu: alle 12 sivua 1,
-  //    12–19 sivua 2, 20–27 sivua 3 …
-  // 4) Merkkipaalujen väli (viimeinen väli kirjan loppuun) jaetaan, kun se on yli 25 % sivumäärästä, floor(väli / askel)
-  //    yhtä suureen osaan lähimmille sivuille. Merkkipaaluton 12-sivuinen kirja: joka toinen sivu.
-  // 5) Viimeinen sivu, kirjanmerkit, majakka ja haamu ovat portaita mutta eivät vaikuta väliportaisiin.
+  // 3) Kymmenkanta: askel on pienin kahden potenssi, jolla veto ensimmäiseltä sivulta viimeiselle (N − 1 sivua) tekee alle
+  //    kymmenen hyppyä. Kun hyppyjä tulisi kymmenen, askel kaksinkertaistuu ja hyppyjä on viisi: 1–10 sivua askel 1,
+  //    11–20 sivua 2, 21–40 sivua 4, 41–80 sivua 8 …
+  // 4) Merkkipaalujen väli (viimeinen väli viimeiselle sivulle) jaetaan floor(väli / askel) yhtä suureen osaan lähimmille
+  //    sivuille, joten yksikään hyppy ei ole kahta askelta pitkä. Merkkipaaluton 11-sivuinen kirja: joka toinen sivu.
+  // 5) Kirjanmerkit, majakka ja haamu ovat portaita mutta eivät vaikuta väliportaisiin.
   // Portaat ovat samat riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. Sähköpaperi päivittyy näin
   // vedettäessä vain portaalta toiselle siirryttäessä. Portaat lasketaan kerran vetoa kohden (sivumittaus).
-  var JANA_PORRAS = .125;
+  var JANA_HYPYT = 10;
   function janaPysakit() {
-    var N = tila.sivuja, nimi = kohdanNimi, ehd = [], paalut = [0, N];
+    var N = tila.sivuja, S = Math.max(0, N - 1), nimi = kohdanNimi, ehd = [], paalut = [0, S];
     var lisaa = function (m) {
       m.sivu = m.sivu != null ? m.sivu : m.k.b === 0 && m.k.o === 0 ? 0 : clamp(sivuKohdassa(m.k) - (m.k.ed || 0), 0, N - 1);
       ehd.push(m);
@@ -7717,10 +7718,11 @@
     // Viimeinen sivu (käyttäjän pyyntö): ilman tätä veto janan loppuun pysähtyi viimeiseen otsikkoon, eikä loppuun päässyt
     // kuin sivua kääntämällä.
     if (N > 1) { var vika = sivunAlku(N - 1); lisaa({ k: vika, nimi: nimi(vika), sivu: N - 1 }); }
-    var A = Math.max(1, Math.round(N * JANA_PORRAS));
+    var A = 1;
+    while (S / A >= JANA_HYPYT) A *= 2;
     paalut = paalut.filter(function (x, i, a) { return a.indexOf(x) === i; }).sort(function (p, q) { return p - q; });
     for (var i = 1; i < paalut.length; i++) {
-      var a0 = paalut[i - 1], V = paalut[i] - a0, n = V / N > 2 * JANA_PORRAS ? Math.floor(V / A) : 1;
+      var a0 = paalut[i - 1], V = paalut[i] - a0, n = Math.max(1, Math.floor(V / A));
       for (var j = 1; j < n; j++) { var p = a0 + Math.round(V * j / n), k = sivunAlku(p); lisaa({ k: k, nimi: nimi(k), sivu: p }); }
     }
     var sivuilla = {};
