@@ -142,6 +142,9 @@
   .merkki{ display:inline-block; width:.66em; height:.66em; vertical-align:.2em; margin-left:.02em; overflow:visible }
   .merkki.rengas{ margin-left:-.01em }
   .merkki:not(.rengas){ width:.6em; height:.6em; vertical-align:.24em }
+  /* AVULIAAN merkki on sulamerkki eli hävinnyt hiutale (käyttäjän päätös). Yläindeksin koossa viiva vahvemmaksi,
+     muuten se jää alle pikselin levyiseksi. Vaakaviiva ulottuu hiutaleen kärkiä vasemmemmaksi: marginaali pitää välin. */
+  .merkki.sula{ --sula-viiva:2.4; margin-left:.07em }
 
   /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla.
      Valitsemattoman teksti --valinta (hiukan --mutedia kirkkaampi) ja tuotenimi --dim täytenä, yhä selvästi himmeämpänä. */
@@ -369,7 +372,7 @@
         <button class="opt" type="button" role="radio" data-lampo="avulias">
           <span class="sym"><i>TK</i> <span class="tk">(tuntuu kuin)</span></span>
           <span class="alt">(TK, tuntuu kuin)</span>
-          <span class="ref"><span class="tm">TUSINASÄÄ&nbsp;12</span> <i>AVULIAS</i><svg class="merkki" viewBox="0 0 24 24" aria-hidden="true"><use href="#g-kide"/></svg></span>
+          <span class="ref"><span class="tm">TUSINASÄÄ&nbsp;12</span> <i>AVULIAS</i><svg class="merkki sula" viewBox="0 0 24 24" aria-hidden="true"><use href="#g-sula"/></svg></span>
         </button>
       </div>
     </div>
@@ -433,11 +436,11 @@ const wedge = (cx, cy, a, r0, r1, hb) => { const [bx, by] = pt(cx, cy, a, r0); c
 const hex = (cx, cy, r) => 'M' + [0, 1, 2, 3, 4, 5].map(i => pt(cx, cy, 90 + i * 60, r).join(' ')).join('L') + 'Z';
 let kide = hex(12, 12, 2.9);
 for (const a of SIX){ kide += wedge(12, 12, a, 0, 11.6, 1.75); const [bx, by] = pt(12, 12, a, 6.6); kide += wedge(bx, by, a + 58, 0, 4, .9) + wedge(bx, by, a - 58, 0, 4, .9); }
-/* Sulamerkki: viivat sakaroiden väleissä, kiteen negaatio. */
+/* Sulamerkki: viivat sakaroiden väleissä, kiteen negaatio. Viivan paksuus --sula-viiva (oletus 1.9). */
 const sula = SIX.map(a => { const [x1, y1] = pt(12, 12, a + 30, 7.4), [x2, y2] = pt(12, 12, a + 30, 11.2); return `M${x1} ${y1}L${x2} ${y2}`; }).join('');
 $('sprite').innerHTML =
   `<symbol id="g-kide" viewBox="0 0 24 24" overflow="visible"><path fill="currentColor" d="${kide}"/></symbol>` +
-  `<symbol id="g-sula" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.9" d="${sula}"/></symbol>` +
+  `<symbol id="g-sula" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" style="stroke-width:var(--sula-viiva, 1.9)" d="${sula}"/></symbol>` +
   `<symbol id="g-rengas" viewBox="0 0 24 24" overflow="visible"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.8"/></symbol>` +
   `<symbol id="g-vapaa" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 2.4" d="${hex(12, 12, 9)}"/></symbol>`;
 const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${id}"/></svg>`;
