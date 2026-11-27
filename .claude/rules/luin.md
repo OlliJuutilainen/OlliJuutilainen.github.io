@@ -245,7 +245,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (näkyvät linkkirivit, mukaan/pois, pois karsii pääkorin tai pääkielen; yhden sivuston kielet *muut kielet*; rivit aihe, laji ja kieli
   ladattaessa supistettuina, nimi avaa, supistettuna näkyvät vain valitut korit, käyttäjän päätös, ei muistia) löytävät sen,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
-  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
+  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä, johdantoa himmeämpänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
   Suodatuksessa kieli-rivin alla on pelkkä salmiakki (`button.salmiakki`, käyttäjän päätös; ei selitteeseen, joka on pelkkää tekstiä):
   rivinimien sarakkeessa listan salmiakkien koossa, toimii kuten kori (mukaan, pois, ennalleen; `tila.salmiakki`), myös otsikko-osumille.

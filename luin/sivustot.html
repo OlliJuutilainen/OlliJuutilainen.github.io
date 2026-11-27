@@ -183,12 +183,13 @@
   ul.sivustot li, .selite, h2.kirjain { position: relative; padding-left: 37px; }
   .super svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: var(--ruoste); }
   .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
-  /* Selite erottuu listasta (käyttäjän päätös): pienempi teksti, ja koko lohko merkkeineen on sisennetty sivustojen nimien
+  /* Selite erottuu listasta (käyttäjän päätös): pienempi ja johdantoa himmeämpi teksti (harmaan ja viivan sekoitus kuten
+     lukimen sanaselityksen osaotsikoissa, vara --harmaa), ja koko lohko merkkeineen on sisennetty sivustojen nimien
      kohdalle ja yhtä paljon oikeasta reunasta, merkki 15 px; väli ylä- ja alapuolella. Tasattu; tavuviivat ovat tekstissä
      käsin (&shy;, md.js:n Innokas-tavutus), koska Chromium ei tavuta suomea: ilman niitä kapean ruudun sanavälit venyvät
      useaan em:iin. Kun muutat tekstiä, tavuta uudet sanat samoin. */
   .selite { margin: 16px 37px 10px; padding-left: 26px; font-size: .84rem; line-height: 1.5;
-    text-align: justify; hyphens: manual; }
+    text-align: justify; hyphens: manual; color: var(--harmaa); color: color-mix(in srgb, var(--harmaa) 72%, var(--viiva)); }
   .selite .super svg { top: .2em; width: 15px; height: 15px; }
 </style>
 </head>
