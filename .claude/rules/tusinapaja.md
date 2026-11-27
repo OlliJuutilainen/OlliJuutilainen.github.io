@@ -186,8 +186,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä. Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
-  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Yli 120°:n kierto (vastakkainen kärki) on hitaampi ja lähtee
-  pehmeästi, koska naapurin 700 ms olisi siinä levoton (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
+  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä,
+  ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä heti vaan kysyy (käyttäjän päätös): *(a) maailman keskukseksi* vai
   *(b) paaluta uudelleen* (sulatus ilman keskukseksi siirtymistä): keskukseksi siirtyminen on päämäärä eikä välivaihe.
