@@ -130,6 +130,13 @@
   // Linkki, jonka teksti on osoite tai DOI, saa paljaan osoitteen tavoin luokan url (katkeaa mistä tahansa).
   var RE_OSOITE = /^(https?:\/\/|www\.|doi:\s?10\.)\S+$/i;
   function linkinLuokka(href, teksti) { return RE_OSOITE.test(teksti) ? ' class="url"' : ''; }
+  // Linkin kohteeksi kelpaa verkko- tai postiosoite, suhteellinen polku tai #-ankkuri; javascript:, data: ym. ladotaan pelkkänä
+  // linkkitekstinä (myös viitelinkin määritelmästä). Selain ohittaa osoitteen ohjausmerkit ja välilyönnit (alusta) sekä
+  // sarkaimet ja rivinvaihdot (sisältä), joten skeema luetaan vasta niiden poiston jälkeen.
+  function sallittuHref(h) {
+    var m = /^([a-z][a-z0-9+.-]*):/i.exec(String(h).replace(/[\u0000-\u0020\u007f]/g, ''));
+    return !m || /^(https?|mailto|ftps?)$/i.test(m[1]);
+  }
   // Tekstin oma sivu (etukentän lähde) vertailumuotoon: ilman protokollaa, www:tä, index.html:ää ja loppukauttaviivaa.
   function sivunAvain(u) {
     return String(u || '').trim().split('#')[0].replace(/^https?:\/\/(www\.)?/i, '').replace(/\/index\.html?$/i, '').replace(/\/+$/, '').toLowerCase();
@@ -149,6 +156,7 @@
     function linkinTeksti(t) { return inline(t, { note: null, br: false, warn: ctx.warn, refs: refs, linkissa: true }); }
     function linkki(href, teksti) {
       flush();
+      if (!sallittuHref(href)) { out += linkinTeksti(teksti); return; }
       // Linkki tekstin omaan sivuun ankkurin kera (SEP: …/dewey/#Meta) tai pelkkä #ankkuri: Luinin sisäinen, jos kohde löytyy.
       var h = String(href), r = h.indexOf('#'), sisa = refs.lahde && r >= 0 && (r === 0 || sivunAvain(h) === refs.lahde) && h.length > r + 1;
       out += '<a' + linkinLuokka(h, plain(teksti).trim()) + ' href="' + (sisa ? SISA + esc(h.slice(r + 1)) + SISA + esc(h) + SISA : esc(h)) + '">' + linkinTeksti(teksti) + '</a>';
@@ -375,6 +383,18 @@
     var h = 2166136261;
     for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
     return 't' + (h >>> 0).toString(36);
+  }
+  // Sarjan tunnukset (luin.html:n tuonti ja Latomon postihuilu; enintään 60 merkkiä kuten posti.js:n avain): saman tunnuksen
+  // saavat otsikot (Republic Αʹ ja Βʹ: tekstiTunnus() ottaa vain latinalaiset kirjaimet) saavat päätteen -2, -3 …, jottei
+  // myöhempi kirja korvaa aiempaa. Ensimmäinen pitää tunnuksensa, joten yksittäisen tekstin tuonti on ennallaan.
+  function sarjanTunnukset(t) {
+    var k = {};
+    return t.map(function (x) {
+      var id = String(x).slice(0, 60), n = 2;
+      while (k[id]) { var p = '-' + n++; id = String(x).slice(0, 60 - p.length) + p; }
+      k[id] = 1;
+      return id;
+    });
   }
 
   // Lainauksen lähde (käyttäjän päätös 27.10.2026): lainauksen viimeinen rivi, joka alkaa ajatus- tai em-viivalla ja
@@ -3029,5 +3049,5 @@
 
   root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, lisatieto: lisatieto, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet, asiasanat: asiasanat, ajoitus: ajoitus,
-    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, tekstiTunnus: tekstiTunnus, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
+    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, tekstiTunnus: tekstiTunnus, sarjanTunnukset: sarjanTunnukset, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

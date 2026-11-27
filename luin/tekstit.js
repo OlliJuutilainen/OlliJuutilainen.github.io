@@ -29,7 +29,9 @@
         if (!d.objectStoreNames.contains(T)) d.createObjectStore(T);
         if (!d.objectStoreNames.contains(S)) d.createObjectStore(S);
       };
-      q.onsuccess = function () { ok(q.result); };
+      // Toisen välilehden versionnosto (uudempi koodi) odottaisi tämän yhteyden sulkemista ja saisi muuten onblockedin, jolloin
+      // uusi välilehti jäisi ilman kantaa. Tämä välilehti jatkaa localStoragen varassa, kunnes sivu ladataan uudelleen.
+      q.onsuccess = function () { var d = q.result; d.onversionchange = function () { d.close(); kanta = null; }; ok(d); };
       q.onerror = function () { ok(null); };
       q.onblocked = function () { ok(null); };
     });
@@ -68,7 +70,7 @@
         if (!d.objectStoreNames.contains('v')) d.createObjectStore('v');
         if (!d.objectStoreNames.contains('aika')) d.createObjectStore('aika');
       };
-      q.onsuccess = function () { ok(q.result); };
+      q.onsuccess = function () { var d = q.result; d.onversionchange = function () { d.close(); vLupaus = null; }; ok(d); };
       q.onerror = q.onblocked = function () { ok(null); };
     });
     return vLupaus;
@@ -100,11 +102,14 @@
     kanta: function () { return !!kanta; },
     // Synkroninen: onko tekstiä tallessa (kannassa tai localStoragessa). Luotettava vasta valmis-lupauksen jälkeen.
     on: function (id) { if (avaimet[id]) return true; try { return localStorage.getItem(ETU + id) != null; } catch (e) { return false; } },
+    // localStorageen teksti jää vain siirtämättömänä tai varavirtana (kannan kirjoitus epäonnistui), ja kummassakin se on
+    // uudempi kuin kannan mahdollinen vanha versio: siksi se luetaan ensin. Kannan onnistunut kirjoitus poistaa sen.
     lue: function (id) {
       return valmis.then(function () {
-        if (!kanta) return lsLue(ETU + id);
-        return tee(T, false, function (s) { return s.get(id); }).then(function (v) { return typeof v === 'string' ? v : lsLue(ETU + id); },
-          function () { return lsLue(ETU + id); });
+        var ls = lsLue(ETU + id);
+        if (!kanta || typeof ls === 'string') return ls;
+        return tee(T, false, function (s) { return s.get(id); }).then(function (v) { return typeof v === 'string' ? v : null; },
+          function () { return null; });
       });
     },
     // true, kun teksti on tallessa. Kannan virheessä (tila loppui) yritetään vielä localStoragea.

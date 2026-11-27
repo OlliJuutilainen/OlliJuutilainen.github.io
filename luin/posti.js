@@ -61,11 +61,12 @@
 
   function kopio(x) { return JSON.parse(JSON.stringify(x)); }
 
-  // Merkintöjen kuva: tunnus → laji ja kirjaus. Tallennus vertaa edelliseen kuvaan (kirjaaMuutokset).
+  // Merkintöjen kuva: tunnus → laji, kirjaus ja alleviivauksen kohta. Tallennus vertaa edelliseen kuvaan (kirjaaMuutokset).
+  function kohta(h) { return (h.segs || []).map(function (q) { return q.b + ':' + q.s + ':' + q.e; }).join(','); }
   function kuva(m) {
     var k = {};
     (m.km || []).forEach(function (x) { k[x.id] = { k: 'km' }; });
-    (m.al || []).forEach(function (h) { k[h.id] = { k: 'al', n: h.n || '' }; });
+    (m.al || []).forEach(function (h) { k[h.id] = { k: 'al', n: h.n || '', s: kohta(h) }; });
     return k;
   }
   // Poistetuille poistomerkintä, muuttuneille kirjauksille muokkausaika. Palauttaa uuden kuvan ja tiedon muutoksesta.
@@ -80,6 +81,8 @@
       var e = ennen[h.id];
       if (!e) { if (h.n) h.nt = t; muuttui = true; }
       else if (e.n !== (h.n || '')) { h.nt = t; muuttui = true; }
+      // Kahvasta muutettu kohta (sama tunnus): oma muutosaika st, jotta uusin kohta voittaa toisella laitteella (yhdista()).
+      if (e && e.s != null && e.s !== kohta(h)) { h.st = t; muuttui = true; }
     });
     (m.km || []).forEach(function (x) { if (!ennen[x.id]) muuttui = true; });
     return { kuva: uusi, muuttui: muuttui };
@@ -167,6 +170,13 @@
         m.al.push(c); r.muuttui = true; return;
       }
       tunnus(lh, rh.id);
+      // Saman alleviivauksen eri kohta (kahvasta muutettu): uudempi st voittaa. Tasatilanteessa (ennen st:tä tehdyt) kumpikin
+      // laite valitsee saman, jotta ne päätyvät samaan eivätkä lähetä vuorotellen omaansa loputtomiin.
+      if (!samaAl(lh, rh) && ((rh.st || 0) > (lh.st || 0) || (rh.st || 0) === (lh.st || 0) && JSON.stringify(rh.segs) < JSON.stringify(lh.segs))) {
+        lh.segs = kopio(rh.segs);
+        if (rh.st) lh.st = rh.st;
+        r.muuttui = true;
+      }
       if (laji.ki && (rh.n || '') !== (lh.n || '')) {
         var a = lh.n || '', b = rh.n || '';
         if (a && b && a.indexOf(b) < 0 && b.indexOf(a) < 0 && (lh.nt || lh.t || 0) > (viimeisin || 0) && (rh.nt || rh.t || 0) > (viimeisin || 0)) {

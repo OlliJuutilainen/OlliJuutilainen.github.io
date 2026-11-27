@@ -20,6 +20,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   IndexedDB:ssä (`luin/tekstit.js`, `LuinTekstit`, lupauksia), kaikki muu localStoragessa (opas 2.3); palvelinta ei ole,
   paitsi postilaatikko. Älä palauta tekstejä localStorageen (5,2 milj. merkkiä koko sivustolle). Testit lukevat tekstin
   `LuinTekstit.lue()`:lla; testin localStorageen kylvämät `luin-teksti:`-avaimet siirtyvät kantaan latauksessa. `tekstit.js?v=` kuten md.js:n.
+  `lue()` lukee localStoragen ensin (siellä teksti on vain varavirtana tai siirtämättömänä, siis uudempana).
+- **Toinen välilehti** (`storage`-kuuntelija, `OMA_KOHTA`): toisen välilehden `luin-lista` korvaa muistissa olevan (avoimen tekstin
+  nimike pysyy samana oliona ja pitää lukukohtansa), ja avoimen tekstin merkinnät yhdistetään. Uusi muistissa pidettävä kopio
+  localStoragesta päivitetään samassa kuuntelijassa, tai vanhempi välilehti kirjoittaa sen päälle.
 - **Valmis teksti** (käyttäjän päätös): pinosta avattu yli `VALMIS_RAJA`n teksti tallentuu jäsennettynä ja tavutettuna omaan
   kantaansa `luin-valmiit` (`valmisLue`/`valmisKirjoita`, enintään kuusi), ja uudelleenavaus ohittaa jäsennyksen ja tavutuksen.
   Valmis käytetään vain, kun `valmisAvain()` täsmää: tekstin sormenjälki, md.js:n `?v=`, tämän sivun koodin sormenjälki,
@@ -75,7 +79,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja `#lataa` (`latomoon.js`; taustavälilehti sulkeutuu vain, jos `#lataa` lisää `body`yn `a[download]`-linkin, ja kirjoittaa odotuksen ajaksi Latomon kuittauksen `#lataa-tila` perään sulkeutumisesta):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Postihuilu käyttää lisäksi `#laatikko-koodi` (attribuutti `data-ei-muistia`), `#laheta`, `#kk-tila`
   (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä.
-  Sarja (Perseuksen kirjat erikseen) käyttää lisäksi `#sarja`a. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
+  Sarja (Perseuksen kirjat erikseen) käyttää lisäksi `#sarja`a; saman tunnuksen saavat kirjat (*Republic Αʹ*, *Βʹ*) erotetaan
+  `LuinMD.sarjanTunnukset()`illa sekä lukimen tuonnissa että Latomon postihuilussa. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
   leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit, peräkkäiset alaviitemerkit yhdeksi `[^ryhma-N]`:ksi,
   jotta yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
@@ -601,6 +606,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `<br>`:llä), `luku-2-1`-tunnisteet, numeroimaton `###` versaalikursiivina (`.caps`), alaviitteet sivuhuomioiksi,
   kirjallisuusluettelo `p.bib`:ksi. Lainausmerkkejä ei muuteta. Muuten noudatetaan iA Writerin protokollaa;
   Pandocin `^[…]` toimii yhä.
+- Linkin kohde kulkee `sallittuHref()`n läpi (verkko- ja postiosoite, suhteellinen, #): `javascript:`, `data:` ym. ovat pelkkää
+  linkkitekstiä myös viitelinkin määritelmästä.
 - Lähdeviittaus- ja lyhennelinkit (opas 3.4) syntyvät md.js:n omasta päättelystä (`viittaukset()`) **vain varmalla
   yhteydellä**. Ei BibTeX:ää, Pandocia tms. (käyttäjän päätös). Lyhenteille ei tehdä merkintöjä tiedostoon. Linkit
   ovat vain alaviitteissä, eikä selitysosiosta linkitetä edelleen (minimalismi). Poikkeus leipätekstissä:
@@ -912,7 +919,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
 - **Merkintäposti** (opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (pinossa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
-  `tallennaMerkit()` kirjaa. Kun muutat merkintöjen tietomuotoa tai tallennusta, aja `posti-testi.js`. Paketissa kulkee myös
+  `tallennaMerkit()` kirjaa. Alleviivauksen kohta on kuvassa (`kohta()`): kahvasta muutettu saa ajan `st`, `yhdista()` ottaa
+  uudemman, ja tasatilanne ratkeaa kummallakin laitteella samoin (muuten laitteet lähettävät vuorotellen omaansa).
+  Kun muutat merkintöjen tietomuotoa tai tallennusta, aja `posti-testi.js`. Paketissa kulkee myös
   luokittelu (`lk`: asiasanat, ajoitus, käsikirjasto), kun lukija on luokitellut tekstin tällä laitteella (`e.lkT`, `lkMuuttui()`;
   ei tuonnin etukentästä); uusin voittaa kokonaisuutena (`P.yhdistaLk()`). Uusi luokittelun muuttaja kutsuu `lkMuuttui()`a.
   `posti.js?v=` on tiedoston SHA-1:n alku kuten md.js:n (luin.html ja Latomo).

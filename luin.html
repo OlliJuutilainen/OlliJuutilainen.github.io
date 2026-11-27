@@ -18,7 +18,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <!--
   Luin: pino (ent. hylly ja lukulista; koodissa yhä lista) ja lukin. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
-  tämän selaimen localStorageen: lukulista, tekstit, lukukohta, kirjanmerkit, alleviivaukset ja kirjaukset.
+  tähän selaimeen: tekstit IndexedDB:hen (luin/tekstit.js), lukulista, lukukohta, kirjanmerkit, alleviivaukset ja kirjaukset
+  localStorageen.
   Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti ja asetuksissa annetun
   postilaatikon tekstit (workerin /api/luin; Postihuilu Latomossa, Lukimeen-lisäosassa ja täällä).
   Reitit: #           pino
@@ -1943,9 +1944,9 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/tekstit.js?v=a1858e18"></script>
-<script src="luin/md.js?v=c1990df8"></script>
-<script src="luin/posti.js?v=de0c75a5"></script>
+<script src="luin/tekstit.js?v=965ce6bf"></script>
+<script src="luin/md.js?v=faed6b0c"></script>
+<script src="luin/posti.js?v=a1e045d2"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
 <script src="luin/sanaselitys.js?v=4ea3cea5"></script>
@@ -2242,6 +2243,35 @@
   function tallennaLista() {
     if (!LS.set('luin-lista', lista)) viesti('Tallennustila on täynnä: pinoa ei voitu tallentaa.');
   }
+  /* Toinen välilehti (latomo, lisäosa, uuteen välilehteen avattu luin-linkki) kirjoitti pinon tai avoimen tekstin merkinnät:
+     muistissa olevat kopiot päivitetään, jottei tämän välilehden seuraava tallennus kirjoita vanhaa päälle (tuotu teksti
+     katosi pinosta, alleviivaus katosi). Avoimen tekstin nimike säilyy samana oliona, ja siitä pidetään tämän välilehden
+     lukukohta. Merkinnät yhdistetään kuten merkintäpostissa (poistomerkinnät, uusin kirjaus voittaa ilman liitosta). */
+  var OMA_KOHTA = ['pos', 'pct', 'posT', 'opened'];
+  window.addEventListener('storage', function (ev) {
+    if (ev.storageArea && ev.storageArea !== localStorage) return;
+    if (ev.key === 'luin-lista') {
+      var uusi = LS.get('luin-lista', null);
+      if (!Array.isArray(uusi)) return;
+      if (nyt) uusi = uusi.map(function (x) {
+        if (x.id !== nyt.e.id) return x;
+        var oma = {};
+        OMA_KOHTA.forEach(function (k) { if (nyt.e[k] != null) oma[k] = nyt.e[k]; });
+        Object.keys(nyt.e).forEach(function (k) { delete nyt.e[k]; });
+        return Object.assign(nyt.e, x, oma);
+      });
+      lista = uusi;
+      if (tila.nakyma === 'lista') piirraNimikkeet();
+    } else if (nyt && !nyt.virt && ev.key === 'luin-merkit:' + nyt.e.id) {
+      var m2 = LS.get(ev.key, null), v = { al: 1, ki: 1, km: 1 };
+      if (!m2) return;
+      var p = P.paketti(nyt.e.id, m2, null, v), r = P.yhdista(nyt.merk, null, p, Infinity);
+      if (r.muuttui) { nyt.kuva = P.kuva(nyt.merk); var a = tila.ankkuri; piirraTeksti(); asettele(a); paivitaMerkinnat(); }
+      // Tällä välilehdellä oli jotain, mitä toisen kirjoituksessa ei ollut: yhdistetty talteen (toinen välilehti yhdistää sen
+      // samoin, ja kierros päättyy, kun sisällöt ovat samat).
+      if (P.sisalto(P.paketti(nyt.e.id, nyt.merk, null, v)) !== P.sisalto(p)) LS.set(ev.key, nyt.merk);
+    }
+  });
   // Tekstien sisältö on IndexedDB:ssä (luin/tekstit.js, käyttäjän pyyntö 19.11.2026); pino, asetukset ja merkinnät localStoragessa.
   var TX = window.LuinTekstit;
   /* Tusina (käyttäjän päätös 19.11.2026): pinossa on enintään TUSINA tekstiä. Kun pinoon tulee teksti (latomo, linkki,
@@ -2300,33 +2330,46 @@
   }
   window.addEventListener('hashchange', reitti);
 
+  // Siirto poistuu kannasta heti luettaessa (otaSiirto()). Jos jäsennys tai tallennus kaatuu, siirto palautetaan kantaan ja
+  // lukija kuulee siitä, jottei teksti katoa hiljaa eikä näkymä jää tyhjäksi; sivun uudelleenlataus (#tuo) yrittää uudelleen.
   function tuo() {
+    var siirto = null;
     TX.otaSiirto().then(function (t) {
-      if (!t || !t.md) { viesti('Siirrettävää tekstiä ei löytynyt. Avaa teksti uudelleen latomosta.'); return naytaLista(); }
-      if (t.pinosta) return tuoPinosta(t);
-      // Sarja (Latomo, lisäosan Perseus-valinta kukin omaksi tekstikseen, 21.11.2026): kaikki pinoon erillisinä, ensimmäinen
-      // päällimmäiseksi ja auki. Myöhempi kirja on pinossa vanhempi, joten tusinan ylittyessä viimeiset laskeutuvat.
-      var mdt = [t.md].concat(Array.isArray(t.sarja) ? t.sarja : []), nyt0 = Date.now(), tulleet = [];
-      var tallenna1 = function (i) {
-        if (i < 0) return Promise.resolve(true);
-        var doc = LuinMD.parse(mdt[i]);
-        var id = 'p-' + LuinMD.tekstiTunnus(doc.title || (i ? '' : t.nimi) || 'teksti').slice(0, 60);
-        return TX.kirjoita(id, mdt[i]).then(function (ok) {
-          if (!ok) return false;
-          var e = lisaaListaan(id, doc, { src: 'paikallinen' });
-          if (!e.kasikirja) { pinoonTuli(e); e.pinoon = nyt0 - i; }
-          tulleet.unshift(e);
-          return tallenna1(i - 1);
-        });
-      };
-      return tallenna1(mdt.length - 1).then(function (ok) {
-        if (!ok && !tulleet.length) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
-        tusina(tulleet.filter(function (e) { return !e.kasikirja; }));
-        tallennaLista();
-        if (!ok) viesti('Tallennustila loppui: ' + tulleet.length + ' / ' + mdt.length + ' tekstiä tallentui.');
-        else if (tulleet.length > 1 && !laskeutuneet) viesti(tulleet.length + ' tekstiä tuli pinoon.');
-        location.replace('#id=' + encodeURIComponent(tulleet[0].id));
+      siirto = t;
+      return tuoSiirto(t);
+    }).catch(function (err) {
+      if (siirto && siirto.md) TX.asetaSiirto(siirto);
+      if (window.console) console.error(err);
+      viesti('Tekstin tuonti lukimeen epäonnistui (' + ((err && err.message) || err) + '). Teksti on tallessa siirrossa: lataa sivu uudelleen tai palaa latomoon.');
+      naytaLista();
+    });
+  }
+  function tuoSiirto(t) {
+    if (!t || !t.md) { viesti('Siirrettävää tekstiä ei löytynyt. Avaa teksti uudelleen latomosta.'); return naytaLista(); }
+    if (t.pinosta) return tuoPinosta(t);
+    // Sarja (Latomo, lisäosan Perseus-valinta kukin omaksi tekstikseen, 21.11.2026): kaikki pinoon erillisinä, ensimmäinen
+    // päällimmäiseksi ja auki. Myöhempi kirja on pinossa vanhempi, joten tusinan ylittyessä viimeiset laskeutuvat.
+    var mdt = [t.md].concat(Array.isArray(t.sarja) ? t.sarja : []), nyt0 = Date.now(), tulleet = [];
+    var docs = mdt.map(function (md) { return LuinMD.parse(md); });
+    var idt = LuinMD.sarjanTunnukset(docs.map(function (doc, i) { return LuinMD.tekstiTunnus(doc.title || (i ? '' : t.nimi) || 'teksti'); }));
+    var tallenna1 = function (i) {
+      if (i < 0) return Promise.resolve(true);
+      var doc = docs[i], id = 'p-' + idt[i];
+      return TX.kirjoita(id, mdt[i]).then(function (ok) {
+        if (!ok) return false;
+        var e = lisaaListaan(id, doc, { src: 'paikallinen' });
+        if (!e.kasikirja) { pinoonTuli(e); e.pinoon = nyt0 - i; }
+        tulleet.unshift(e);
+        return tallenna1(i - 1);
       });
+    };
+    return tallenna1(mdt.length - 1).then(function (ok) {
+      if (!ok && !tulleet.length) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
+      tusina(tulleet.filter(function (e) { return !e.kasikirja; }));
+      tallennaLista();
+      if (!ok) viesti('Tallennustila loppui: ' + tulleet.length + ' / ' + mdt.length + ' tekstiä tallentui.');
+      else if (tulleet.length > 1 && !laskeutuneet) viesti(tulleet.length + ' tekstiä tuli pinoon.');
+      location.replace('#id=' + encodeURIComponent(tulleet[0].id));
     });
   }
 
@@ -2547,33 +2590,45 @@
       return x.href;
     } catch (e) { return u; }
   }
+  // Osoitteesta tuli HTML-sivu (esim. artikkelin osoite tai pilvipalvelun esikatselusivu) eikä Markdown-tiedosto.
+  function onVerkkosivu(t) { return /^\s*<(!doctype|html)/i.test(t); }
   function avaaOsoite(u) {
     var abs = dropbox(u), id = 'u-' + fnv(abs), oma = lista.filter(function (x) { return x.id === id; })[0];
     var huilu = !oma && lista.filter(function (x) { return x.id === 'p-' + id; })[0], h0 = location.hash;
     Promise.all([TX.lue(id), huilu ? TX.lue(huilu.id) : null]).then(function (r) {
-      if (location.hash === h0) avaaOsoiteMd(u, abs, id, oma, r[0], huilu, r[1]);
+      if (location.hash === h0) avaaOsoiteMd(u, abs, id, oma, r[0], huilu, r[1], h0);
     });
   }
-  function avaaOsoiteMd(u, abs, id, oma, vanha, huilu, hmd) {
+  // Haun aikaraja: laitteella oleva kopio avataan, jos verkko ei vastaa OSOITE_MS:ssä (jumittuva yhteys ei tuota virhettä
+  // minuuteissa); ilman kopiota odotetaan pidempään. Kesken jäänyt haku ei avaa tekstiä, jos lukija on jo siirtynyt muualle.
+  var OSOITE_MS = 6000, OSOITE_UUSI_MS = 30000;
+  function avaaOsoiteMd(u, abs, id, oma, vanha, huilu, hmd, h0) {
     // Toisesta laitteesta huilutettu saman osoitteen teksti (huiluta(): laatikossa u-<tiiviste>, täällä p-u-<tiiviste>)
     // avataan pinosta merkintöineen eikä haeta toiseksi kappaleeksi.
     if (huilu && hmd != null) return avaa(huilu, hmd);
     // Latomossa muokattu (tiedot tai korvaava laitos) avataan pinosta eikä haeta uudelleen.
     if (oma && oma.muokattu && vanha != null) return avaa(oma, vanha);
-    fetch(abs, { cache: 'no-cache' }).then(function (r) {
+    var ohjain = window.AbortController ? new AbortController() : null, paikallaan = function () { return h0 == null || location.hash === h0; };
+    var ajastin = ohjain && setTimeout(function () { ohjain.abort(); }, vanha != null ? OSOITE_MS : OSOITE_UUSI_MS);
+    fetch(abs, { cache: 'no-cache', signal: ohjain ? ohjain.signal : undefined }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
     }).then(function (md) {
+      clearTimeout(ajastin);
+      // Verkkosivu ei ole tekstiä: pinoon ei lisätä sivun HTML-lähdettä (sama tunnistus kuin Linkitä tiedostoon -kohdassa).
+      if (onVerkkosivu(md)) throw new Error('osoitteesta tuli verkkosivu eikä .md-tiedosto');
       var doc = LuinMD.parse(md), uusi = !lista.some(function (x) { return x.id === id; });
       var e = lisaaListaan(id, doc, { src: 'osoite', url: u });
       if (uusi) { pinoonTuli(e); tusina([e]); }
       TX.kirjoita(id, md);
       tallennaLista();
-      avaa(e, md, doc);
+      if (paikallaan()) avaa(e, md, doc);
     }).catch(function (err) {
+      clearTimeout(ajastin);
+      if (!paikallaan()) return;
       var e = lista.filter(function (x) { return x.id === id; })[0];
       if (e && vanha != null) return avaa(e, vanha);
-      viesti('Tekstiä ei saatu haettua (' + err.message + '): ' + abs);
+      viesti('Tekstiä ei saatu haettua (' + (err && err.name === 'AbortError' ? 'verkko ei vastannut' : err.message) + '): ' + abs);
       naytaLista();
     });
   }
@@ -3726,7 +3781,7 @@
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
     }).then(function (md) {
-      if (/^\s*<(!doctype|html)/i.test(md)) return 'Osoitteesta tuli verkkosivu eikä .md-tiedosto.';
+      if (onVerkkosivu(md)) return 'Osoitteesta tuli verkkosivu eikä .md-tiedosto.';
       var vanha = lohkot(md0), uusi = lohkot(md);
       if (leipaMuuttui(vanha, uusi, kohdista(vanha.txt, uusi.txt))) return 'Tiedoston teksti ei ole sama kuin pinossa.';
       return '';
@@ -3766,7 +3821,14 @@
   }
   function poistaListasta(es) {
     var pois = {};
-    es.forEach(function (e) { pois[e.id] = 1; TX.poista(e.id); LS.del('luin-merkit:' + e.id); });
+    // Tekstikohtainen postivalinta ja lähetystiedot lähtevät tekstin mukana, jottei saman otsikon uusi tuonti peri niitä.
+    // Laatikosta nähdyt (luin-laatikko-nahdyt) jäävät: ilman niitä laatikossa yhä oleva teksti palaisi pinoon.
+    es.forEach(function (e) { pois[e.id] = 1; TX.poista(e.id); LS.del('luin-merkit:' + e.id); LS.del('luin-posti:' + e.id); });
+    ['luin-posti-likaiset', 'luin-posti-lahetetty'].forEach(function (k) {
+      var o = LS.get(k, null), n = 0;
+      if (o) Object.keys(pois).forEach(function (id) { if (id in o) { delete o[id]; n++; } });
+      if (n) LS.set(k, o);
+    });
     lista = lista.filter(function (x) { return !pois[x.id]; });
     tallennaLista(); naytaLista(tila.arkisto, tila.omappi);
   }
@@ -4808,8 +4870,19 @@
     return [sormenjalki(md), md.length, koodiAvain, aset.tavutus, aset.sisallys ? 1 : 0].join('|');
   }
   // v: valmis teksti pinosta avattaessa (null: ei valmista, tallennetaan); undefined muilla reiteillä (ei käytetä eikä tallenneta).
+  // Avauksen kaatuminen (jäsennys tai asettelu) ei jätä tyhjää tai puolivalmista lukijaa: pinoon ja ilmoitus. Osoitteen #-osa
+  // tyhjennetään, jotta saman nimikkeen napautus pinossa avaa sen uudelleen (sama #id= ei laukaisisi hashchangea).
   function avaa(e, md, doc, v) {
-    var avain = v !== undefined && !doc && md != null && md.length >= VALMIS_RAJA ? valmisAvain(md) : '', valmis = null;
+    try { avaaTeksti(e, md, doc, v); } catch (err) {
+      if (window.console) console.error(err);
+      nyt = null;
+      history.replaceState(null, '', location.pathname + location.search);
+      naytaLista(kellarissa(e), omapissa(e));
+      viesti('Tekstin avaaminen epäonnistui (' + ((err && err.message) || err) + '): ”' + e.title + '”.');
+    }
+  }
+  function avaaTeksti(e, md, doc, v) {
+    var avain =v !== undefined && !doc && md != null && md.length >= VALMIS_RAJA ? valmisAvain(md) : '', valmis = null;
     if (avain && v && v.avain === avain && v.doc && typeof v.html === 'string') { valmis = v; doc = v.doc; }
     doc = doc || LuinMD.parse(md);
     lisaaListaan(e.id, doc);
@@ -4835,6 +4908,7 @@
     avaaJana(false);
     $('#majakka').hidden = true;
     piirraTeksti(valmis, !!avain && !valmis);
+    paivitaKieli();
     var k = paikanna(e.pos) || { b: 0, o: 0 };
     asettele(k);
     naytaPalkkiopas();
@@ -7015,6 +7089,12 @@
       if (p > paras.p) paras = { k: k, p: p };
     });
     return paras;
+  }
+  // Tekstin pääkieli lukimen lang-määreeksi (ruudunlukijan ääntämys, selaimen käännös): sama sanalaskenta kuin käännöksen
+  // lähdekielessä. Epävarma tunnistus jättää kielen tuntemattomaksi (lang=""), ei suomeksi, kuten oli ennen jokaiselle tekstille.
+  function paivitaKieli() {
+    var k = kieliPisteet(nyt.txt.slice(0, 60).join(' '), true);
+    $('#teksti').lang = k.p >= 3 ? k.k : '';
   }
   function tekstinKieli(segs) {
     var v = kieliPisteet(segs.map(function (s) { return s.x; }).join(' '));
