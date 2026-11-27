@@ -186,32 +186,34 @@
   .hakuTila.err, .tila.err, .meltMsg.err{ color:var(--err) }
   .osm{ font-size:12px; margin:8px 0 0 }
 
-  /* Kide: salot kuusikulmion kärjillä. */
-  /* Kun alakeskellä ei ole salkoa, kiteen alaosa jää tyhjäksi: negatiivinen alamarginaali (--vaje, osuus kiteen
-     leveydestä, renderPanel) nostaa Salkoni-rivin yhtä lähelle alimpia salkoja kuin alakeskellä olevan salon alle
-     (käyttäjän päätös). Siirtyy samassa tahdissa kuin salot. */
-  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto;
-    margin-bottom:calc(var(--vaje, 0) * -1 * min(100%, 380px)); transition:margin-bottom .7s cubic-bezier(.3,.7,.2,1) }
+  /* Kide: salot kuusikulmion kärjillä, valittu alakärjessä (renderPanel). Alamarginaali on Salkoni-kuvan alaosan
+     verran (renderPanel), koska kuva ulottuu kiteen alareunan yli. */
+  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto }
   .stage[hidden]{ display:none }
   .stage svg.arms{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
   .arm{ stroke:var(--dim); stroke-width:.5 }
   .arm.free{ stroke-dasharray:1.4 1.6 }
   .core{ fill:var(--dim) }
-  .slot{ position:absolute; transform:translate(-50%, -50%); display:grid; justify-items:center; gap:3px;
-    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted);
-    transition:left .7s cubic-bezier(.3,.7,.2,1), top .7s cubic-bezier(.3,.7,.2,1), color .3s }
+  /* Hiutaleen keskipiste on kärjessä (yläreunasta sisätyhjä 6 px + puolet 20 px:n hiutaleesta), nimi sen alla. Paikka
+     liikkuu kiteen kehää pitkin (kierra), joten left/top ilman CSS-siirtymää. */
+  .slot{ position:absolute; transform:translate(-50%, -16px); display:grid; justify-items:center; gap:3px;
+    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted); transition:color .3s }
   .slot svg{ width:20px; height:20px; overflow:visible; transition:transform .3s }
   .slot .nm{ font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
   .slot.on{ color:var(--text) }
-  .slot.on svg{ transform:scale(1.25) }
-  .slot.on .nm{ border-bottom:1px solid currentColor }
+  /* Valitun hiutale on Salkoni-kuvan auringon keskellä samassa koossa kuin kuvan oma hiutale (--valittu, renderPanel);
+     nimi näkyy Salkoni-rivillä. */
+  .slot.on svg{ transform:scale(var(--valittu, 1.25)) }
+  .slot.on .nm{ visibility:hidden }
   .slot.free{ color:var(--dim) }
   .slot.free:hover, .slot.free:focus-visible{ color:var(--muted) }
   .slot.melting{ color:var(--text) }
+  /* Salkoni-kuva kiteen alakärjessä: auringon keskipiste kärjessä (renderPanel), napautukset menevät hiutaleelle. Valittu
+     salko kaikkinensa kirkkaampi kuin muut (käyttäjän päätös): kuva ja otsake tekstin sävyllä, nimi kirkkaimmalla. */
+  .stage .salko{ position:absolute; left:50%; transform:translateX(-50%); color:var(--text); overflow:visible; pointer-events:none }
   .now{ text-align:center; margin:2px 0 0; font-size:15px }
-  /* Salko Salkoni-otsakkeen yllä (koko ja väri: salkoKuva). */
-  .now .salko{ display:block; margin:0 auto 6px; color:var(--muted); overflow:visible }
-  .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--muted); margin:0 0 3px }
+  .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--text); margin:0 0 3px }
+  .now b{ color:var(--brand) }
   .now a{ text-decoration:none }
   .now a:hover, .now a:focus-visible{ text-decoration:underline; text-underline-offset:3px }
   /* Ilmoitukset vain virheistä ja ensipaalutuksesta: onnistunut tallennus ei muuta asettelua (väli kuten mallissa). */
@@ -304,7 +306,7 @@
   .avainOhje b{ color:var(--text); font-weight:400 }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
-  @media (prefers-reduced-motion: reduce){ .stage, .slot, .slot svg{ transition:none } }
+  @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
 </style>
 </head>
 <body>
@@ -449,32 +451,47 @@ $('sprite').innerHTML =
   `<symbol id="g-rengas" viewBox="0 0 24 24" overflow="visible"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.8"/></symbol>` +
   `<symbol id="g-vapaa" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 2.4" d="${hex(12, 12, 9)}"/></symbol>`;
 const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${id}"/></svg>`;
-/* Salko Salkoni-otsakkeen yllä (käyttäjän päätös): kuin avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista
-   lukua, ja kehän sisällä salkojen hiutale. Kehä ja säteet otetaan logon poluista (android/scripts/tusinasaa-kuvake.js:
-   kehä kaksi osapolkua, sitten 12 sädettä alkaen klo 12:sta, viimeisenä luku), joten salko seuraa logon muutoksia.
-   Varsi on kehän paksuinen kuten avaimessa ja alkaa alimman säteen loven pohjalta; hiutaleen kärjet ovat kehästä yhtä
-   kaukana kuin logon luku. Mitat logon yksiköissä (32). Leveys 56 px: selvästi kiteen salkojen hiutaleita suurempi
-   (käyttäjän päätös).
-   Jalka on nouseva aurinko (käyttäjän päätös): horisonttina otsakkeen sanan SALKONI pituinen (48,5 px) vaakaviiva, sen
-   päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä; varsi päättyy kehän yläreunaan. Jalka
-   on varren alaosan kohdalla eikä lisää korkeutta. Omana polkunaan: samassa polussa varren ja kehän päällekkäinen osa
-   kumoutuisi vastakkaisten kiertosuuntien takia. */
+/* Salkoni-kuva (käyttäjän päätös): kuin avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista lukua. Kehä ja
+   säteet otetaan logon poluista (android/scripts/tusinasaa-kuvake.js: kehä kaksi osapolkua, sitten 12 sädettä alkaen
+   klo 12:sta, viimeisenä luku), joten salko seuraa logon muutoksia. Kuva on kiteen alakärjessä, ja auringon keskellä on
+   valitun salon oma hiutale (kiteen nappi), ei kuvan omaa hiutaletta; hiutale on samankokoinen kuin logon luvun
+   paikalle mahtuva (kärjet kehästä yhtä kaukana kuin logon luku). Leveys 56 px. Mitat logon yksiköissä (32).
+   Varsi on kehän paksuinen ja alkaa alimman säteen loven pohjalta; se hohtaa (käyttäjän päätös): sisus valkoinen
+   kummassakin teemassa (vaaleassa se näkyy onttona). Jalka (käyttäjän päätös): horisonttina sanan SALKONI pituinen
+   (48,5 px) vaakaviiva, sen päällä kuusikulmion (kärjet sivuilla) yläpuolisko ääriviivana ja neljä sädettä; varsi
+   päättyy kehän yläreunaan. Horisontin alla juuret: lumihiutaleen puolikas (kolme sakaraa, kussakin kaksi sivuhaaraa,
+   mittasuhteet kuin g-kide), pääsakaroissa varren valo. Kuva ei kasva jalan takia, vaan horisontti nousee juurten
+   syvyyden verran. Jalka ja juuret ovat omina polkuinaan: samassa polussa varren ja kehän päällekkäinen osa kumoutuisi
+   vastakkaisten kiertosuuntien takia. */
 const salkoKuva = (() => {
   const osat = luokka => $('logo').querySelector('.' + luokka).getAttribute('d').split(/(?=M)/);
   const luvut = o => o.match(/-?[\d.]+/g).map(Number);
   const t = osat('tumma'), ulko = luvut(t[0])[1], sisa = luvut(t[1])[1], lovi = luvut(t[8])[5];
-  const paksuus = (sisa - ulko) * Math.sqrt(3) / 2, PITUUS = 26, LEVEYS = 56, H = 32 + PITUUS;
-  const s3 = Math.sqrt(3), P = paksuus, VIIVA = 48.5 * 32 / LEVEYS, yh = H - .8, RO = 6.2, RI = RO - 1.3 * 2 / s3;
+  const s3 = Math.sqrt(3), P = (sisa - ulko) * s3 / 2, PITUUS = 26, LEVEYS = 56, H = 32 + PITUUS;
+  const L = 8, kk = L / 11.6, yh = H - .8 - (L + .3), yj = yh + .8;
+  const VIIVA = 48.5 * 32 / LEVEYS, RO = 6.2, RI = RO - 1.3 * 2 / s3;
   const puoli = r => [[16 + r, yh], [16 + r / 2, yh - r * s3 / 2], [16 - r / 2, yh - r * s3 / 2], [16 - r, yh]];
   const jalka = 'M' + [...puoli(RO), ...puoli(RI).reverse()].map(([x, y]) => f2(x) + ' ' + f2(y)).join('L') + 'Z' +
     [30, 60, 120, 150].map(a => wedge(16, yh, a, RO + .55, RO + 2.9, .8)).join('') +
-    `M${f2(16 - VIIVA / 2)} ${f2(yh)}H${f2(16 + VIIVA / 2)}V${H}H${f2(16 - VIIVA / 2)}Z`;
-  const varsi = `M${f2(16 - P / 2)} ${lovi}H${f2(16 + P / 2)}V${f2(yh - RO * s3 / 2 + .5)}H${f2(16 - P / 2)}Z`;
+    `M${f2(16 - VIIVA / 2)} ${f2(yh)}H${f2(16 + VIIVA / 2)}V${f2(yh + .8)}H${f2(16 - VIIVA / 2)}Z`;
+  let juuret = '';
+  for (const a of [-90, -30, -150]){
+    juuret += wedge(16, yj, a, 0, L, 1.75 * kk);
+    const [bx, by] = pt(16, yj, a, 6.6 * kk);
+    juuret += wedge(bx, by, a + 58, 0, 4 * kk, .9 * kk) + wedge(bx, by, a - 58, 0, 4 * kk, .9 * kk);
+  }
+  const juuriValo = [-90, -30, -150].map(a => wedge(16, yj, a, .9, L - 1.7, 1.75 * kk - .55)).join('');
+  const vy = yh - RO * s3 / 2 + .5;
+  const varsi = `M${f2(16 - P / 2)} ${lovi}H${f2(16 + P / 2)}V${f2(vy)}H${f2(16 - P / 2)}Z`;
+  const valo = `M${f2(16 - P / 2 + .55)} ${f2(lovi + .9)}H${f2(16 + P / 2 - .55)}V${f2(vy - .55)}H${f2(16 - P / 2 + .55)}Z`;
   const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;
-  const k = f2((16 - sisa - .94) / 11.6 * 24);
-  return `<svg class="salko" viewBox="0 0 32 ${H}" width="${LEVEYS}" height="${f2(LEVEYS * H / 32)}" aria-hidden="true">` +
-    polku('tumma') + polku('vaalea') + `<path fill="currentColor" d="${jalka}"/>` +
-    `<use href="#g-kide" x="${f2(16 - k / 2)}" y="${f2(16 - k / 2)}" width="${k}" height="${k}"/></svg>`;
+  const k = (16 - sisa - .94) / 11.6 * 24, px = LEVEYS / 32;
+  return {
+    html: `<svg class="salko" viewBox="0 0 32 ${H}" width="${LEVEYS}" height="${f2(LEVEYS * H / 32)}" aria-hidden="true">` +
+      polku('tumma') + polku('vaalea') + `<path fill="#fff" d="${valo}"/><path fill="currentColor" d="${jalka}"/>` +
+      `<path fill="currentColor" d="${juuret}"/><path fill="#fff" d="${juuriValo}"/></svg>`,
+    keski: 16 * px, korkeus: H * px, hiutale: k * px   // auringon keskipiste ja korkeus yläreunasta, hiutaleen koko (px)
+  };
 })();
 
 /* Aforismin rivit samasta vasemmasta reunasta: tasataan ensimmäisen kirjaimen musteesta, fonttien latauduttua uudelleen. */
@@ -694,11 +711,41 @@ async function luoProfiili(){
 }
 
 /* --- Paneeli --- */
-/* Salkojen paikat: täytetyt joukot salkomäärän mukaan, vanhin ensin; keskilinja, sitten ylempi, sitten vasen.
-   Uusi salko paalutetaan aina ylös. */
-const POS = { T: [50, 12], UR: [82.9, 31], LR: [82.9, 69], B: [50, 88], LL: [17.1, 69], UL: [17.1, 31] };
-const SETS = [[], ['B'], ['LL', 'LR'], ['B', 'UL', 'UR'], ['UL', 'UR', 'LL', 'LR'], ['B', 'UL', 'UR', 'LL', 'LR'], ['T', 'B', 'UL', 'UR', 'LL', 'LR']];
+/* Saloston järjestys (käyttäjän päätös): valittu salko on aina kiteen alakärjessä Salkoni-kuvan auringossa. Salot ovat
+   kärjillä paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta-paikka on jonon lopussa eli viimeisen ja
+   ensimmäisen välissä. Valinta kiertää kidettä kuin pyörää: kärjet liikkuvat kehää pitkin samaan suuntaan. Kärkien
+   kuviot ovat pystyakselin suhteen symmetrisiä (KUVIOT, kärkien määrän mukaan: KEHA-indeksit alakärjestä myötäpäivään). */
+const KEHA = [270, 210, 150, 90, 30, -30];   // ala, vasen ala, vasen ylä, ylä, oikea ylä, oikea ala (asteina)
+const KUVIOT = [[], [3], [0, 3], [0, 2, 4], [0, 2, 3, 4], [0, 1, 2, 4, 5], [0, 1, 2, 3, 4, 5]];
+const SADE = 38, KARKI = .72;   // kärkien etäisyys keskeltä (% kiteestä) ja sakaran pituus siitä
 const stage = $('stage');
+const kidePaikka = (a, r = SADE) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
+/* Kiertymisen käyrä kuten muissa siirtymissä: cubic-bezier(.3, .7, .2, 1), 700 ms. */
+const kayra = (() => {
+  const b = (t, p1, p2) => 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t * t * (1 - t) + t ** 3;
+  return x => { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++){ t = (lo + hi) / 2; if (b(t, .3, .2) < x) lo = t; else hi = t; } return b(t, .7, 1); };
+})();
+let kiertoRaf = 0;
+function asetaKulma(el, a){
+  el._kulma = a;
+  const [x, y] = kidePaikka(a);
+  el.style.left = f2(x) + '%'; el.style.top = f2(y) + '%';
+  const arm = $('arms').querySelector(`line[data-id="${el.dataset.id}"]`);
+  if (arm){ const [ax, ay] = kidePaikka(a, SADE * KARKI); arm.setAttribute('x2', f2(ax)); arm.setAttribute('y2', f2(ay)); }
+}
+function kierra(liikkeet){
+  cancelAnimationFrame(kiertoRaf);
+  if (!liikkeet.some(([, a, b]) => a !== b) || matchMedia('(prefers-reduced-motion: reduce)').matches){
+    liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); return;
+  }
+  const alku = performance.now();
+  const askel = nyt => {
+    const p = Math.min(1, (nyt - alku) / 700), e = kayra(p);
+    liikkeet.forEach(([el, a, b]) => asetaKulma(el, a + (b - a) * e));
+    if (p < 1) kiertoRaf = requestAnimationFrame(askel);
+  };
+  kiertoRaf = requestAnimationFrame(askel);
+}
 
 function syncPick(){ document.querySelectorAll('.opt').forEach(o => o.setAttribute('aria-checked', String(o.dataset.lampo === state.lampo))); }
 
@@ -709,44 +756,60 @@ function renderPanel(){
   if (first) state.melting = 'uusi';
   stage.hidden = first;
   $('lampoPick').classList.toggle('tuotteet', first);
-  const set = SETS[n], free = n < MAX_PYLVAAT ? 'T' : null;
-  stage.style.setProperty('--vaje', set.includes('B') ? 0 : (POS.B[1] - Math.max(...set.map(p => POS[p][1]))) / 100);
+  /* Salkoni-kuva alakärkeen: auringon keskipiste kärjessä, ja kiteen alamarginaali kuvan alaosan ja 6 px:n välin verran. */
+  let salkoEl = stage.querySelector('.salko');
+  if (!salkoEl){ $('arms').insertAdjacentHTML('afterend', salkoKuva.html); salkoEl = stage.querySelector('.salko'); }
+  salkoEl.style.top = `calc(${50 + SADE}% - ${f2(salkoKuva.keski)}px)`;
+  stage.style.marginBottom = `calc(${f2(salkoKuva.korkeus - salkoKuva.keski + 6)}px - ${(50 - SADE) / 100} * min(100%, 380px))`;
+  stage.style.setProperty('--valittu', f2(salkoKuva.hiutale / 20));
+  salkoEl.style.visibility = first ? 'hidden' : '';
+
+  const ids = state.slots.map(s => s.id);
+  if (n < MAX_PYLVAAT) ids.push('vapaa');
+  const i0 = Math.max(0, ids.indexOf(state.active));
+  const jarjestys = [...ids.slice(i0), ...ids.slice(0, i0)];
+  const kohde = new Map(jarjestys.map((id, j) => [id, KEHA[KUVIOT[jarjestys.length][j]]]));
   const nodes = new Map([...stage.querySelectorAll('.slot')].map(el => [el.dataset.id, el]));
-  const seen = new Set(), fresh = [];
-  state.slots.forEach((s, i) => {
-    let el = nodes.get(s.id);
-    if (!el){
-      el = document.createElement('button'); el.type = 'button'; el.dataset.id = s.id;
-      el.style.left = POS.T[0] + '%'; el.style.top = POS.T[1] + '%'; stage.appendChild(el); fresh.push([el, set[i]]);
-    } else { el.style.left = POS[set[i]][0] + '%'; el.style.top = POS[set[i]][1] + '%'; }
-    const on = s.id === state.active, melting = s.id === state.melting;
+  /* Uusi salko ilmestyy paaluta-paikalle ja kiertyy sieltä paikalleen. */
+  const vapaaEnnen = nodes.get('vapaa')?._kulma;
+  const nappi = id => {
+    let el = nodes.get(id);
+    if (!el){ el = document.createElement('button'); el.type = 'button'; el.dataset.id = id; el._kulma = vapaaEnnen ?? kohde.get(id); stage.appendChild(el); }
+    return el;
+  };
+  state.slots.forEach(s => {
+    const el = nappi(s.id), on = s.id === state.active, melting = s.id === state.melting;
     el.className = 'slot' + (on ? ' on' : '') + (melting ? ' melting' : '');
     el.innerHTML = icon(melting ? 'sula' : 'kide') + `<span class="nm">${esc(nameOf(s.p))}</span>`;
     el.setAttribute('aria-pressed', String(on));
     el.setAttribute('aria-label', `${titleOf(s.p)}${on ? ', valittu' : ''}`);
-    seen.add(s.id);
   });
-  let fr = nodes.get('vapaa');
-  if (free){
-    if (!fr){ fr = document.createElement('button'); fr.type = 'button'; fr.dataset.id = 'vapaa'; stage.appendChild(fr); }
-    fr.style.left = POS.T[0] + '%'; fr.style.top = POS.T[1] + '%';
+  if (kohde.has('vapaa')){
+    const fr = nappi('vapaa');
     fr.className = 'slot free' + (state.melting === 'uusi' ? ' melting' : '');
     fr.innerHTML = icon(state.melting === 'uusi' ? 'sula' : 'vapaa') + '<span class="nm">paaluta</span>';
     fr.setAttribute('aria-label', 'Paaluta uusi salko');
-    seen.add('vapaa');
   }
-  nodes.forEach((el, id) => { if (!seen.has(id)) el.remove(); });
-  /* Uusi salko ilmestyy ylös ja siirtyy sitten paikalleen. */
-  if (fresh.length) requestAnimationFrame(() => requestAnimationFrame(() => fresh.forEach(([el, p]) => { el.style.left = POS[p][0] + '%'; el.style.top = POS[p][1] + '%'; })));
-
-  const tip = p => [f2(50 + (POS[p][0] - 50) * .72), f2(50 + (POS[p][1] - 50) * .72)];
-  $('arms').innerHTML = set.map(p => `<line class="arm" x1="50" y1="50" x2="${tip(p)[0]}" y2="${tip(p)[1]}"/>`).join('') +
-    (free ? `<line class="arm free" x1="50" y1="50" x2="${tip(free)[0]}" y2="${tip(free)[1]}"/>` : '') +
+  nodes.forEach((el, id) => { if (!kohde.has(id)) el.remove(); });
+  /* Kierto: valitun kulmanmuutos lyhintä tietä, ja muut samaan suuntaan (kohdekulman kierros lähimmäs omaa kulmaa + muutos),
+     kuitenkin enintään puoli kierrosta: muuten paikallaan pysyvä kärki voisi kiertää koko kehän. */
+  const valittuEl = stage.querySelector(`.slot[data-id="${state.active}"]`);
+  const kierros = (a, b) => b + 360 * Math.round((a - b) / 360);
+  const muutos = valittuEl ? kierros(valittuEl._kulma, kohde.get(state.active)) - valittuEl._kulma : 0;
+  const liikkeet = jarjestys.map(id => {
+    const el = stage.querySelector(`.slot[data-id="${id}"]`), a = el._kulma;
+    let b = kierros(a + muutos, kohde.get(id));
+    if (Math.abs(b - a) > 180) b = kierros(a, kohde.get(id));
+    return [el, a, b];
+  });
+  $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
+  liikkeet.forEach(([el, a]) => asetaKulma(el, a));
+  kierra(liikkeet);
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
-  $('now').innerHTML = act ? `${salkoKuva}<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').innerHTML = act ? `<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
   $('now').hidden = first;
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;

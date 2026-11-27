@@ -175,10 +175,17 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
   (välit kuten mallissa). Virhe näkyy *Salkoni*-rivin alla ja tarjoaa *yritä uudelleen*. Rivin otsake on *Salkoni:*, ei *Salkoni nyt*
   (käyttäjän päätös), ja valitun salon nimi on linkki säätiedotukseen. Otsakkeen yllä on salko (käyttäjän päätös): kuin
-  avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista lukua, kehän sisällä salkojen hiutale. Kehä ja säteet
-  luetaan logon poluista (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku).
-  Jalka on nouseva aurinko (käyttäjän päätös): sanan SALKONI pituinen horisontti, sen päällä kuusikulmion (kärjet sivuilla)
-  yläpuolisko ääriviivana ja neljä sädettä. Ei lisää korkeutta.
+  avainmerkki, jonka kahvana on logon aurinko ilman babylonialaista lukua. Kehä ja säteet luetaan logon poluista
+  (`salkoKuva`), joten se olettaa kuvake.js:n osapolkujärjestyksen (kehä, 12 sädettä, luku). Salko on kiteen alakärjessä, ja
+  auringon keskellä on valitun salon oma hiutale (kiteen nappi) kuvan oman hiutaleen kokoisena. Valittu salko kaikkinensa
+  on muita kirkkaampi: kuva ja otsake `--text`, nimi `--brand` (käyttäjän päätös).
+  Jalka (käyttäjän päätös): nouseva aurinko eli sanan SALKONI pituinen horisontti, sen päällä kuusikulmion (kärjet sivuilla)
+  yläpuolisko ääriviivana ja neljä sädettä, horisontin alla juuret lumihiutaleen puolikkaana (kolme sakaraa, kussakin kaksi
+  sivuhaaraa). Varsi ja juurten pääsakarat hohtavat: sisus `#fff` kummassakin teemassa. Ei lisää korkeutta.
+- **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
+  paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
+  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
+  Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - *Pura tämä paalupaikka* kaataa salot palvelusta, siis kaikilta linkin haltijoilta. *Poistu paalupaikalta* vain unohtaa paneelin
