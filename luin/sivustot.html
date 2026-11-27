@@ -155,7 +155,7 @@
   .s-tila button[hidden] { display: none; }
   ul.sivustot li[hidden], h2.kirjain[hidden], ul.sivustot[hidden] { display: none; }
   /* Otsikkohaku (käyttäjän päätös: tarkka verkko): sama kenttä etsii myös kerätyistä otsikoista (hakemisto/otsikot.txt ja
-     sen jälkeen otsikot-gutenberg.txt ja otsikot-pohjola.txt, ladataan vasta ensimmäisellä haulla). Osumat sivustolistan yläpuolella, korisuodattimet
+     sen jälkeen otsikot-gutenberg.txt, otsikot-pohjola.txt ja otsikot-oikeus.txt, ladataan vasta ensimmäisellä haulla). Osumat sivustolistan yläpuolella, korisuodattimet
      koskevat niitäkin. Osumat sivustoittain (käyttäjän päätös): yksi rivi sivustoa kohden, tunnisteessa nimi ja osumien määrä,
      napautus avaa ja sulkee. Haku-rivin napit (otsikko, tekijä, asiasana) rajaavat kentät korien tapaan. */
   .otsikot { margin: 14px 0 0; }
@@ -252,6 +252,12 @@
         asianumero, päivä ja tuomioistuin</span></li>
     <li data-aihe="kirjallisuus" data-laji="tutkimus,arvio" data-kieli="fr"><a href="https://www.fabula.org/" target="_blank" rel="noopener">Fabula: Acta fabula ja Fabula-LhT</a>
       <span class="mika">fabula.org; kirjallisuustieteen artikkelit ja arviot kappalenumeroineen, alaviitteineen, tiivistelmineen ja kirjallisuuksineen</span></li>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="ratkaisu" data-kieli="fi,sv"><a href="https://www.finlex.fi/fi/oikeuskaytanto" target="_blank" rel="noopener">Finlex: oikeuskäytäntö</a>
+      <span class="mika">finlex.fi; korkeimman oikeuden ja korkeimman hallinto-oikeuden ennakkopäätökset ja muiden tuomioistuinten ratkaisut,
+        seloste, asiasanat, väliotsikot, kappalenumerot, antopäivä ja tuomioistuin</span></li>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="ratkaisu" data-kieli="en,fr,moni"><a href="https://hudoc.echr.coe.int/" target="_blank" rel="noopener">HUDOC</a>
+      <span class="mika">hudoc.echr.coe.int; Euroopan ihmisoikeustuomioistuimen tuomiot ja päätökset, väliotsikot, kappalenumerot, lainaukset,
+        erilliset mielipiteet ja alaviitteet, valitusnumero, päivä ja kokoonpano</span></li>
     <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="ratkaisu" data-kieli="en"><a href="https://caselaw.nationalarchives.gov.uk/" target="_blank" rel="noopener">Find Case Law</a>
       <span class="mika">caselaw.nationalarchives.gov.uk; Yhdistyneen kuningaskunnan sekä Englannin ja Walesin tuomioistuinten ratkaisut,
         kappalenumerot, väliotsikot ja lainaukset, neutraali viite, päivä ja tuomioistuin</span></li>
@@ -790,10 +796,12 @@
     }
   }
   // Ydin ensin, isot kaikkiruokaiset luettelot (omat tiedostonsa) sen jälkeen yksi kerrallaan: Project Gutenberg (yhtä suuri kuin
-  // ydin), sitten Projekt Runeberg ja Litteraturbanken (26.11.2026; ytimessä ne olisivat kasvattaneet sen 1,64 → 2,25 Mt gzipattuna).
+  // ydin), sitten Projekt Runeberg ja Litteraturbanken (26.11.2026; ytimessä ne olisivat kasvattaneet sen 1,64 → 2,25 Mt gzipattuna) ja
+  // Finlexin ennakkopäätökset (27.11.2026; 1,66 → 1,89 Mt).
   // Haku toimii jo niitä odottaessa.
   var hae = function (t) { return fetch('hakemisto/' + t).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }); };
-  var LISAT = [['otsikot-gutenberg.txt', 'Gutenberg latautuu'], ['otsikot-pohjola.txt', 'Runeberg ja Litteraturbanken latautuvat']];
+  var LISAT = [['otsikot-gutenberg.txt', 'Gutenberg latautuu'], ['otsikot-pohjola.txt', 'Runeberg ja Litteraturbanken latautuvat'],
+    ['otsikot-oikeus.txt', 'Finlexin ennakkopäätökset latautuvat']];
   function lataa() {
     OTS.tila = 'lataa'; piirraOtsikot();
     hae('otsikot.txt')

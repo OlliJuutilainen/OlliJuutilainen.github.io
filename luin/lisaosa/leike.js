@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026) sekä Avoin Kalevala ja Kanteletar, Henrik Ibsens skrifter ja Henry Parlands Skrifter. */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026) sekä Avoin Kalevala ja Kanteletar, Henrik Ibsens skrifter ja Henry Parlands Skrifter sekä HUDOC ja Finlexin oikeuskäytäntö (27.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -7997,6 +7997,351 @@
       sivusto: FCL_NIMI, lahde: osoite, maar };
   }
 
+  /* HUDOC (Euroopan ihmisoikeustuomioistuin, hudoc.echr.coe.int; L&L-korin haku 27.11.2026): tuomiot ja päätökset sellaisina kuin
+     HUDOCin katselin ne näyttää (.navigator-modal .viewarea .content). Asiakirja on Wordista muunnettua HTML:ää: tyylit ovat
+     asiakirjan omassa <style>-lohkossa luokkina (s800EAC49 { font-size:12pt }), eikä merkinnöissä ole otsikkoja, lainauksia
+     eikä lihavointeja, joten ne luetaan tyyleistä. Readability antoi tekstin, mutta väliotsikot (PROCEDURE, THE LAW, I. ALLEGED
+     BREACH …) jäivät tavallisiksi kappaleiksi, kappalenumerot tekstiksi (1.   The case …), rekisterin alaviite rikkinäiseksi
+     linkiksi ([\[\]][1]), kokoonpano riveiksi ja lähteeksi hakusivu (osoitteen #-osa katoaa), eikä päivää, valitusnumeroa ja
+     kokoonpanoa tullut.
+     Kansilehti (kaikki ennen kappaletta In the case of … / The European Court of Human Rights …) etukenttään: kokoonpano (GRAND
+     CHAMBER, FIRST SECTION, COURT (PLENARY)), laji (JUDGMENT, DECISION, ARRÊT), valitusnumero ja päivä; rekisterin tiivistelmä
+     (Art 10 • …, Prepared by the Registry) lainaukseksi alkuun. Otsikko on kappaleen In the case of X v. Y, muoto, jossa
+     kirjainkoko on oikein; vanhoissa (In the Soering case) ja päätöksissä katselimen nimirivi (CASE OF SOERING v. THE UNITED
+     KINGDOM) pienaakkosin. Väliotsikot: isokokoinen versaali (fs ≥ 13 pt) luvuksi, numeroitu otsikko (riippuva sisennys tai
+     page-break-after: avoid, ei lopussa pistettä) tasonsa mukaan: I. osioksi, A. kohdaksi, syvemmät (1., (a), (i), (α))
+     korostetuiksi kappaleiksi, koska Luinissa on neljä otsikkotasoa. Kappalenumero yläindeksiksi kuten EUR-Lexissä ja Find
+     Case Law'ssa, paitsi ratkaisuosassa (FOR THESE REASONS, PAR CES MOTIFS), jonka kohdat jäävät numeroiksi. Pieni ja sisennetty
+     kappale (fs ≤ 10,5 pt, vasen reunus) on lainaus. Peräkkäiset lyhyet rivit (kokoonpano, asianosaisten edustajat) yhdeksi
+     kappaleeksi rivinvaihdoin. Wordin alaviitteet (#_ftnN, div#_ftnN; tyhjä merkki [] on rekisterin huomautus) alaviitteiksi.
+     Allekirjoitukset (nimet, Registrar, President, nimikirjaimet) pois. Lähteeksi katselimen pysyvä osoite (#documentUrl,
+     …/eng?i=001-57619). Ei mainoksia eikä lahjoituspyyntöä (Euroopan neuvosto). Mitattu 27.11.2026. */
+  const HD_NIMI = 'HUDOC';
+  function hdTyylit(juuri) {
+    const kartta = {};
+    juuri.querySelectorAll('style').forEach(s => {
+      for (const m of s.textContent.matchAll(/\.([A-Za-z0-9_-]+)\s*\{([^}]*)\}/g)) kartta[m[1]] = (kartta[m[1]] || '') + ';' + m[2].replace(/\s+/g, '').toLowerCase();
+    });
+    return el => (el.getAttribute && el.getAttribute('class') || '').split(/\s+/).map(c => kartta[c] || '').join(';');
+  }
+  const hdPt = (t, n) => { const m = new RegExp('(?:^|;)' + n + ':(-?[\\d.]+)pt').exec(t); return m ? +m[1] : 0; };
+  // Englannin otsikko pienaakkosin (SOERING v. THE UNITED KINGDOM → Soering v. the United Kingdom): ECHR:n viittaustapa.
+  function hdNimi(s) {
+    const pienet = /^(v\.|c\.|and|of|the|for|in|on|et|de|du|des|la|le|les|von|van|der|den|da|di|no\.|n°)$/i;
+    return rivi(s).split(' ').map((w, i) => {
+      if (/^(\p{Lu}\.)+$/u.test(w) || /^\(?[IVXL]+\)?$/.test(w) && i) return w;
+      const p = w.toLowerCase();
+      if (p === 'others') return 'Others';
+      if (i && pienet.test(p.replace(/^\(/, ''))) return p;
+      return p.replace(/(^|[(\-'’])(\p{Ll})/gu, (m, a, c) => a + c.toUpperCase()).replace(/^Mc(\p{Ll})/u, (m, c) => 'Mc' + c.toUpperCase());
+    }).join(' ');
+  }
+  // Kappaleen alusta pois välit, merkkijono tunnus (12.) ja sen perään jäävät välit, tekstisolmujen rajoista välittämättä.
+  function hdPoistaAlku(p, tunnus) {
+    const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT), solmut = [];
+    while (w.nextNode()) solmut.push(w.currentNode);
+    let tila = 'alku', k = 0;
+    for (const c of solmut) {
+      const s = c.data;
+      let i = 0;
+      while (i < s.length && tila !== 'valmis') {
+        const ch = s[i];
+        if (tila === 'alku' && /\s/.test(ch)) { i++; continue; }
+        if (tila === 'alku') tila = 'tunnus';
+        if (tila === 'tunnus') { if (ch === tunnus[k]) { i++; if (++k === tunnus.length) tila = 'pera'; } else tila = 'valmis'; continue; }
+        if (/\s/.test(ch)) i++; else tila = 'valmis';
+      }
+      c.data = s.slice(i);
+      if (tila === 'valmis') break;
+    }
+  }
+  async function hudoc() {
+    if (!/(^|\.)hudoc\.echr\.coe\.int$/.test(location.hostname)) return null;
+    const juuri = document.querySelector('.navigator-modal .viewarea .content');
+    if (!juuri || kkSanoja(juuri) < 100) return null;
+    const tyyli = hdTyylit(juuri);
+    const el = juuri.cloneNode(true);
+    el.querySelectorAll('style, script, img, a[name^="_ftnref"]:empty').forEach(x => x.remove());
+    // Alaviitteet: merkki a[href="#_ftnN"], teksti div#_ftnN, jossa paluulinkki #_ftnrefN.
+    const maar = [], laskuri = { n: 0 };
+    el.querySelectorAll('a[href^="#_ftn"]:not([href^="#_ftnref"])').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      const kohde = el.querySelector('[id="' + id + '"]');
+      if (!kohde) return;
+      const k = kohde.cloneNode(true);
+      k.querySelectorAll('a[href^="#_ftnref"]').forEach(x => x.remove());
+      kkLinkit(k, /^https?:\/\/([a-z0-9-]+\.)*hudoc\.echr\.coe\.int\//i);
+      const t = muunna(k.innerHTML, 'inlined').trim();
+      if (!t) { a.remove(); return; }
+      const tunnus = 'hd' + (++laskuri.n);
+      maar.push(maaritelma(tunnus, t));
+      a.replaceWith(merkki(tunnus));
+    });
+    el.querySelectorAll('div[id^="_ftn"]').forEach(x => x.remove());
+    el.querySelectorAll('hr').forEach(x => x.remove());
+    // Tekstityylit: lihava, kursiivi, yläindeksi; tyhjät välilaatikot (display:inline-block) välilyönneiksi.
+    [...el.querySelectorAll('span')].reverse().forEach(s => {
+      const t = tyyli(s);
+      if (/display:inline-block/.test(t) && !rivi(s.textContent)) return s.replaceWith(' ');
+      let solmu = document.createDocumentFragment();
+      solmu.append(...s.childNodes);
+      const kaari = tag => { const u = document.createElement(tag); u.appendChild(solmu); solmu = u; };
+      if (/vertical-align:super/.test(t)) kaari('sup');
+      else {
+        if (/font-style:italic/.test(t)) kaari('em');
+        if (/font-weight:bold/.test(t)) kaari('strong');
+      }
+      s.replaceWith(solmu);
+    });
+    // Korostuksen reunojen välit ja välimerkit sen ulkopuolelle (Erik Wennerström<em>, President</em>,): muuten Markdownin *
+    // jää välimerkin viereen eikä korostus toimi.
+    [...el.querySelectorAll('strong, em')].reverse().forEach(e => {
+      const alku = e.firstChild, loppu = e.lastChild;
+      if (alku && alku.nodeType === 3) { const m = /^[\s,.;:]+/.exec(alku.data); if (m) { alku.data = alku.data.slice(m[0].length); e.before(m[0]); } }
+      if (loppu && loppu.nodeType === 3) { const m = /[\s,;:]+$/.exec(loppu.data); if (m) { loppu.data = loppu.data.slice(0, -m[0].length); e.after(m[0]); } }
+      if (!rivi(e.textContent) && !e.querySelector('br')) e.replaceWith(...e.childNodes);
+    });
+    // Vierekkäiset samat korostukset yhdeksi (André and Another v.</em> <em>France).
+    [...el.querySelectorAll('strong, em')].reverse().forEach(e => {
+      const v = e.nextSibling, n = v && v.nodeType === 3 && !v.data.trim() ? v.nextSibling : v;
+      if (!n || n.nodeType !== 1 || n.tagName !== e.tagName || !e.parentElement) return;
+      if (v !== n) e.append(v);
+      e.append(...n.childNodes);
+      n.remove();
+    });
+    // Kappaleet tyyleineen järjestyksessä (lohkot: p ja ol; sisäkkäiset div-kääreet puretaan).
+    const lohkot = [...el.querySelectorAll('p, ol, ul, table')].filter(b => !b.parentElement.closest('p, ol, ul, table'));
+    const tieto = b => {
+      const t = tyyli(b), teksti = rivi(b.textContent.replace(MERKKI, ''));
+      return { b, t, teksti, fs: hdPt(t, 'font-size'), ml: hdPt(t, 'margin-left'), ti: hdPt(t, 'text-indent'),
+        keep: /page-break-after:avoid|break-after:avoid/.test(t), keski: /text-align:center/.test(t) };
+    };
+    // Yhden kohdan luettelo, jonka kohta on otsikkotyylinen (ranskankielisen tuomion EN FAIT, EN DROIT, PAR CES MOTIFS: ul > li,
+    // page-break-after: avoid ja 14 pt), on otsikko.
+    const kaikki = lohkot.map(b => {
+      const li = /^(UL|OL)$/.test(b.tagName) && b.children.length === 1 && b.children[0].tagName === 'LI' ? tieto(b.children[0]) : null;
+      return li && li.teksti.length < 400 && (li.keep || li.fs >= 13) ? li : tieto(b);
+    }).filter(x => x.teksti || x.b.tagName === 'TABLE');
+    // Kansilehti: kaikki ennen tekstin alkukappaletta.
+    const ALKU = /^(In the case of\b|In the .{1,80} case\b|En l['’]affaire\b|Dans l['’]affaire\b|The European Court of Human Rights\b|La Cour européenne des droits de l['’]homme\b|The Court of Human Rights\b)/;
+    let a = kaikki.findIndex(x => ALKU.test(x.teksti));
+    if (a < 0) a = 0;
+    const kansi = kaikki.slice(0, a), runko = kaikki.slice(a);
+    const kr = kansi.map(x => x.teksti);
+    const TYYPIT = /^(JUDGMENT|DECISION|ARRÊT|ARRET|DÉCISION|ADVISORY OPINION|AVIS CONSULTATIF|REPORT OF THE COMMISSION|RAPPORT DE LA COMMISSION)\b/;
+    const tyyppi = (kr.find(x => TYYPIT.test(x)) || '').match(TYYPIT);
+    const kokoonpano = kr.find(x => /^(GRAND CHAMBER|GRANDE CHAMBRE|COURT \(PLENARY\)|COUR \(PLÉNIÈRE\)|COURT \(CHAMBER\)|COUR \(CHAMBRE\)|[\p{Lu}-]+ SECTION|[\p{Lu}-]+ SECTION COMMITTEE|COMMITTEE|COMITÉ|COMMISSION)$/u.test(x)) || '';
+    const valitus = rivi((kr.join(' ').match(/(?:Applications?|Requêtes?)\s+n(?:os?|°)\.?\s*(\d+\/\d+(?:\s*(?:,|and|et)\s*\d+\/\d+)*)/i) || [])[1]).replace(/\s*(?:,|and|et)\s*/g, ', ');
+    const tiivis = kansi.filter(x => /\s•\s|^Prepared by the Registry|^Rédigé par le greffe/.test(x.teksti));
+    // Otsikko: In the case of X, (kirjainkoko oikein), muuten katselimen nimirivi.
+    const ens = runko.length ? runko[0].teksti : '';
+    let otsikko = (/^(?:In the case of|En l['’]affaire|Dans l['’]affaire)\s+(.+?),?\s*$/.exec(ens) || [])[1] || '';
+    if (!otsikko) {
+      const n = rivi((document.querySelector('.navigator-heading .lineone') || {}).textContent).replace(/^\(\d+\s+\S+\s+\d+\)\s*/, '').replace(/^(CASE OF|AFFAIRE)\s+/i, '');
+      otsikko = n ? hdNimi(n) : '';
+    }
+    // Päivä: katselimen sarake (pp/kk/vvvv) tai kansilehden STRASBOURG-rivin jälkeinen.
+    const sarake = rivi((document.querySelector('.navigator-heading .column04') || {}).textContent);
+    const ps = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(sarake);
+    const pRivi = kr[kr.findIndex(x => /^STRASBOURG$/i.test(x)) + 1] || '';
+    const julkaistu = ps ? ps[3] + '-' + ps[2] + '-' + ps[1] : /\d{4}/.test(pRivi) ? euPvm(pRivi) : '';
+    const ranska = /^(En l|Dans l|La Cour)/.test(ens) || /^(ARRÊT|ARRET|DÉCISION|AVIS)/.test(tyyppi ? tyyppi[1] : '');
+    const elin = ranska ? 'Cour européenne des droits de l’homme' : 'European Court of Human Rights';
+    // Kokoonpano kansilehdeltä, muuten katselimen sarakkeesta (Court (Grand Chamber); K. and T. v. Finland: kansilehdellä ei ole sitä).
+    const sarake3 = rivi((document.querySelector('.navigator-heading .column03') || {}).textContent);
+    const kp = kokoonpano ? kokoonpano.replace(/^(COURT|COUR)\s*\((.+)\)$/, '$2') : (/^(?:Court|Cour)\s*\((.+)\)$/.exec(sarake3) || [])[1] || '';
+    const kpNimi = !kp ? '' : ranska ? (kp.charAt(0).toUpperCase() + kp.slice(1).toLowerCase()).replace(/^grande chambre$/i, 'Grande Chambre')
+      : kp.toLowerCase().replace(/(^|\s)(\p{Ll})/gu, (m, x, c) => x + c.toUpperCase());
+    const numero = valitus ? (ranska ? 'no ' : valitus.includes(',') ? 'nos. ' : 'no. ') + valitus : '';
+    const laji = [elin + (kpNimi ? ' (' + kpNimi + ')' : ''), tyyppi ? tyyppi[1].toLowerCase() : '', numero].filter(Boolean).join(', ');
+    const tulos = document.createElement('div');
+    if (tiivis.length) { const q = document.createElement('blockquote'); q.dataset.tiivis = '1'; tiivis.forEach(x => q.appendChild(x.b)); tulos.appendChild(q); }
+    // Runko: otsikot, lainaukset, rivit ja kappalenumerot.
+    const NUM = /^(?:([IVXLC]+)\.|([A-Z])\.|(\d{1,2})\.|\(([a-z])\)|\(([ivxl]+)\)|\(([α-ω])\))\s+\S/u;
+    // Kirjain vai roomalainen numero (Soering: III:n alla A.–H. ja I. Mutual assistance): kirjain, kun se jatkaa edellisen
+    // kirjainotsikon sarjaa, muuten I, V, X ja L ovat roomalaisia ja C kirjain.
+    let edKirjain = '';
+    const otsikkoOf = x => {
+      const t = x.teksti;
+      if (!/^(P|LI)$/.test(x.b.tagName) || t.length > 400) return 0;
+      const versaali = !/\p{Ll}{2}/u.test(t.replace(/\((?:art|arts)\.[^)]*\)/g, ''));
+      if (x.fs >= 13 && versaali) return 2;
+      if (x.keski && versaali && /\b(OPINIONS?|DECLARATION|ANNEX|APPENDIX|ANNEXE)\b/.test(t)) return 2;
+      const m = NUM.exec(t);
+      if (!m || /[.;,]$/.test(t) && !versaali) return 0;
+      if (!(x.keep || x.ti < 0 || x.ml > 0 && x.ti <= 0)) return 0;
+      const r = m[1] || m[2];
+      if (r) {
+        const kirjain = r.length === 1 && (/^[A-Z]$/.test(r) && !/^[IVXL]$/.test(r) || edKirjain && r.charCodeAt(0) === edKirjain.charCodeAt(0) + 1);
+        if (kirjain) { edKirjain = r; return 4; }
+        edKirjain = '';
+        return 3;
+      }
+      return m[3] ? 5 : 6;
+    };
+    let ratkaisu = false, rivit = null;
+    const pura = () => { rivit = null; };
+    const lainaus = x => x.b.tagName === 'P' && x.fs > 0 && x.fs <= 10.5 && x.ml > 0;
+    const KAAVA = /^(Having|Ayant|Delivers|Rend|Decides|Décide|The Court|La Cour|In the\b|En l['’]affaire|Dans l['’]affaire|The European Court)/;
+    for (const x of runko) {
+      const t = x.teksti, taso = otsikkoOf(x);
+      if (taso) {
+        pura();
+        if (taso === 2) { ratkaisu = /^(FOR THESE REASONS|PAR CES MOTIFS)/i.test(t); edKirjain = ''; }
+        if (taso <= 4) { const h = document.createElement('h' + taso); h.textContent = t; tulos.appendChild(h); }
+        else { const p = document.createElement('p'), s = document.createElement(taso === 5 ? 'strong' : 'em'); s.textContent = t; p.appendChild(s); tulos.appendChild(p); }
+        continue;
+      }
+      // Allekirjoitukset: nimikirjaimet (R.R., J.-P.C.), Registrar- ja President-rivit, versaalisukunimet (Rolv RYSSDAL).
+      if (x.b.tagName === 'P' && t.length < 120 && (/^(\p{Lu}\.(-?\p{Lu}\.)*\s*)+$/u.test(t) ||
+        /\b(Registrar|President|Greffi[eè]re?|Présidente?|Vice-President|Deputy Registrar|Section Registrar|Greffi[eè]re? adjointe?)$/.test(t) && !/[.;:]\s/.test(t) ||
+        /^(For the Registrar|Pour le greffier)$/i.test(t) || t.length < 40 && !/[.:,;]$/.test(t) && /^\p{Lu}[\p{Ll}'’-]+(\s+\p{Lu}[\p{Ll}'’-]+)*\s+\p{Lu}{2,}[\p{Lu}'’-]*$/u.test(t))) { pura(); continue; }
+      if (lainaus(x)) {
+        pura();
+        const ed = tulos.lastElementChild;
+        const q = ed && ed.tagName === 'BLOCKQUOTE' && !ed.dataset.tiivis ? ed : tulos.appendChild(document.createElement('blockquote'));
+        const p = document.createElement('p'); p.append(...x.b.childNodes); q.appendChild(p);
+        continue;
+      }
+      if (x.b.tagName !== 'P') { pura(); tulos.appendChild(x.b.tagName === 'LI' ? x.b.parentElement : x.b); continue; }
+      // Peräkkäiset lyhyet rivit (kokoonpano, asianosaisten edustajat, asiakirjojen luettelo) yhdeksi kappaleeksi:
+      // ryhmä alkaa pilkkuun tai puolipisteeseen päättyvästä, arvonimellä tai viivalla alkavasta rivistä ja päättyy pisteeseen
+      // tai kaksoispisteeseen.
+      const numeroitu = /^\d{1,4}\.\s/.test(t), lyhyt = !numeroitu && t.length <= 100 && !KAAVA.test(t);
+      if (lyhyt && (rivit || /[,;]$|^(Mr|Mrs|Ms|Miss|Sir|Dame|M\.|Mme|Mlle|Lord|Lady)\s|^[-–]\s/.test(t))) {
+        if (!rivit) { rivit = document.createElement('p'); tulos.appendChild(rivit); } else rivit.appendChild(document.createElement('br'));
+        rivit.append(...x.b.childNodes);
+        if (/[.:]$/.test(t)) pura();
+        continue;
+      }
+      pura();
+      const p = document.createElement('p');
+      p.append(...x.b.childNodes);
+      const m = /^(\d{1,4})\.\s+/.exec(t);
+      if (m && !ratkaisu) {
+        hdPoistaAlku(p, m[1] + '.');
+        const sup = document.createElement('sup'); sup.textContent = m[1];
+        p.prepend(sup, ' ');
+      }
+      tulos.appendChild(p);
+    }
+    tulos.querySelectorAll(OTSIKOT).forEach(h => h.querySelectorAll('strong, em').forEach(b => b.replaceWith(...b.childNodes)));
+    tulos.querySelectorAll('p, li').forEach(p => { if (!rivi(p.textContent) && !p.querySelector('br')) p.remove(); });
+    kkLinkit(tulos, /^https?:\/\/([a-z0-9-]+\.)*hudoc\.echr\.coe\.int\//i);
+    if (kkSanoja(tulos) < 100) return null;
+    const pysyva = rivi((document.getElementById('documentUrl') || {}).value);
+    const id = (/"itemid":\["([\d-]+)"\]/.exec(decodeURIComponent(location.hash)) || /[?&]i=([\d-]+)/.exec(location.search) || [])[1];
+    const lahde = /^https:\/\/hudoc\.echr\.coe\.int\/\w+\?i=[\d-]+$/.test(pysyva) ? pysyva : id ? location.origin + location.pathname + '?i=' + id : osoite;
+    return { html: irrota([tulos]).innerHTML, otsikko: otsikko || rivi(document.title), laji, numero, julkaistu, sivusto: HD_NIMI, lahde, maar };
+  }
+
+  /* Finlex, oikeuskäytäntö (finlex.fi/fi/oikeuskaytanto, /sv/rattspraxis, /en/case-law; L&L-korin haku 27.11.2026): korkeimman
+     oikeuden ja korkeimman hallinto-oikeuden ennakkopäätökset sekä muiden tuomioistuinten ratkaisut. Sivu on Next.js-sovellus, joka
+     piirtää ratkaisun Akoma Ntoso -aineistosta: article > section[class*=_documentHeader] (h2 tunnus KKO:2024:1, kieliversiot,
+     dl: Asiasanat, Antopäivä, Diaarinumero, ECLI, hovioikeudessa Hovioikeus ja Asianumero) ja section[class*=_akomaNtoso]
+     (seloste ja säännösviittaus ennen ensimmäistä otsikkoa, sitten h3/h4-osat). Luokkanimien alku on käännöksen tiiviste
+     (uKldUa_akomaNtoso), joten valitsimet ovat loppuosasta. Readability antoi tekstin, mutta otsikoksi tuli välilehden nimi
+     (KKO:2024:1 | 3.1.2024 | Ennakkopäätökset | Korkein oikeus), alkuun sivupalkin kuvaus ja sisällysluettelo, tietolista
+     irrallisiksi riveiksi ja Kieliversiot-otsikko, eikä päivää ja tuomioistuinta tullut.
+     Etukenttään: otsikoksi tunnus, alaotsikoksi asiasanat (ketjut puolipistein, väliviiva ajatusviivaksi), laji (tuomioistuin
+     murupolusta tai tietolistasta ja ratkaisulaji: Korkein oikeus, ennakkopäätös), numero (diaarinumero) ja julkaistu
+     (antopäivä). Seloste ja säännösviittaus lainaukseksi alkuun, otsikot tasoa ylemmäs (h3 luvuksi), perustelujen kokonaan
+     kursiiviset väliotsikot (Asian tausta) kohdiksi ja kappalenumerot (1., KHO:ssa (1)) yläindeksiksi kuten muissa
+     oikeustapauksissa. Vain oikeuskäytännön sivut: säädökset jäävät yleiselle leikkeelle (käyttäjän linjaus: Luiniin luettavaa,
+     ei hakuteostietokantoja). Ei mainoksia eikä lahjoituspyyntöä (oikeusministeriö). Mitattu 27.11.2026. */
+  const FX_NIMI = 'Finlex';
+  const FX_LAJI = { 'ennakkopäätökset': 'ennakkopäätös', 'muut päätökset': 'muu päätös', 'valitusluvat': 'valituslupa',
+    'lyhyet ratkaisuselosteet': 'lyhyt ratkaisuseloste', 'muut julkaistut päätökset': 'muu julkaistu päätös',
+    'prejudikat': 'prejudikat', 'övriga beslut': 'övrigt beslut', 'besvärstillstånd': 'besvärstillstånd',
+    'korta referat': 'kort referat', 'övriga publicerade beslut': 'övrigt publicerat beslut',
+    'precedents': 'precedent', 'other decisions': 'other decision', 'leaves to appeal': 'leave to appeal' };
+  async function finlex() {
+    if (!/(^|\.)finlex\.fi$/.test(location.hostname) || !/^\/(fi\/oikeuskaytanto|sv\/rattspraxis|en\/case-law)\//.test(location.pathname)) return null;
+    const art = document.querySelector('article'), runko = art && art.querySelector('[class*="_akomaNtoso"]');
+    const otsake = art && art.querySelector('[class*="_documentHeader"]');
+    if (!runko || !otsake || kkSanoja(runko) < 50) return null;
+    // Tietolista: dt → dd.
+    const tiedot = {};
+    otsake.querySelectorAll('dl > dt').forEach(dt => { const dd = dt.nextElementSibling; if (dd && dd.tagName === 'DD') tiedot[rivi(dt.textContent).toLowerCase()] = dd; });
+    const arvo = (...n) => { for (const k of n) if (tiedot[k]) return rivi(tiedot[k].textContent.replace(/Kopioi ECLI-linkki|Kopiera ECLI-länken|Copy ECLI link/g, '')); return ''; };
+    const asia = tiedot['asiasanat'] || tiedot['ämnesord'] || tiedot['keywords'];
+    let asiasanat = '';
+    if (asia) {
+      const ketjut = [...asia.querySelectorAll('div')].filter(d => !d.querySelector('div')).map(d => rivi(d.textContent)).filter(Boolean);
+      asiasanat = (ketjut.length ? ketjut : [rivi(asia.textContent)]).map(k => k.replace(/\s+-\s+/g, ' – ')).join('; ');
+    }
+    const otsikko = rivi((otsake.querySelector('h1, h2') || {}).textContent);
+    const t = tiedot['antopäivä'] || tiedot['meddelats'] || tiedot['date of decision'] || tiedot['date given'] || null;
+    const dt = t && t.querySelector('time[datetime]');
+    const julkaistu = dt ? dt.getAttribute('datetime').slice(0, 10) : t ? euPvm(t.textContent) : '';
+    // Tuomioistuin ja ratkaisulaji murupolusta (Finlex › Oikeuskäytäntö › Korkein oikeus › Ennakkopäätökset › 2024 › …);
+    // monikollinen tuomioistuinryhmä (Hovioikeudet) tietolistan tuomioistuimesta.
+    // Murupolku omasta navistaan (sivun päävalikossakin on Oikeuskäytäntö-linkki, jota seuraa Viranomaiset).
+    const murut = document.querySelector('nav[class*="breadCrumbs"], nav[aria-label="Murupolku"], nav[aria-label="Brödsmulor"], nav[aria-label="Breadcrumb"], nav[aria-label="Breadcrumbs"]');
+    const polku = murut ? [...murut.querySelectorAll('li')].map(li => rivi(li.textContent)) : [];
+    const i = polku.findIndex(x => /^(oikeuskäytäntö|rättspraxis|case law)$/i.test(x));
+    let tuom = i >= 0 ? polku[i + 1] || '' : '';
+    const oma = arvo('hovioikeus', 'hallinto-oikeus', 'tuomioistuin', 'hovrätt', 'förvaltningsdomstol', 'domstol', 'court');
+    if (oma || /(oikeudet|domstolar|rätter|courts)$/i.test(tuom)) tuom = oma || '';
+    const lajiSana = i >= 0 ? FX_LAJI[(polku[i + 2] || '').toLowerCase()] || '' : '';
+    const laji = [tuom, lajiSana].filter(Boolean).join(', ');
+    // Hovioikeuden ratkaisun tunnus on asianumero (HelHO:2026:9), muiden diaarinumero.
+    const numero = arvo('asianumero', 'målnummer') || arvo('diaarinumero', 'diarienummer', 'diary number');
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, button, svg, img').forEach(x => x.remove());
+    // Lohkot järjestyksessä: kääreet (section, div) puretaan.
+    const lohkot = [...el.querySelectorAll('p, h1, h2, h3, h4, h5, h6, ol, ul, table, blockquote')].filter(b => !b.parentElement.closest('p, ol, ul, table, blockquote'));
+    const tulos = document.createElement('div');
+    const ens = lohkot.findIndex(b => /^H[1-6]$/.test(b.tagName));
+    // Seloste ja säännösviittaus ennen ensimmäistä otsikkoa lainaukseksi (KHO: lihavoitu seloste ilman lihavointia).
+    // Yksittäinen kirjain omana kappaleenaan (KHO:2024:1:n selosteessa b) on irrallinen merkki.
+    const seloste = (ens < 0 ? [] : lohkot.slice(0, ens)).filter(b => rivi(b.textContent) && !/^\p{L}$/u.test(rivi(b.textContent)));
+    if (seloste.length) {
+      const q = document.createElement('blockquote');
+      seloste.forEach(b => {
+        const k = b.cloneNode(true);
+        if (k.tagName === 'P' && [...k.querySelectorAll('b, strong')].reduce((n, x) => n + rivi(x.textContent).length, 0) >= rivi(k.textContent).length - 1) k.querySelectorAll('b, strong').forEach(x => x.replaceWith(...x.childNodes));
+        q.appendChild(k);
+      });
+      tulos.appendChild(q);
+    }
+    for (const b of ens < 0 ? lohkot : lohkot.slice(ens)) {
+      const s = rivi(b.textContent);
+      if (!s && b.tagName !== 'TABLE') continue;
+      if (/^H[1-6]$/.test(b.tagName)) {
+        const h = document.createElement('h' + Math.min(4, Math.max(2, +b.tagName[1] - 1)));
+        h.textContent = s;
+        tulos.appendChild(h);
+        continue;
+      }
+      if (b.tagName !== 'P') { tulos.appendChild(b); continue; }
+      // Kokonaan kursiivinen lyhyt kappale ilman loppupistettä on väliotsikko (Asian tausta, Johtopäätös).
+      const kurs = [...b.querySelectorAll('i, em')].filter(x => !x.parentElement.closest('i, em')).reduce((n, x) => n + rivi(x.textContent).length, 0);
+      // Ei anonymisoitua paikkaa (hovioikeuden kursiivinen —).
+      if (s.length <= 150 && /\p{L}{2}/u.test(s) && !/[.:;,]$/.test(s) && kurs >= s.length - 1) {
+        const h = document.createElement('h4'); h.textContent = s; tulos.appendChild(h); continue;
+      }
+      const p = document.createElement('p');
+      p.append(...b.childNodes);
+      const m = /^(?:(\d{1,3})\.|\((\d{1,3})\))\s+\S/.exec(s);
+      if (m) {
+        hdPoistaAlku(p, m[1] ? m[1] + '.' : '(' + m[2] + ')');
+        const sup = document.createElement('sup'); sup.textContent = m[1] || m[2];
+        p.prepend(sup, ' ');
+      }
+      tulos.appendChild(p);
+    }
+    tulos.querySelectorAll('span').forEach(x => x.replaceWith(...x.childNodes));
+    tulos.querySelectorAll('[class]').forEach(x => x.removeAttribute('class'));
+    // Sarkaimin tasatut rivit (hovioikeuden Asia      R 706/2025/12270) yhdellä välilyönnillä.
+    const w = document.createTreeWalker(tulos, NodeFilter.SHOW_TEXT);
+    while (w.nextNode()) w.currentNode.data = w.currentNode.data.replace(/[ \t\u00a0]{2,}/g, ' ');
+    kkLinkit(tulos, /^https?:\/\/([a-z0-9-]+\.)*finlex\.fi\//i);
+    if (kkSanoja(tulos) < 50) return null;
+    return { html: irrota([tulos]).innerHTML, otsikko: otsikko || rivi(document.title).split('|')[0], alaotsikko: asiasanat, laji, numero,
+      julkaistu, sivusto: FX_NIMI, lahde: osoite };
+  }
+
   /* PubMed Central (pmc.ncbi.nlm.nih.gov; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 2: alusta, kaikki avoimet
      lääketieteen artikkelit samana JATS-HTML:nä, myös Medical Historyn kaltaiset humanistiset lehdet). Tunnistus rakenteesta ja
      metatiedoista: section.main-article-body ja citation_journal_title. Runko: section.abstract (h2, kwd-group), hr.headless,
@@ -15553,7 +15898,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, ibsen, parland, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, hudoc, finlex, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

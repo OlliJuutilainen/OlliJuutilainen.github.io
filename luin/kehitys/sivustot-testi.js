@@ -21,9 +21,9 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const b = await chromium.launch(), virheet = [];
   const page = await (await b.newContext({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 2 })).newPage();
   page.on('pageerror', e => virheet.push(e.message));
-  let luettelo = 0, gutenberg = 0, pohjola = 0;
+  let luettelo = 0, gutenberg = 0, pohjola = 0, oikeus = 0;
   page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; if (r.url().endsWith('/hakemisto/otsikot-gutenberg.txt')) gutenberg++;
-    if (r.url().endsWith('/hakemisto/otsikot-pohjola.txt')) pohjola++; });
+    if (r.url().endsWith('/hakemisto/otsikot-pohjola.txt')) pohjola++; if (r.url().endsWith('/hakemisto/otsikot-oikeus.txt')) oikeus++; });
   await page.goto(U + 'luin/sivustot.html'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
   const nak = () => page.$$eval('ul.sivustot li:not([hidden])', l => l.length);
   const nimet = () => page.$$eval('ul.sivustot li:not([hidden]) > a:first-of-type', l => l.map(x => x.textContent.trim()));
@@ -153,10 +153,16 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
     s: x.closest('li[data-sivu]').getAttribute('data-sivu'), t: (x.querySelector('.mika') || {}).textContent || '' })));
   const avaaKaikki = () => page.$$eval('#osumat button.r-otsake[aria-expanded="false"]', l => l.forEach(b => b.click()));
   const osumat = async q => { if (q != null) await page.fill('#s-haku', q); await odota(); await avaaKaikki(); return nakyvat(); };
-  t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg + pohjola === 0, String(luettelo + gutenberg + pohjola));
+  t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg + pohjola + oikeus === 0, String(luettelo + gutenberg + pohjola + oikeus));
   let o = await osumat('hegel logic');
   t('hegel logic: NDPR:n arvio, slug purkautuu', o.some(x => x.o === 'Hegel’s Logic and Metaphysics' && x.h === 'https://ndpr.nd.edu/reviews/hegels-logic-and-metaphysics/'), o.slice(0, 3).map(x => x.h).join(' '));
-  t('ydin, Gutenberg ja pohjoismaiset ladattiin kerran', luettelo === 1 && gutenberg === 1 && pohjola === 1, luettelo + ' ' + gutenberg + ' ' + pohjola);
+  t('ydin, Gutenberg, pohjoismaiset ja oikeuskäytäntö ladattiin kerran', luettelo === 1 && gutenberg === 1 && pohjola === 1 && oikeus === 1, luettelo + ' ' + gutenberg + ' ' + pohjola + ' ' + oikeus);
+  // Oikeuskäytäntö (27.11.2026): Finlexin ennakkopäätökset löytyvät asiasanasta, osoite purkautuu ja kori on L&L.
+  o = await osumat('takaisinsaanti määräpäivä');
+  t('takaisinsaanti määräpäivä: KKO:2024:1 Finlexistä asiasanalla', o.some(x => x.o === 'KKO:2024:1' && x.s === 'Finlex: oikeuskäytäntö' &&
+    x.h === 'https://www.finlex.fi/fi/oikeuskaytanto/korkein-oikeus/ennakkopaatokset/2024/1' && /asiasana/.test(x.t)), o.slice(0, 4).map(x => x.o + ' ' + x.h + ' ' + x.t).join(' | '));
+  o = await osumat('KHO:2024:1');
+  t('KHO:2024:1: tunnuksella', o.some(x => x.o === 'KHO:2024:1' && x.h === 'https://www.finlex.fi/fi/oikeuskaytanto/korkein-hallinto-oikeus/ennakkopaatokset/2024/1'), o.slice(0, 3).map(x => x.o + ' ' + x.h).join(' | '));
   o = await osumat('kalevala');
   t('kalevala: Gutenbergin teksti mukana', o.some(x => /^https:\/\/www\.gutenberg\.org\/ebooks\/\d+$/.test(x.h) && x.s === 'Project Gutenberg'), o.slice(0, 4).map(x => x.h).join(' '));
   o = await osumat('cicero de officiis');
@@ -167,7 +173,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('tilarivi: osumat ja sivustot', new RegExp('^' + kantKaikki + ' osumaa \\d+ sivustolla').test(await page.textContent('#o-tila')), await page.textContent('#o-tila'));
   await nappi('kieli', 'suomi'); await odota();
   const kantFi = await ryhmat(), kantFiN = kantFi.reduce((n, r) => n + r.n, 0);
-  t('kant + suomi: vain suomenkielisiä sivustoja', kantFiN > 0 && kantFiN < kantKaikki && kantFi.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg/.test(x.s)), kantFi.map(x => x.s + ' ' + x.n).join(' | '));
+  // Finlex mukana: suomenkieliset asiasanat alkavat kant- (kantaja, kantelu).
+  t('kant + suomi: vain suomenkielisiä sivustoja', kantFiN > 0 && kantFiN < kantKaikki && kantFi.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg|Finlex/.test(x.s)), kantFi.map(x => x.s + ' ' + x.n).join(' | '));
   t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === kantFiN);
   await page.click('#s-tyhjenna');
   await page.fill('#s-haku', 'kant'); await page.click('button.salmiakki'); await odota();
