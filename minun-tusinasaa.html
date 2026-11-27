@@ -98,8 +98,8 @@
   .enough dd{ margin:0; font-size:15.5px; line-height:1.35 }
   /* Datalähderivin vasen reuna asetetaan JS:llä esimerkkirivien klo-sanan kohdalle (alignCredit). */
   .credit{ font-size:13px; line-height:1.4; color:var(--muted); margin:10px 0 0; padding:0 14px }
-  /* Datalähteet kursiivilla: Ilmatieteen laitoksen linkki ja koko sulkeet (mm. yr.no) (käyttäjän päätös). */
-  .credit a{ text-underline-offset:2px; font-style:italic }
+  /* Datalähteistä kursiivilla vain yr.no (käyttäjän päätös). */
+  .credit a{ text-underline-offset:2px }
   .toOwn{ margin:36px 0 0 }
   /* Esimerkkinäkymä: mallin tallennetut rivit ohjelman ilmeellä. */
   .screen{ border:1px solid var(--border); border-radius:18px; padding:14px 10px 6px; background:var(--bg);
@@ -466,7 +466,7 @@
         <div class="dh"><span></span><span></span><span></span><span>SADE</span><span>TUULEE</span></div>
         <div id="demo"></div>
       </div>
-      <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin <i>(mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>)</i> avoimesta datasta.</p>
+      <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin (mm. <a href="https://www.yr.no/" rel="noopener"><i>yr.no</i></a>) avoimesta datasta.</p>
       <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
       <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
       <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun · oma · tusinasää (MOTS)</button></p>
