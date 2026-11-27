@@ -132,6 +132,10 @@
       (sivuston oma rajapinta) ja teoksen sivut, enintään 600; isommasta teoksesta avoimen sivun osan (runo, luku).</li>
     <li>Jos leikkaat Avoimen Kalevalan (kalevala.finlit.fi) tai Kantelettaren (editiot.finlit.fi) sivun, lisäosa hakee samalta sivustolta
       asiakirjan XML-tiedoston (sivuston oma rajapinta, yksi tiedosto); Kalevalan runoluettelon sivulta kaikkien runojen XML-tiedostot, enintään 50.</li>
+    <li>Jos leikkaat Henrik Ibsens skrifterin (ibsen.uio.no) tekstisivun, lisäosa hakee samalta sivustolta sivun kommentaarit ja
+      tekstikriittiset huomautukset, jotka sivusto näyttää yksi kerrallaan, enintään 2 500.</li>
+    <li>Jos leikkaat Henry Parlands Skrifterin (parland.sls.fi) tekstin, lisäosa hakee samalta sivustolta tekstin ja sen kommentaarin
+      (sivuston oma rajapinta); romaanin Sönder tai kokoelman Idealrealisation tekstistä koko teoksen tekstit, enintään 80.</li>
     <li>Jos leikkaat Wikisourcen sivun, jolla on teoksen nimiö ja sisällysluettelo, lisäosa hakee samalta sivustolta
       sisällysluettelon sivut, enintään 250, ja ottaa mukaan ne, jotka kuuluvat teokseen.</li>
     <li>Jos leikkaat Svenska litteratursällskapetin digitaalisen edition (topelius.sls.fi, westermarck.sls.fi, vonwright.sls.fi)
@@ -205,7 +209,10 @@
     its table of contents from the same site, up to 600 pages. When you clip a work of Litteraturbanken (litteraturbanken.se), it
     fetches the work’s details (the site’s own interface) and its pages from the same site, up to 600; of a larger work, the part of
     the open page. When you clip a page of Avoin Kalevala (kalevala.finlit.fi) or Kanteletar (editiot.finlit.fi), it fetches the document’s XML file
-    from the same site (the site’s own interface, one file); from the Kalevala’s list of poems, the XML files of all the poems, up to 50. When you clip a Wikisource page holding a work’s title page and table of contents, it fetches the listed pages from
+    from the same site (the site’s own interface, one file); from the Kalevala’s list of poems, the XML files of all the poems, up to 50. When you clip a text page of Henrik Ibsens skrifter
+    (ibsen.uio.no), it fetches the page’s commentary and text-critical notes from the same site, which the site shows one at a time,
+    up to 2,500. When you clip a text of Henry Parlands Skrifter (parland.sls.fi), it fetches the text and its commentary from the same
+    site (the site’s own interface); from the novel Sönder or the collection Idealrealisation, the texts of the whole work, up to 80. When you clip a Wikisource page holding a work’s title page and table of contents, it fetches the listed pages from
     the same site, up to 250, and keeps those that belong to the work. If you use Postihuilu, the extension remembers your box phrase in its local storage,
     and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),
     where it is kept for 30 days and can be read by anyone who knows the phrase. The Latomo and Luin pages are served by
