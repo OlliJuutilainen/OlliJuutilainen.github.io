@@ -201,7 +201,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
   kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kuusikulmion ulkopuolella ohut, pieni
   yksikulmainen suuntanuoli, joka mukailee kuusikulmion ulospäin osoittavaa kulmaa loivennettuna ja reilusti irti siitä: sisäkulma
-  kultainen kulma 137,5°, kärkipuoli puolen kärjen verran häntää pidempi. Kärki sinne, minne salko kiertäisi (`suuntaNuoli`, sama
+  kultainen kulma 137,5°, kärkipuoli vajaan puolen kärjen verran häntää pidempi. Kärki sinne, minne salko kiertäisi (`suuntaNuoli`, sama
   `kierros` kuin kierrossa; käyttäjän päätökset).
   Napin tai nuolen osoitus hiirellä näyttää viiveellä vihjeen *KESKUKSEEN* kuten avaimen vihje (käyttäjän päätös); nuoli
   on osa nappia, joten sen napautus kiertää. Vihjeen paikka valitaan osoitettaessa (`sijoitaVihje`) niin, ettei se peitä tekstiä,
