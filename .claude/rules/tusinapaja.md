@@ -266,11 +266,11 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
   sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja avain lähtee liikkeelle vasta 0,11 s:n tauon jälkeen
   (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
-  (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKO·SUTKAUTUS
+  (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKOSUTKAUTUS
   syttyy pehmeästi vasta, kun avain on asettunut. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
   Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 1,2 s:n viiveellä (käyttäjän päätös) vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
-  Avoimessa näkymässä avaimen oikealla puolella *SALKO·SUTKAUTUS* (interpunkti ilman välilyöntejä; käyttäjän päätös) pystynä versaalina (paino 400:n ja 600:n väliltä),
+  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* (ilman interpunktia; käyttäjän päätös) pystynä versaalina (paino 400:n ja 600:n väliltä),
   väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
   korkuiset; saa jatkua palstan ohi ruudun reunaan asti, ja vasta kun sekään ei riitä (kapea ruutu), koko pienenee, koska
   nimi ei rivity (käyttäjän päätös); se syttyy pehmeästi vasta, kun avain on asettunut. Arvo vain, kun laitteella on paneeli;
