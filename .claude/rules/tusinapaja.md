@@ -191,16 +191,17 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   käyttäjän päätös). Ei lisää korkeutta.
 - **Saloston järjestys** (käyttäjän päätös): valittu salko on aina kiteen alakärjessä. Salot ovat kärjillä
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
-  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot ovat rauhallisia ilman kaahauskiihdytyksiä: sama
-  symmetrinen siniä vastaava käyrä ja kesto 2,1 s × √(kulma / 180°) (käyttäjän päätös; naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
+  (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot ovat rauhallisia:
+  nopeus kasvaa rauhallisesti huippuunsa kultaisen leikkauksen kohdalla ja laskee siitä liukuvana jarrutuksena
+  (`KIERTO`; huippunopeus ei saa olla korkea), kesto 2,4 s × √(kulma / 180°) (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
-  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Katkoviiva 0,45 px, peittävyys ,75. Hiiren alla hienovarainen korostus
-  (katkoviiva kirkastuu, henkäys harmaata). Nimi piiloutuu.
+  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
+  alla se vaalenee, eikä mikään muu muutu. Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
-  kohdan napautus peruu kehykset. Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi katoaa heti ja uusi
+  kohdan napautus tai Esc peruu kehykset; Esc peruu myös sulatuksen kuten Peru (ei ensipaalutuksessa). Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi katoaa heti ja uusi
   tulee esiin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt (otsake pysyy). Reunan paikkanimet eivät katoa
   (käyttäjän päätös: kaikkien samanaikainen ilmestyminen oli hassu); kierron aikana nimi häipyy vain alakärjen lähellä,
   jossa se kulkisi Salkoni-kuvan yli. Valitun salon napautus sulattaa kuten ennen.
