@@ -183,7 +183,11 @@
   .osm{ font-size:12px; margin:8px 0 0 }
 
   /* Kide: salot kuusikulmion kärjillä. */
-  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto }
+  /* Kun alakeskellä ei ole salkoa, kiteen alaosa jää tyhjäksi: negatiivinen alamarginaali (--vaje, osuus kiteen
+     leveydestä, renderPanel) nostaa Salkoni-rivin yhtä lähelle alimpia salkoja kuin alakeskellä olevan salon alle
+     (käyttäjän päätös). Siirtyy samassa tahdissa kuin salot. */
+  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto;
+    margin-bottom:calc(var(--vaje, 0) * -1 * min(100%, 380px)); transition:margin-bottom .7s cubic-bezier(.3,.7,.2,1) }
   .stage[hidden]{ display:none }
   .stage svg.arms{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
   .arm{ stroke:var(--dim); stroke-width:.5 }
@@ -296,7 +300,7 @@
   .avainOhje b{ color:var(--text); font-weight:400 }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
-  @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
+  @media (prefers-reduced-motion: reduce){ .stage, .slot, .slot svg{ transition:none } }
 </style>
 </head>
 <body>
@@ -692,6 +696,7 @@ function renderPanel(){
   stage.hidden = first;
   $('lampoPick').classList.toggle('tuotteet', first);
   const set = SETS[n], free = n < MAX_PYLVAAT ? 'T' : null;
+  stage.style.setProperty('--vaje', set.includes('B') ? 0 : (POS.B[1] - Math.max(...set.map(p => POS[p][1]))) / 100);
   const nodes = new Map([...stage.querySelectorAll('.slot')].map(el => [el.dataset.id, el]));
   const seen = new Set(), fresh = [];
   state.slots.forEach((s, i) => {
