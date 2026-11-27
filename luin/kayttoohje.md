@@ -550,6 +550,10 @@ Kentän alla olevasta *kieli*-valikosta haun voi rajata yhteen kieleen, jolloin 
 
 Samalla haulla sivu hakee sanaa myös Tieteen termipankista. Jos sieltä löytyy käsite, jonka nimitys sana on, tulokset ovat ensin listana: ylempänä termipankin käsitteet alan kanssa (*adekvaatti* · Filosofia), alempana Wikisanakirjan osumat. Napauta haluamaasi. Termipankin selityksessä on ala, määritelmät ja vastineet muilla kielillä; vastineen napautus avaa sen Wikisanakirjan selityksen. Vieraskielinen haku löytää suomenkielisen termin (*Dasein* → *täälläolo*), ja haettu sana näkyy pienellä otsikon alla. Linssi on otsikon perässä vain, kun alkuperää on: termipankin oma huomautus (*lat. adaequare*) tai sanan alkuperä Wikisanakirjassa. Kielivalikon rajaus koskee termipankissa haetun sanan kieltä. Termipankki on vain tällä sivulla, ei lukimen selitysikkunassa.
 
+Sen vieressä olevasta *sanakirjat*-valikosta valitaan, mistä haetaan. Oletuksena ovat Wiktionary ja Tieteen termipankki; lisäksi voi valita Logeionin (muinaiskreikka ja latina: LSJ, Lewis & Short ym.), Wörterbuchnetzin (saksan historialliset sanakirjat: Adelung, Campe ja Grimm), Digital Pāḷi Dictionaryn (pali) ja Monier-Williamsin (sanskrit, Kölnin sanakirjat). Mitä tahansa voi ottaa pois, myös Wiktionaryn, kunhan yksi jää. Valinta säilyy tällä laitteella, ja muutos hakee näkyvän selityksen uudelleen, kun valikko suljetaan.
+
+Muut sanakirjat näkyvät selityksen alla omina osioinaan lähteineen. Kukin arvaa perusmuodon itse, joten ne toimivat myös ilman Wiktionarya (*λόγου* → *λόγος*, *Begriffe* → *Begriff*, *karuna* → *karuṇa*); ilman Wiktionarya myös termipankki hakee perusmuotoa (*käsitteen* → *käsite*), ja sen vastineen napautus on uusi haku sen kielen sanana (`de: Begriff`). Kun Wiktionary on mukana, sen löytämä perusmuoto haetaan myös muista, ja Wiktionaryn linkki vie kaikki sanakirjat uuteen sanaan. Logeionin ja Wörterbuchnetzin sanakirjat avautuvat nimestään; hyvin pitkä artikkeli (esimerkiksi Grimmin *geist*) avautuu Wörterbuchnetzissä. Kielivalikko rajaa myös muut: saksaksi haetaan vain Wörterbuchnetzistä ja termipankin saksankielisiä nimityksiä. Sanakirjat, joista sanaa ei löytynyt, luetellaan lopuksi.
+
 Osoitteen #-osa on haku, joten sivun voi lisätä selaimen hakusanaksi muodossa `…/luin/sanaselitys.html#%s`.
 
 ## 8. Asetukset
@@ -845,7 +849,7 @@ Sovellus tuo selaimeen verrattuna:
 - **Kaikki on tässä selaimessa.** Pino, tekstit, lukukohdat, merkinnät ja asetukset tallentuvat tämän selaimen muistiin tällä laitteella. Toisessa selaimessa tai laitteessa pino on oma.
 - **Selaimen tietojen tyhjennys** tältä sivustolta vie myös pinon ja merkinnät. Tärkeät merkinnät kannattaa viedä tiedostoon (luku 6.9).
 - **Postihuilu** lähettää tekstit (30 päivää) ja valittaessa merkinnät (vuosi) lukimen postilaatikkoon (luku 9.5).
-- **Sanaselitys** lähettää valitun sanan Wikisanakirjaan ja **lausekäännös** valitun tekstin DeepL:ään, vain napautuksesta. Sanaselityssivu lähettää kirjoitetun sanan myös Tieteen termipankkiin.
+- **Sanaselitys** lähettää valitun sanan Wikisanakirjaan ja **lausekäännös** valitun tekstin DeepL:ään, vain napautuksesta. Sanaselityssivu lähettää kirjoitetun sanan sanakirjavalikossa valituille sanakirjoille (oletuksena Wikisanakirja ja Tieteen termipankki).
 - **Luin-linkki** hakee tekstin sen osoitteesta.
 - **Lukimeen-lisäosa** lukee vain sen välilehden, jolla painat sen kuvaketta (ja tarvittaessa saman sivuston sivuja, joilla artikkelin alaviitteet tai kirjan muut luvut ovat), ja vie tekstin latomoon. Se ei kerää eikä lähetä tietoja kenellekään. Lisäosan tietosuojaseloste on sivulla `luin/tietosuoja.html`.
 - **Latomoon** viedyt tekstit eivät näy edes Ollille, ellei suoraa jakolinkkiä anneta.

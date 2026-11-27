@@ -45,6 +45,20 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Wikisanakirjaa suoraan. Käsite vain Käsite-mallineen ja Liittyvä nimitys -osuman sivulta (määritelmän maininta ei kelpaa).
   **Linssi vain, kun alkuperää on** (käyttäjän päätös): termipankin `lisätiedot_fi`:n kielilyhenteellä alkava rivi tai otsikon sanan
   Etymology-osio Wikisanakirjassa sen kielessä. Kielirajaus koskee haetun nimityksen kieltä. Lukimen ikkuna ei saa hakea termipankista (testi).
+  **Sanakirjavalikko** (käyttäjän päätös: mitkä tahansa päälle ja pois, myös Wiktionary; oletuksena Wiktionary ja Tieteen termipankki;
+  ei suomenkielistä Wikisanakirjaa): viimeistä ei saa pois, ja valinta muistetaan laitteella (`luin-sanakirjat`). Termipankki on moottorissa
+  (yllä): Wiktionaryn kanssa istunto on ennallaan; ilman sitä istunto on pelkkä termipankki (`o.wikt === false`: ketju tyhjä, ei yhtään
+  Wikisanakirjan pyyntöä, vastine on sivun uusi haku `sx-hae` kielikoodin kanssa, ΛΟΓΟΣ ja ΕΤΥΜΟΝ ovat sivun hakuja), ja termipankki saa
+  perusmuodon `LuinSanakirjat.tpPerusmuoto()`:sta (*käsitteen* → *käsite*, `t.haettu`). Kun Wiktionary ja termipankki ovat pois, moottoria
+  ei ajeta (`.sx-oma`: kehyksessä vain otsikko, raksi ja tila).
+- `luin/sanakirjat.js` (`LuinSanakirjat`): sanaselityssivun muut sanakirjat (Logeion, Wörterbuchnetz, DPD, Kölnin Monier-Williams) osioina
+  moottorin selityksen alla, ei lukimen ikkunassa. `?v=` kuten md.js:n (sivu `luin/sanaselitys.html`). Sivu ei saa nojata Wiktionaryyn
+  (käyttäjän pyyntö): jokainen lähde arvaa perusmuodon itse (Logeionin `find`, DPD, Kölnin simple-search, Wörterbuchnetzin ja termipankin
+  päätesäännöt `perusmuodot()`, jotka lähde todentaa olemassa oleviksi). Wiktionaryn kanssa moottorin `o.selitetty` antaa sen perusmuodot
+  lisäehdokkaiksi, ja Wiktionaryn linkki tai ΛΟΓΟΣ vaihtaa sanan kaikissa. Osioiden luokat ovat `.sx-*`, ei `.sk-*` (testi lukee moottorin
+  osan niillä). Logeionin ja Wörterbuchnetzin artikkelirajapinnat ovat sivustojen omia, eivät julkaistuja. Wörterbuchnetzin artikkeli haetaan
+  vasta pituuden (seuraavan hakusanan `textid`) jälkeen, enintään `WB_RAJA` sanaa (Grimmin *geist* on 120 000 sanaa, 30 Mt). DPD:n vastaus on
+  raskas (noin 350 kt), siksi se on oletuksena pois. Köln torjuu otsattoman Chromiumin tunnisteen (403/429): testaa tallenteilla, älä kierrä.
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin tekstikannan siirrolla (`asetaSiirto()`)
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
 - `luin/mika-on-markdown.md`: *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
@@ -920,7 +934,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valmis-testi.js`: valmis teksti (osuma, sama HTML ja doc, tavutuksen vaihto, muuttunut teksti, poisto, enintään kuusi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu, sen kielivalikko ja tekotermipankki.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu, sen kielivalikko, tekotermipankki ja sanakirjavalikko (muut sanakirjat tekoaineistolla).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/vakiosivu-testi.js [kuvakansio]`: vakiosivujen merkit, paikannin ja Latomon säilytys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-sana-testi.js`: laidan pitkä painallus sanalla, Sukkela sanaselitys ja osiohyppy.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-taso-testi.js`: osiohypyn merkkipaalun taso (Valtio, artikkeli, pitkä teksti, pelkät kohdat).
