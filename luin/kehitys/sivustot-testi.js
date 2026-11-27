@@ -81,6 +81,11 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const superNimet = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super')).map(x => x.querySelector('a').textContent.trim()));
   const superFilo = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super') && x.dataset.aihe.split(',').includes('filosofia')).length);
   const sm = () => page.$eval('button.salmiakki', b => b.getAttribute('aria-pressed') + ' ' + (b.getAttribute('data-tila') || '') + ' ' + b.classList.contains('nolla'));
+  // Väri: lepotilassa haalea ruoste, mukaan täysi ruoste, pois harmaa (käyttäjän päätös).
+  const smVari = () => page.$eval('button.salmiakki', b => { const v = n => { const e = document.createElement('i'); e.style.color = 'var(' + n + ')'; document.body.appendChild(e);
+    const c = getComputedStyle(e).color; e.remove(); return c; }; const c = getComputedStyle(b).color;
+    return c === v('--ruoste-haalea') ? 'haalea' : c === v('--ruoste') ? 'ruoste' : c === v('--harmaa') ? 'harmaa' : c === v('--viiva') ? 'viiva' : c; });
+  t('supersalmiakki lepotilassa haalea ruoste', await smVari() === 'haalea', await smVari());
   t('supersalmiakki: oma rivi kieli-rivin alla, ei tekstiä, selitteessä ei nappia', await page.evaluate(() => {
     const b = document.querySelector('button.salmiakki'), r = b && b.closest('.krivi');
     return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 1 &&
@@ -115,12 +120,14 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await page.click('button.salmiakki');
   t('supersalmiakki mukaan: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 && await sm() === 'true mukaan false',
     (await nimet()).join(' | ') + ' / ' + await sm());
+  t('supersalmiakki mukaan: täysi ruoste', await smVari() === 'ruoste', await smVari());
   t('supersalmiakki: tilarivi ja tyhjennä', await page.textContent('#s-nakyy') === 'sivustoja näkyvissä ' + superNimet.length + ' / ' + kaikki && await page.isVisible('#s-tyhjenna'));
   t('supersalmiakki: korin luku seuraa', Number(await page.textContent('button.kori[data-f="aihe"][data-v="filosofia"] .n')) === superFilo);
   await nappi('aihe', 'filosofia');
   t('supersalmiakki × filosofia', await nak() === superFilo, String(await nak()));
   await nappi('aihe', 'filosofia'); await nappi('aihe', 'filosofia');
   await page.click('button.salmiakki');
+  t('supersalmiakki pois: harmaa', await smVari() === 'harmaa', await smVari());
   t('supersalmiakki pois: ei sertifioituja', await nak() === kaikki - superNimet.length && !(await nimet()).some(x => superNimet.includes(x)) && await sm() === 'mixed pois false', await sm());
   await page.click('button.salmiakki');
   t('supersalmiakki: kolmas napautus palauttaa', await nak() === kaikki && await sm() === 'false  false');
