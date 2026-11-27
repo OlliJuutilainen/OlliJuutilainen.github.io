@@ -112,14 +112,16 @@
   .s-haku input { display: block; width: 100%; padding: 6px 8px; font: inherit; font-size: 1rem; color: var(--muste); background: var(--paperi);
     border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   .s-haku input:focus { outline: none; border-color: var(--harmaa); }
-  .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
+  /* Rivinimet versaalina (käyttäjän päätös): pystyt, pienennetyt ja harvennetut kuten lukimen versaalinimiöt. Sarake on niin
+     leveä, että levein nimi (HAKU) alkaa musteeltaan palstan vasemmasta reunasta (hakukentän linjassa). */
+  .krivi { display: grid; grid-template-columns: 4.28em 1fr; align-items: baseline; margin: 0 0 2px; }
   /* Rivinimien tekstit ja salmiakki tasattuina oikealle musteen mukaan (käyttäjän päätös; kulmat eivät kuulu tasaukseen, vaan
      riippuvat tekstin jälkeen). Napissa tekstin perässä on kulma (.42 em väli ja .36 em laatikko); kulmaton haku on sen verran
-     vasemmalla ja vielä .08 em, koska u:n muste ulottuu lähemmäs laatikon reunaa kuin i:n. Mitattu kuvasta. */
-  .krivi .ots { font-style: italic; color: var(--harmaa); justify-self: end; margin-right: .42em; }
-  .krivi span.ots { margin-right: 1.28em; }
-  .krivi button.ots { display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
-    font-size: inherit; text-align: left; }
+     vasemmalla ja vielä vähän, koska U:n muste ulottuu lähemmäs laatikon reunaa kuin I:n. Mitattu kuvasta. */
+  .krivi .ots { font-size: .88em; letter-spacing: .12em; text-transform: uppercase; color: var(--harmaa); justify-self: end;
+    margin-right: .42em; }
+  .krivi span.ots { margin-right: 1.3em; }
+  .krivi button.ots { display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px; text-align: left; }
   /* Kulma kuten osumaryhmissä: oikealle, auki alas. */
   .krivi button.ots::after { content: ''; flex: none; width: .36em; height: .36em; margin: 0 0 .1em .42em;
     border: solid var(--harmaa); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
@@ -136,7 +138,7 @@
      paperia; käyttäjän päätös), mukaan täysi ruoste ja 2 px:n alleviivaus musteella, pois harmaa ja yliviivattu; himmeä, kun
      näkyvissä ei ole yhtään sertifioitua. Mitat pikseleinä kuten listan merkissä (viewBoxin yksikkö
      19,5 / 11,2 px): muste y 6,0–22,0 napin yläreunasta; vaakaan svg, viiva ja yliviivaus on sidottu napin oikeaan reunaan. */
-  .krivi button.salmiakki { position: relative; display: block; justify-self: end; margin-right: 1.28em; width: 37px; height: 28px;
+  .krivi button.salmiakki { position: relative; display: block; justify-self: end; margin-right: 1.3em; width: 37px; height: 28px;
     min-height: 0; padding: 0; border: 0; font-size: inherit; color: var(--ruoste-haalea); }
   .krivi button.salmiakki svg { position: absolute; right: -2.92px; top: 4.25px; width: 19.5px; height: 19.5px; overflow: visible; fill: currentColor; }
   .krivi button.salmiakki .r { fill: none; stroke: currentColor; stroke-width: 1.05; stroke-linejoin: miter; }
@@ -183,12 +185,13 @@
   ul.sivustot li, .selite, h2.kirjain { position: relative; padding-left: 37px; }
   .super svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: var(--ruoste); }
   .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
-  /* Selite erottuu listasta (käyttäjän päätös): pienempi teksti, ja koko lohko merkkeineen on sisennetty sivustojen nimien
+  /* Selite erottuu listasta (käyttäjän päätös): pienempi ja johdantoa himmeämpi teksti (harmaan ja viivan sekoitus kuten
+     lukimen sanaselityksen osaotsikoissa, vara --harmaa), ja koko lohko merkkeineen on sisennetty sivustojen nimien
      kohdalle ja yhtä paljon oikeasta reunasta, merkki 15 px; väli ylä- ja alapuolella. Tasattu; tavuviivat ovat tekstissä
      käsin (&shy;, md.js:n Innokas-tavutus), koska Chromium ei tavuta suomea: ilman niitä kapean ruudun sanavälit venyvät
      useaan em:iin. Kun muutat tekstiä, tavuta uudet sanat samoin. */
   .selite { margin: 16px 37px 10px; padding-left: 26px; font-size: .84rem; line-height: 1.5;
-    text-align: justify; hyphens: manual; }
+    text-align: justify; hyphens: manual; color: var(--harmaa); color: color-mix(in srgb, var(--harmaa) 72%, var(--viiva)); }
   .selite .super svg { top: .2em; width: 15px; height: 15px; }
 </style>
 </head>
