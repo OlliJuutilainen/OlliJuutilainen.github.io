@@ -950,6 +950,10 @@ function piirraKierto(){
   const tx = -Math.sin(rad(t2)) * suunta, ty = -Math.cos(rad(t2)) * suunta, [L, w] = KIERTO_KARKI;   // tangentti kärjessä
   const [bx, by] = [x2 - tx * L, y2 - ty * L];
   nuoli.style.left = f2(mx) + 'px'; nuoli.style.top = f2(my) + 'px';
+  /* Viistokärjissä nuoli kierretään keskeltään 8° (vasen ylä ja oikea ala myötäpäivään, oikea ylä ja vasen ala
+     vastapäivään), jottei se näytä vinolta (käyttäjän päätös). */
+  const vino = Math.cos(rad(a)) * Math.sin(rad(a));
+  nuoli.querySelector('svg').style.transform = Math.abs(vino) < 1e-6 ? '' : `rotate(${-8 * Math.sign(vino)}deg)`;
   const [kaari, karki] = nuoli.querySelectorAll('path');
   kaari.setAttribute('d', `M${f2(x0)} ${f2(y0)}A${f2(R)} ${f2(R)} 0 ${Math.abs(t1 - t0) > 180 ? 1 : 0} ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
   karki.setAttribute('d', `M${f2(x2)} ${f2(y2)}L${f2(bx + ty * w)} ${f2(by - tx * w)}L${f2(bx - ty * w)} ${f2(by + tx * w)}Z`);
