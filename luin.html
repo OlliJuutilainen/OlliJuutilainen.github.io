@@ -353,6 +353,7 @@
      Oma jakoviiva oli liikaa (Postihuilun details.vienti on jo viivan päällä), joten erottelu on ilmaa. */
   .aset-palaute { margin: 52px 0 0; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
   .aset-palaute a { color: var(--harmaa); text-underline-offset: 3px; text-transform: uppercase; letter-spacing: .12em; }
+  .aset-palaute .erotin { margin: 0 .6em; }
   /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js): vino huilu, sen kellosta kulmikas kolmilinja oikealle
      (enintään neljä jaksoa), ja kolme nuottia Soita huilua! -napin yläpuolelle vasta painalluksesta. Pinosta Postihuilu
      poistettiin tällä erää 21.11.2026 (käyttäjän pyyntö); kuvio on nyt vain asetuksissa.
@@ -1906,8 +1907,9 @@
       </div>
     </details>
   </div>
-  <!-- Palaute kehittäjälle asetusten alimpana (käyttäjän pyyntö 10.11.2026); pinosta linkki poistettiin 12.11.2026. -->
-  <p class="aset-palaute"><a href="luin/palaute.html?mista=asetukset">palaute</a></p>
+  <!-- Palaute kehittäjälle asetusten alimpana (käyttäjän pyyntö 10.11.2026); pinosta linkki poistettiin 12.11.2026.
+       Sen vieressä Android-sovelluksen APK vain Android-selaimessa, ei sovelluksessa (käyttäjän päätös: ei tyrkytetä). -->
+  <p class="aset-palaute"><a href="luin/palaute.html?mista=asetukset">palaute</a><span id="aset-apk" hidden><span class="erotin">·</span><a href="luin/luin.apk">Android-sovellus</a></span></p>
 </div>
 
 <!-- ===== Kirjanmerkit, alleviivaukset ja kirjaukset ===== -->
@@ -2170,6 +2172,8 @@
   // Android-kääre (android/luin/) antaa sillan nimellä LuinApp; siellä laitteen painikkeet ovat varma sivunkääntötapa.
   // Selaimessa ei tiedetä, onko laitteessa painikkeita, joten ne eivät riitä ainoaksi tavaksi.
   var NAPIT_AINA = !!window.LuinApp;
+  // APK:n linkki asetusten alalaidassa vain Android-selaimessa; sovelluksessa (LuinApp) se olisi turha.
+  document.getElementById('aset-apk').hidden = NAPIT_AINA || !/Android/i.test(navigator.userAgent);
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit', 'sivuLaite'];
   var PAKKOTAVAT = NAPIT_AINA ? SIVUTAVAT : ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
   function marginaali() { return MARG[aset.marginaali] || 0; }

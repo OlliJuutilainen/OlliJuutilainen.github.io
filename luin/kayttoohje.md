@@ -566,7 +566,7 @@ Asetukset avautuvat kiekosta pinon oikeasta yläkulmasta tai lukiessa yläpalkis
 
 **Raskas teksti.** Jos teksti on niin raskas, että sen asettelu kestää hitaalla laitteella pitkään (esimerkiksi pitkä kaksikielinen teksti), asetusten ylälaidassa lukee, että muutokset tulevat tekstiin kerralla. Silloin kirjasinkoko, kappalejako, reunat, marginaali, tavutus, liikkuminen, sisällysluettelo ja kielet tulevat tekstiin vasta, kun suljet asetukset; teema ja muut valinnat vaihtuvat heti.
 
-Asetusten alimpana on pieni linkki *palaute* (luku 16).
+Asetusten alimpana on pieni linkki *palaute* (luku 16) ja Android-selaimessa sen vieressä *Android-sovellus* (luku 13).
 
 ### 8.2 Ulkoasu
 
@@ -834,7 +834,7 @@ Latomosta tai lisäosalla tuodulla tekstillä ei ole verkko-osoitetta, joten lin
 
 ## 13. Android-sovellus
 
-Luin on myös Android-sovelluksena *Luin.* (asennustiedosto `luin/luin.apk`). Sovellus lataa saman lukimen verkosta, joten se päivittyy itsestään. Sen pino on sovelluksen oma: selaimen pino ei siirry sinne itsestään, mutta tekstit saa sinne postihuilulla.
+Luin on myös Android-sovelluksena *Luin.* (asennustiedosto https://ollijuutilainen.github.io/luin/luin.apk; Android-selaimessa latauslinkki *Android-sovellus* on asetusten alimpana *palaute*-linkin vieressä). Avaa ladattu tiedosto ja salli kerran asennus selaimesta. Sovellus lataa saman lukimen verkosta, joten se päivittyy itsestään. Sen pino on sovelluksen oma: selaimen pino ei siirry sinne itsestään, mutta tekstit saa sinne postihuilulla.
 
 Sovellus tuo selaimeen verrattuna:
 

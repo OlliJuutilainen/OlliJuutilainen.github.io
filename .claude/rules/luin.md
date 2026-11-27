@@ -300,6 +300,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (käyttäjän päätös): älä muuta `android/luin/`:ta (myös `silta.js` on APK:n sisällä), älä nosta `versionCode`a
   äläkä rakenna `luin/luin.apk`:ta, ellei käyttäjä pyydä. Korjaa sovelluksen ongelmat `luin.html`:ssä, jonka sovellus lataa verkosta. Allekirjoitusavain `android/luin/julkinen.jks` on repossa tarkoituksella kuten
   soittimessa; älä vaihda sitä, tai päivitys vaatii poiston ja pino katoaa.
+  APK:n linkit (käyttäjän päätös: ei tyrkytetä): asetusten alimpana *palaute*-linkin vieressä vain Android-selaimessa (`#aset-apk`,
+  ei sovelluksessa) ja pitkän ohjeen luku 13. Linkissä ei ole `download`-attribuuttia (Pages antaa APK-tyypin): silta sieppaa
+  `a[download]`-linkit, ja `silta-testi.js` vaatii, ettei sivulle jää niitä.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
   kokoamista (`kokoaViite`) tai lähdeviittausten linkitystä, tarkista varanto ja aja `node docs/viitteet/vertaa-luin.js`.
