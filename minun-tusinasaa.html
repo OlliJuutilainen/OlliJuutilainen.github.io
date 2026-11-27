@@ -315,6 +315,8 @@
   @media (hover:hover){
     .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ stroke-opacity:1 }
   }
+  .kierto .suunta{ fill:none; stroke:var(--muted); stroke-width:.5; pointer-events:none }
+  .kierto .suunta .karki{ fill:var(--muted); stroke:none }
   .kierto:focus-visible{ outline:none }
   .kierto:focus-visible .reuna{ stroke:var(--text) }
   .slot.kysytty{ color:var(--text) }
@@ -477,7 +479,7 @@
       <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
         <span class="kehys" id="kehys"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/></svg></span>
-        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" tabindex="-1"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/><g class="aurinko" transform="scale(.59) translate(-16 -16)"></g></svg></button>
+        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" tabindex="-1"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/><g class="aurinko" transform="scale(.59) translate(-16 -16)"></g><g class="suunta"><path/><path class="karki"/></g></svg></button>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
@@ -835,6 +837,7 @@ const KUVIOT = [[], [3], [0, 3], [0, 2, 4], [0, 2, 3, 4], [0, 1, 2, 4, 5], [0, 1
 const SADE = 38, KARKI = .72;   // kärkien etäisyys keskeltä (% kiteestä) ja sakaran pituus siitä
 const stage = $('stage');
 const kidePaikka = (a, r = SADE) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
+const kierros = (a, b) => b + 360 * Math.round((a - b) / 360);   // kulman b kierros lähimpänä kulmaa a
 /* Kierto (käyttäjän päätös): nopeus kasvaa rauhallisesti huippuunsa kultaisen leikkauksen kohdalla (61,8 % ajasta, lähempänä
    määränpäätä) ja laskee siitä liukuvana jarrutuksena; kummassakin vaiheessa kosinikäyrä, joten lähtö, huippu ja pysähdys
    ovat pehmeitä. Huippunopeus 2 × keskinopeus. Kesto kasvaa kulman neliöjuuren mukaan: 2,4 s × √(kulma / 180°), joten
@@ -923,7 +926,6 @@ function renderPanel(){
   /* Kierto: valitun kulmanmuutos lyhintä tietä, ja muut samaan suuntaan (kohdekulman kierros lähimmäs omaa kulmaa + muutos),
      kuitenkin enintään puoli kierrosta: muuten paikallaan pysyvä kärki voisi kiertää koko kehän. */
   const valittuEl = stage.querySelector(`.slot[data-id="${state.active}"]`);
-  const kierros = (a, b) => b + 360 * Math.round((a - b) / 360);
   const muutos = valittuEl ? kierros(valittuEl._kulma, kohde.get(state.active)) - valittuEl._kulma : 0;
   const liikkeet = jarjestys.map(id => {
     const el = stage.querySelector(`.slot[data-id="${id}"]`), a = el._kulma;
@@ -1018,6 +1020,18 @@ function piirraKierto(){
   const a = el._kohde ?? el._kulma, [x, y] = kidePaikka(a).map(v => v / 100 * W);
   kehys.style.left = f2(x) + 'px'; kehys.style.top = f2(y) + 'px';
   nuoli.style.left = f2(x + KIERTO_ULOS * Math.cos(rad(a))) + 'px'; nuoli.style.top = f2(y - KIERTO_ULOS * Math.sin(rad(a))) + 'px';
+  const [kaari, karki] = suuntaNuoli(a, Math.sign(kierros(a, KEHA[0]) - a) || 1), osat = nuoli.querySelectorAll('.suunta path');
+  osat[0].setAttribute('d', kaari); osat[1].setAttribute('d', karki);
+}
+/* Suuntanuoli (käyttäjän päätös): ohut, pieni, hennosti kaareutuva nuoli napin kuusikulmion ulkopuolella, kaarena napin
+   keskipisteen ympäri hiutaleesta poispäin. Kärki osoittaa sinne, minne salko kiertäisi alakärkeen (s: 1 vastapäivään,
+   −1 myötäpäivään; sama kierros kuin renderPanelissa). Kärki on kapea suora kolmio kuten Omaan salkoon -nuolessa. */
+const SUUNTA = { r: 18, puoli: 28, karki: 3.2, leveys: .85 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
+function suuntaNuoli(a, s){
+  const { r, puoli, karki, leveys } = SUUNTA;
+  const P = (f, q = r) => f2(q * Math.cos(rad(f))) + ' ' + f2(-q * Math.sin(rad(f)));
+  const loppu = a + s * puoli, tyvi = loppu - s * karki / r * 180 / Math.PI;
+  return [`M${P(a - s * puoli)}A${r} ${r} 0 0 ${s > 0 ? 0 : 1} ${P(tyvi)}`, `M${P(loppu)}L${P(tyvi, r + leveys)}L${P(tyvi, r - leveys)}Z`];
 }
 addEventListener('resize', piirraKierto);
 

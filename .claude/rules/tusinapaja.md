@@ -199,7 +199,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
-  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kehykset ja nappi tulevat esiin ja häipyvät
+  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kuusikulmion ulkopuolella ohut, pieni, hennosti
+  kaareutuva suuntanuoli napin ympäri hiutaleesta poispäin, kärki sinne, minne salko kiertäisi (`suuntaNuoli`, sama `kierros`
+  kuin kierrossa; käyttäjän päätös). Kehykset ja nappi tulevat esiin ja häipyvät
   pehmeästi. Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
   alla se kirkastuu maltillisesti (peittävyys 1, sama sävy), eikä mikään muu muutu. Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
