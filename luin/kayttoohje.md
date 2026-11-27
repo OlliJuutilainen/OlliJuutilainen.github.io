@@ -97,7 +97,7 @@ Jos olet maalannut sivulta osan tekstiä, ikkunassa on valinta *Vain valittu koh
 
 Perseus Digital Libraryn sivulla ikkunassa on ennen poimintaa kaksi lisävalintaa. *Kielet*: alkuteksti ja englanninkielinen käännös lomitettuna, pelkkä alkuteksti tai pelkkä käännös (vain kun Perseus tarjoaa käännöksen). *Kirjat*: yksi, useampi tai kaikki kirjat, ja useampi *yhdeksi tekstiksi* tai *kukin omaksi tekstikseen*. Koko klassikko kerralla voi olla raskas hitaalle laitteelle. Jos teksti tökkii, poimi pienempi paketti: yksi kieli tai kirja kerrallaan.
 
-Avoimen Kalevalan (kalevala.finlit.fi) runon sivulta poimitaan se runo, runoluettelon sivulta (*Runot*) koko Kalevala. Sananselitykset, kommentaarit, Lönnrotin omat alaviitteet ja käsikirjoituksen erot tulevat alaviitteiksi, joten koko Kalevala on raskas hitaalle laitteelle: runo kerrallaan on kevyempi.
+Avoimen Kalevalan (kalevala.finlit.fi) runon sivulta poimitaan se runo, runoluettelon sivulta (*Runot*) koko Kalevala. Sananselitykset, kommentaarit, Lönnrotin omat alaviitteet ja käsikirjoituksen erot tulevat alaviitteiksi, joten koko Kalevala on raskas hitaalle laitteelle: runo kerrallaan on kevyempi. Saman palvelimen Kantelettaresta poimitaan avattu osa kokonaan.
 
 ### 2.3 Mitä leike tuo mukanaan
 

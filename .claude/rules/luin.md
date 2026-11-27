@@ -201,7 +201,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`/api/document/<polku>`, polku sivun `pb-document`ista), ei sivua. Huomautus haetaan merkinnän tunnuksesta, ei tyypistä
   (lähteen tyyppinimissä on kirjoitusvirheitä). Lönnrotin alaviitteet (`table type=footnotes`, *3: 1.*) kohdistetaan juoksevasta
   säelaskusta, koska painetussa numeroinnissa on poikkeamia. Runoluettelosta koko Kalevala (4,2 Mt, noin 18 000 alaviitettä:
-  raskain sovitteen leike). Testi `--sarja kal`.
+  raskain sovitteen leike). Sama muunnin (`akRunko()`) lukee SKS:n Kantelettaren (`/exist/apps/kanteletar`), jonka TEI on erilainen
+  (runo `div type=poem`, säenumero `l rend=number`, viite tekstissä): muutos koskee molempia. md.js pudottaa otsikon lopun
+  `[^x]`:n välilyönnin jälkeen, joten otsikon merkki liitetään ilman välilyöntiä. Testi `--sarja kal`.
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
