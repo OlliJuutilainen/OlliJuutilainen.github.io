@@ -150,8 +150,8 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 ## Minun oma tusinasää eli MOTS (hallintapaneeli)
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
-Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun·oma·tusinasää (MOTS)* (käyttäjän päätös). Napissa ja paneelin
-otsikossa nimi on interpunktein (`·`, ilman välilyöntejä), ja napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
+Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun · oma · tusinasää (MOTS)* (käyttäjän päätös). Nimi on
+interpunktein: napissa välilyöntien kanssa, paneelin otsikossa ilman (käyttäjän päätös). Napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
 (aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mää” (SOTM)* (käyttäjän päätös); kapealla ruudulla
 `fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä).
 
@@ -194,8 +194,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   hiutaleen oikealle yläviistoon; pidemmät tekstit eivät mahtuisi kapealla ruudulla. Keskukseksi siirtyminen on päämäärä
   eikä välivaihe. Saman salon napautus peruu kysymyksen; valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
-  lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla reipas
-  nuoli (ohut varsi, logon säteen kaltainen kärki; käyttäjän päätös).
+  lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
+  reipas nuoli (perässä ohut pieni kuusikulmio, ohut varsi, kärkenä kapea suora kolmio: auringon säteen sukua, ei lovettu
+  navigaattorinuoli; käyttäjän päätös).
 - **Valintarivi** (`valinnat`, käyttäjän päätös): (a) … (b) … kursiivilla, vaihtoehto ei katkea. Mahtuessaan yksi keskitetty rivi,
   muuten (`pinoaValinnat`) allekkain vasemmalle tasattuna listana, joka on keskitetty kokonaisuutena.
   Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
@@ -244,8 +245,9 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   näkymän häivytys samassa tahdissa). Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
   Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
-  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* aforismin äänellä (kursiivi versaali, `--brand`),
-  versaalien keskikohta kahvan kuusikulmion keskikohdassa; se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
+  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä puolilihavana versaalina, väljästi harvennettuna
+  (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja tavoitekorkeus kehän sisäpuolen korkeus; ei rivity,
+  joten palstaan mahtuakseen se jää pienemmäksi (käyttäjän päätös); se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),

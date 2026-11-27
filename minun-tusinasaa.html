@@ -137,9 +137,14 @@
   /* Paneelin kohokohta (käyttäjän päätös): POISTUn jälkeen väljästi iso nappi, joka avaa oman säätiedotuksen uuteen
      välilehteen; sen jälkeen väljästi jakoviiva ja lämpötilavalinta. */
   .omaan{ text-align:center; margin:44px 0 40px }
-  /* Reipas nuoli tekstin alla (käyttäjän päätös): ohut varsi ja logon säteen kaltainen terävä kärki. */
+  /* Reipas nuoli tekstin alla, tekstin levyinen (käyttäjän päätös): perässä varren ohuinen pieni kuusikulmio, ohut varsi
+     ja kärkenä kapea suora kolmio, auringon säteen sukua eikä lovettu navigaattorinuoli (käyttäjän päätös). Varsi venyy,
+     joten perä ja kärki pysyvät mittasuhteissaan. */
   #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
-  #omaanSalkoon .nuoli{ display:block; width:78%; height:8px; overflow:visible }
+  #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:10px }
+  #omaanSalkoon .pera{ flex:none; width:10px; height:10px; overflow:visible; margin-right:-1.4px }
+  #omaanSalkoon .varsi{ flex:1; height:1.6px; background:currentColor; margin-right:-1px }
+  #omaanSalkoon .karki{ flex:none; width:12px; height:5px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
   #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -336,13 +341,15 @@
   .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--brand) }
   .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--text) }
   .avainPaikka .avainNappi svg{ width:46.28px; height:109.89px }
-  /* Nimi avaimen oikealla puolella aforismin äänellä (kursiivi versaali, --brand kuten avain). Versaalien keskikohta
-     kahvan kuusikulmion keskikohdassa kuten aforismissa logon (napin yläreunasta 8 + 20,44 px; versaalien keskikohta
-     ,6786em rivin yläreunasta, mitattu musteesta). Väli kuusikulmion reunasta 22 px. Ei rivity; 17,5 px mahtuu palstaan
-     292 px:n leveydestä alkaen, kapeammalla 16 px. */
-  .avainNimi{ order:1; align-self:flex-start; margin:calc(28.44px - .6786em) 0 0 11px; white-space:nowrap;
-    font-style:italic; font-size:17.5px; line-height:1.4; letter-spacing:.08em; text-transform:uppercase; color:var(--brand) }
-  @media (max-width:299px){ .avainNimi{ font-size:16px } }
+  /* Nimi avaimen oikealla puolella: pysty puolilihava versaali, väljästi harvennettu, --brand kuten avain (käyttäjän
+     päätös). Versaalien keskikohta kahvan kuusikulmion keskikohdassa (napin yläreunasta 8 + 20,44 px; versaalien keskikohta
+     ,77em − 1,64 px rivin yläreunasta, sovitettu musteesta 15–32 px:n koilla; perusviivan pyöristys heittää ±0,8 px). Väli kuusikulmion reunasta 22 px. Tavoitekoko: versaalit kehän
+     sisäpuolen korkuiset (28,58 px = 40,65 px:n fontti; käyttäjän päätös). Ei rivity, joten koko pienenee palstaan:
+     nimi vie 10,61em (8,93em + 14 × ,12em), avain ja välit 76,28 px. Ilman cqw-tukea 16 px. */
+  .avainPaikka{ container-type:inline-size }
+  .avainNimi{ order:1; align-self:flex-start; margin:calc(30.08px - .77em) 0 0 11px; white-space:nowrap;
+    font-weight:600; font-size:16px; font-size:min(40.65px, (100cqw - 76.28px) / 10.7); line-height:1.4; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--brand) }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
   /* Avainnäkymässä myös logon napautus sulkee näkymän (käyttäjän päätös). */
@@ -421,7 +428,7 @@
       <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin <i>(mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>)</i> avoimesta datasta.</p>
       <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
       <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
-      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun·oma·tusinasää (MOTS)</button></p>
+      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun · oma · tusinasää (MOTS)</button></p>
     </section>
     <div id="paneeli">
     <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
@@ -434,7 +441,7 @@
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener">Omaan salkoon<svg class="nuoli" viewBox="0 0 120 8" aria-hidden="true"><path d="M0 4H109" stroke="currentColor" stroke-width="1.6"/><path d="M104 .6L120 4L104 7.4L107 4Z" fill="currentColor"/></svg></a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><svg class="pera" viewBox="-5 -5 10 10"><path d="M-3.6 0L-1.8 -3.12L1.8 -3.12L3.6 0L1.8 3.12L-1.8 3.12Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="varsi"></span><svg class="karki" viewBox="0 0 12 5"><path d="M0 0L12 2.5L0 5Z" fill="currentColor"/></svg></span></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
