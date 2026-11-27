@@ -365,9 +365,8 @@
   /* Osoitettaessa hiirellä nurkan avainta viiveellä vihje SALKOSUTKAUTUKSEEN (käyttäjän päätös; ei kosketuksella, jossa
      osoitus jäisi napautuksesta päälle). Avaimen vasemmalla puolella, alareuna kahvan kuusikulmion alareunassa (napin
      yläreunasta 6 + 8,26 px): keskitettynä laatikon reuna leikkasi etusivun ylärivin kirjaimia. Avoimessa näkymässä
-     vihjettä ei ole: nimi näkyy siellä. Kiertonapin vihje KIEPAUTA KESKIÖÖN samoin (piirraKierto). */
+     vihjettä ei ole: nimi näkyy siellä. Kiertonapin vihje KESKUKSEEN samoin (piirraKierto). */
   .kiertoVihje{ position:absolute; z-index:1; visibility:hidden }
-  .kiertoVihje.kaksi{ white-space:normal; width:min-content; text-align:center }   /* kapealla ruudulla kahdelle riville */
   @media (hover:hover){
     .top > .avainNappi::after, .kiertoVihje{
       padding:3px 7px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);
@@ -485,7 +484,7 @@
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
         <span class="kehys" id="kehys"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/></svg></span>
         <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" tabindex="-1"><svg aria-hidden="true"><path class="reuna" pathLength="60" d="M0 -13L-11.258 -6.5L-11.258 6.5L-0 13L11.258 6.5L11.258 -6.5Z"/><g class="aurinko" transform="scale(.59) translate(-16 -16)"></g><g class="suunta"><path/><path class="karki"/><path class="osuma"/></g></svg></button>
-        <span class="kiertoVihje" id="kiertoVihje" aria-hidden="true">Kiepauta keskiöön</span>
+        <span class="kiertoVihje" id="kiertoVihje" aria-hidden="true">Keskukseen</span>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
@@ -1031,52 +1030,49 @@ function piirraKierto(){
   suuntaNuoli(a, Math.sign(kierros(a, KEHA[0]) - a) || 1).forEach((d, i) => osat[i].setAttribute('d', d));
   nuoli._kulma = a;
 }
-/* Vihje KIEPAUTA KESKIÖÖN (käyttäjän päätös): osoitettaessa nappia tai nuolta viiveellä kuten avaimen vihje. Paikka valitaan
+/* Vihje KESKUKSEEN (käyttäjän päätös): osoitettaessa nappia tai nuolta viiveellä kuten avaimen vihje. Paikka valitaan
    osoitettaessa napin ympäriltä kahdeksasta suunnasta, ulospäin osoittavat ensin: ensimmäinen, joka mahtuu palstaan
-   peittämättä tekstiä, hiutaleita, Salkoni-kuvaa, nappia eikä nuolta, ensin yhdellä ja sitten kahdella rivillä. Jos mikään
-   ei mahdu (kapea ruutu), vähiten peittävä, ja napin tai nuolen peitto painaa kymmenkertaisesti. */
+   peittämättä tekstiä, hiutaleita, Salkoni-kuvaa, nappia eikä nuolta. Jos mikään ei mahdu, vähiten peittävä, ja napin tai
+   nuolen peitto painaa kymmenkertaisesti. */
 function sijoitaVihje(){
   const v = $('kiertoVihje'), n = $('kierto'), S = stage.getBoundingClientRect(), B = n.getBoundingClientRect();
-  const nx = B.left + B.width / 2 - S.left, ny = B.top + B.height / 2 - S.top, R = SUUNTA.r + 7;
+  const nx = B.left + B.width / 2 - S.left, ny = B.top + B.height / 2 - S.top, R = SUUNTA_R + 6;
   const nakyva = e => { const cs = getComputedStyle(e); return cs.visibility !== 'hidden' && +cs.opacity > 0; };
   const este = (e, paino = 1) => { const r = e.getBoundingClientRect(); return { l: r.left - S.left, t: r.top - S.top, r: r.right - S.left, b: r.bottom - S.top, paino }; };
   const esteet = [...[...stage.querySelectorAll('.slot svg, #kehys .reuna, .salko'), ...[$('quote'), $('now'), ...stage.querySelectorAll('.slot .nm')].filter(nakyva)].map(e => este(e)),
     ...[...n.querySelectorAll('.reuna, .suunta path:not(.osuma)')].map(e => este(e, 10))];
   const ero = d => Math.abs((((d - n._kulma) % 360) + 540) % 360 - 180);
   const suunnat = [0, 45, 90, 135, 180, 225, 270, 315].sort((d1, d2) => ero(d1) - ero(d2));
+  const vw = v.offsetWidth, vh = v.offsetHeight;
+  const peitto = (l, t) => esteet.reduce((sum, e) => sum + e.paino * Math.max(0, Math.min(l + vw, e.r) - Math.max(l, e.l) + 2) *
+    Math.max(0, Math.min(t + vh, e.b) - Math.max(t, e.t) + 2), 0);
   let paras = null;
-  for (const kaksi of [false, true]){
-    v.classList.toggle('kaksi', kaksi);
-    const vw = v.offsetWidth, vh = v.offsetHeight;
-    const peitto = (l, t) => esteet.reduce((sum, e) => sum + e.paino * Math.max(0, Math.min(l + vw, e.r) - Math.max(l, e.l) + 2) *
-      Math.max(0, Math.min(t + vh, e.b) - Math.max(t, e.t) + 2), 0);
-    for (const d of suunnat){
-      const c = Math.round(Math.cos(rad(d)) * 1e3) / 1e3, sn = Math.round(Math.sin(rad(d)) * 1e3) / 1e3;
-      const l = Math.min(Math.max(nx + R * c - vw * (c < 0 ? 1 : c > 0 ? 0 : .5), 0), S.width - vw);
-      const t = ny - R * sn - vh * (sn > 0 ? 1 : sn < 0 ? 0 : .5), p = peitto(l, t);
-      if (!paras || p < paras.p) paras = { l, t, p, kaksi };
-      if (!p) break;
-    }
-    if (!paras.p) break;
+  for (const d of suunnat){
+    const c = Math.round(Math.cos(rad(d)) * 1e3) / 1e3, sn = Math.round(Math.sin(rad(d)) * 1e3) / 1e3;
+    const l = Math.min(Math.max(nx + R * c - vw * (c < 0 ? 1 : c > 0 ? 0 : .5), 0), S.width - vw);
+    const t = ny - R * sn - vh * (sn > 0 ? 1 : sn < 0 ? 0 : .5), p = peitto(l, t);
+    if (!paras || p < paras.p) paras = { l, t, p };
+    if (!p) break;
   }
-  v.classList.toggle('kaksi', paras.kaksi);
   v.style.left = f2(paras.l) + 'px'; v.style.top = f2(paras.t) + 'px';
 }
 $('kierto').addEventListener('pointerenter', sijoitaVihje);
-/* Suuntanuoli (käyttäjän päätös): ohut, pieni, hennosti kaareutuva nuoli napin kuusikulmion ulkopuolella, kaarena napin
-   keskipisteen ympäri hiutaleesta poispäin. Kärki osoittaa sinne, minne salko kiertäisi alakärkeen (s: 1 vastapäivään,
-   −1 myötäpäivään; sama kierros kuin renderPanelissa). Kärki taipuu kaaren mukana: sen sivut kapenevat tyvestä huippuun
-   kaaren suuntaisina, joten nuoli kaartuu tasaisesti loppuun asti. Suora kolmio jättäisi kaaren lopun suoraksi ja kallistuisi
-   sisäänpäin (käyttäjän päätös: ei kaartunut tasaisesti). */
-const SUUNTA = { r: 20, puoli: 22, karki: 3.2, leveys: 1 };   // kaaren säde ja puolikas (°), kärjen pituus ja puolileveys (px)
+/* Suuntanuoli (käyttäjän päätös): ohut ja pieni yksikulmainen nuoli, joka mukailee napin kuusikulmion ulospäin osoittavaa
+   kulmaa loivennettuna. Kuusikulmion kulma (kehäsäde 13 px, .reuna) taittuu 60°, ja taite pienenee samassa suhteessa kuin
+   etäisyys napin keskeltä kasvaa (käyttäjän päätös): kuusikulmio liukenee ulospäin kohti ympyrää. Kaksinkertaisella
+   etäisyydellä (26 px) taite on 30° eli sisäkulma 150°, kaksitoistakulmion kulma. Kärki osoittaa sinne, minne salko kiertäisi
+   alakärkeen (s: 1 vastapäivään, −1 myötäpäivään; sama kierros kuin renderPanelissa), ja on kapea suora kolmio sivun suuntaisesti. */
+const SUUNTA = { R: 26, sivu: 7.5, karki: 3.2, leveys: 1 };   // kulman etäisyys napin keskeltä, sivun pituus kulmasta, kärjen pituus ja puolileveys (px)
+const SUUNTA_R = SUUNTA.R;
 function suuntaNuoli(a, s){
-  const { r, puoli, karki, leveys } = SUUNTA;
-  const P = (f, q = r) => f2(q * Math.cos(rad(f))) + ' ' + f2(-q * Math.sin(rad(f)));
-  const loppu = a + s * puoli, tyvi = loppu - s * karki / r * 180 / Math.PI;
-  const sivu = m => Array.from({ length: 6 }, (_, i) => P(tyvi + (loppu - tyvi) * (i + 1) / 6, r + m * leveys * (5 - i) / 6));   // tyveltä huippuun
-  const kaari = loppuun => `M${P(a - s * puoli)}A${r} ${r} 0 0 ${s > 0 ? 0 : 1} ${P(loppuun)}`;
-  return [kaari(tyvi), `M${P(tyvi, r + leveys)}L${sivu(1).join('L')}L${sivu(-1).reverse().slice(1).join('L')}L${P(tyvi, r - leveys)}Z`,
-    kaari(loppu)];   // viiva, kärki ja osuma-alue
+  const { sivu, karki, leveys } = SUUNTA, P = (x, y) => f2(x) + ' ' + f2(y), k = 90 + 60 * 13 / SUUNTA.R / 2;   // sivun suunta: tangentti + puolet taitteesta
+  const kulma = [SUUNTA_R * Math.cos(rad(a)), -SUUNTA_R * Math.sin(rad(a))];
+  const suunta = d => [Math.cos(rad(a + d * k)), -Math.sin(rad(a + d * k))];   // sivu kulmasta poispäin
+  const [hx, hy] = suunta(s), [tx, ty] = suunta(-s);
+  const huippu = [kulma[0] + sivu * hx, kulma[1] + sivu * hy], tyvi = [huippu[0] - karki * hx, huippu[1] - karki * hy];
+  const viiva = loppu => `M${P(kulma[0] + sivu * tx, kulma[1] + sivu * ty)}L${P(...kulma)}L${P(...loppu)}`;
+  return [viiva(tyvi), `M${P(...huippu)}L${P(tyvi[0] - leveys * hy, tyvi[1] + leveys * hx)}L${P(tyvi[0] + leveys * hy, tyvi[1] - leveys * hx)}Z`,
+    viiva(huippu)];   // viiva, kärki ja osuma-alue
 }
 addEventListener('resize', piirraKierto);
 
