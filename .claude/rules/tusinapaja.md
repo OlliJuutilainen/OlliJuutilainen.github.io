@@ -188,7 +188,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   paalutusjärjestyksessä myötäpäivään valitusta alkaen, ja paaluta on jonon lopussa. Valinta kiertää kidettä kehää pitkin
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Yli 120°:n kierto (vastakkainen kärki) on hitaampi ja lähtee
   pehmeästi, koska naapurin 700 ms olisi siinä levoton (käyttäjän päätös). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
-  Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas. Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
+  Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
+  Nimet ovat kiteen ulkopuolella (käyttäjän päätös): yläpuoliskon kärjissä hiutaleen yllä, alapuoliskon alla, joten sakarat
+  eivät osu nimiin. Nimeä ei rivitetä eikä sakaraa lyhennetä (rivitys olisi pahin, sakaran lyhennys lievempi keino). Täydestä kuusikosta ei ilmoiteta tekstillä (käyttäjän päätös): paaluta-paikan
   puuttuminen kertoo sen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
