@@ -119,7 +119,10 @@
   .dr span:nth-child(4){ text-align:center }
   .dr .dir{ display:block; font-size:10px }
 
+  /* Osio-otsikot (Näytä lämpötilasarakkeessa…, Onko äppiä?) 6 px palstan reunasta, lämpötilavalinnan laatikoiden
+     pyöristyksen jälkeen, ja aavistuksen --mutedia kirkkaampina (käyttäjän päätös); ilman color-mixiä --muted. */
   h2{ font-size:12px; font-weight:400; letter-spacing:.3px; text-transform:uppercase; color:var(--muted);
+    color:color-mix(in srgb, var(--muted) 72%, var(--text)); text-indent:6px;
     margin:26px 0 10px; padding-top:10px; border-top:1px solid var(--border) }
   p{ margin:0 0 12px }
   a{ color:inherit }
@@ -282,17 +285,17 @@
   /* Muun kuin valitun salon ensimmäinen napautus ei kierrä eikä sulata (käyttäjän päätös): hiutaleen ympärille tulee haalea
      katkoviivakuusikulmio ja sen ulkopuolelle samanlaisen kuusikulmion sisään kiertonappi, logon tyylinen aurinko, jonka
      joka toinen säde osoittaa kuusikulmion kulmaan (piirraKierto; käyttäjän päätös). Katkoviiva on symmetrinen (pathLength 60;
-     kulmissa taittuva viiva). Hiiren alla hienovarainen korostus: katkoviiva kirkastuu ja sisään henkäys harmaata
+     kulmissa taittuva viiva). Levossa katkoviiva on hyvin himmeä; hiiren alla se vaalenee, eikä mikään muu muutu
      (käyttäjän päätös); hiutaleen kehys on erillinen elementti, joten :has. Nimi on samalla puolella, joten se piiloon. */
   .kierto, .kehys{ position:absolute; width:30px; height:30px; margin:-15px 0 0 -15px }
   .kierto{ padding:0; border:0; background:none; color:var(--text); cursor:pointer }
   .kehys{ pointer-events:none }
   .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
-  .kierto .reuna, .kehys .reuna{ fill:var(--muted); fill-opacity:0; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25;
-    stroke-dashoffset:.625; transition:fill-opacity .15s, stroke .15s }
-  .kierto .reuna, .kehys .reuna{ stroke-width:.45; stroke-opacity:.75 }
+  .kierto .reuna, .kehys .reuna{ fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25;
+    stroke-dashoffset:.625; transition:stroke .15s, stroke-opacity .15s }
+  .kierto .reuna, .kehys .reuna{ stroke-width:.45; stroke-opacity:.5 }
   @media (hover:hover){
-    .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ fill-opacity:.08; stroke:var(--text) }
+    .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ stroke:var(--text); stroke-opacity:1 }
   }
   .kierto:focus-visible{ outline:none }
   .kierto:focus-visible .reuna{ stroke:var(--text) }
@@ -302,8 +305,8 @@
   .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
   details.app{ margin:48px 0 0; font-size:13px; line-height:1.5; color:var(--muted); max-width:46ch }
-  details.app > summary{ list-style:none; cursor:pointer; display:inline-flex; gap:10px; align-items:baseline;
-    font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted) }
+  details.app > summary{ list-style:none; cursor:pointer; display:inline-flex; gap:10px; align-items:baseline; margin-left:6px;
+    font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); color:color-mix(in srgb, var(--muted) 72%, var(--text)) }
   details.app summary::-webkit-details-marker{ display:none }
   details.app summary{ list-style:none }
   details.app > summary::after{ content:'+'; font-size:15px; line-height:1; letter-spacing:0 }
@@ -814,16 +817,16 @@ const KUVIOT = [[], [3], [0, 3], [0, 2, 4], [0, 2, 3, 4], [0, 1, 2, 4, 5], [0, 1
 const SADE = 38, KARKI = .72;   // kärkien etäisyys keskeltä (% kiteestä) ja sakaran pituus siitä
 const stage = $('stage');
 const kidePaikka = (a, r = SADE) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
-/* Kierto (käyttäjän päätös): kaikki kierrot lähtevät ja pysähtyvät rauhallisesti samalla symmetrisellä käyrällä
-   (cubic-bezier(.37, 0, .63, 1), siniä vastaava: huippunopeus 1,6 × keskinopeus; epäsymmetrinen (.45, 0, .25, 1) kaahasi
-   keskellä 2,6-kertaisella), ja kesto kasvaa kulman neliöjuuren mukaan: 2,1 s × √(kulma / 180°), joten vastakkainen kärki
-   (180°) 2,1 s, naapuri 60° 1,21 s ja 120° 1,71 s. Kulma on suurin kärjen liike, koska kärkikuvio voi muuttua valitun
-   pysyessä paikallaan. */
-const bezier = (x1, y1, x2, y2) => {
-  const b = (t, p1, p2) => 3 * p1 * t * (1 - t) ** 2 + 3 * p2 * t * t * (1 - t) + t ** 3;
-  return x => { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++){ t = (lo + hi) / 2; if (b(t, x1, x2) < x) lo = t; else hi = t; } return b(t, y1, y2); };
-};
-const KIERTO = bezier(.37, 0, .63, 1);
+/* Kierto (käyttäjän päätös): nopeus kasvaa rauhallisesti huippuunsa kultaisen leikkauksen kohdalla (61,8 % ajasta, lähempänä
+   määränpäätä) ja laskee siitä liukuvana jarrutuksena; kummassakin vaiheessa kosinikäyrä, joten lähtö, huippu ja pysähdys
+   ovat pehmeitä. Huippunopeus 2 × keskinopeus. Kesto kasvaa kulman neliöjuuren mukaan: 2,4 s × √(kulma / 180°), joten
+   vastakkainen kärki (180°) 2,4 s (huippunopeus 150 °/s), naapuri 60° 1,39 s ja 120° 1,96 s. Kulma on suurin kärjen liike,
+   koska kärkikuvio voi muuttua valitun pysyessä paikallaan. */
+const KIERTO = (() => {
+  const P = (Math.sqrt(5) - 1) / 2;
+  return t => t <= 0 ? 0 : t >= 1 ? 1 : t < P ? t - P / Math.PI * Math.sin(Math.PI * t / P)
+    : t + (1 - P) / Math.PI * Math.sin(Math.PI * (t - P) / (1 - P));
+})();
 let kiertoRaf = 0, odotaNimi = false, nimiAjastin = 0;
 function asetaKulma(el, a){
   el._kulma = a;
@@ -842,7 +845,7 @@ function kierra(liikkeet, valmis = () => {}){
   if (!liikkeet.some(([, a, b]) => a !== b) || matchMedia('(prefers-reduced-motion: reduce)').matches){
     liikkeet.forEach(([el, , b]) => asetaKulma(el, b)); valmis(); return;
   }
-  const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 2100 * Math.sqrt(kulma / 180);
+  const kulma = Math.max(...liikkeet.map(([, a, b]) => Math.abs(b - a))), kesto = 2400 * Math.sqrt(kulma / 180);
   const alku = performance.now();
   const askel = nyt => {
     const p = Math.min(1, (nyt - alku) / kesto), e = KIERTO(p);
@@ -1516,7 +1519,15 @@ $('logo').addEventListener('click', e => {
   else if (sivu !== 'etusivu') naytaSivu('etusivu', true);
   else if (salkoPystyssa()) naytaSivu('paneeli', true);
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nakyma.hidden) suljeNakyma(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.isComposing) return;
+  if (!nakyma.hidden){ suljeNakyma(); return; }
+  /* Paneelissa Esc peruu valintatilan (kehykset ja kiertonappi) tai sulatuksen kuten Peru (käyttäjän päätös); ensipaalutusta
+     ei, koska siinä sulatus on ainoa tila. */
+  if (sivu !== 'paneeli' || !state.slots.length) return;
+  if (state.kysy){ state.kysy = null; renderPanel(); }
+  else if (state.melting){ state.melting = null; renderPanel(); }
+});
 $('avainInfo').addEventListener('click', () => {
   const auki = $('avainOhje').hidden;
   $('avainOhje').hidden = !auki;
