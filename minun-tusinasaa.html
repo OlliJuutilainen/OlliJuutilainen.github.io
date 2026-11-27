@@ -44,15 +44,16 @@
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
   .wrap{ max-width:560px; margin:0 auto; padding-block:20px 32px;
     padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)) }
-  /* Logo samankokoinen kuin etusivulla (2,930em × 19 px = 55,67 px, ks. .top.eka; käyttäjän päätös); aforismi keskellä
+  /* Logo samankokoinen ja samassa kohdassa kuin etusivulla (2,930em × 19 px = 55,67 px, yläväli 4,69 px, ks. .top.eka;
+     käyttäjän päätös), joten se ei hyppää sivua vaihdettaessa; aforismi keskellä
      logon korkeudella, vasen reuna 30 px logon oikealta puolelta. Logon koosta riippuvat myös avainnäkymän avain ja nimi. */
   .top{ position:relative; display:flex; align-items:center; gap:16px; margin:0 0 22px }
-  .logoBox{ display:block; flex:none; line-height:0; margin-top:6.75px; font-size:19px }
+  .logoBox{ display:block; flex:none; line-height:0; margin-top:4.69px; font-size:19px }
   .logo{ display:block; width:2.930em; height:2.930em; color:var(--brand) }
   /* Logo ilman taustaa tekstin värillä; vaaleassa teemassa säteet ovat suuremmat (android/scripts/tusinasaa-kuvake.js). */
   .logo .vaalea, .salko .vaalea{ display:none }
   @media (prefers-color-scheme: light){ .logo .tumma, .salko .tumma{ display:none } .logo .vaalea, .salko .vaalea{ display:inline } }
-  .quote{ position:absolute; left:0; right:0; top:6.75px; height:55.67px; margin:0; padding:0 0 0 85.67px;
+  .quote{ position:absolute; left:0; right:0; top:4.69px; height:55.67px; margin:0; padding:0 0 0 85.67px;
     display:flex; align-items:flex-start; justify-content:flex-start; text-align:left;
     /* Ylemmän rivin versaalien keskikohta logon keskikohdalle. */
     padding-top:calc(27.835px - .7315em);
@@ -143,8 +144,8 @@
      päätös). Varsi venyy, joten kärki pysyy mittasuhteissaan. */
   #omaanSalkoon{ display:inline-flex; flex-direction:column; align-items:center; gap:5px; padding-bottom:9px }
   #omaanSalkoon .nuoli{ display:flex; align-items:center; align-self:stretch; height:10px; margin:0 3px }
-  #omaanSalkoon .varsi{ flex:1; height:1.3px; background:currentColor; margin-right:-1px }
-  #omaanSalkoon .karki{ flex:none; width:12px; height:4.4px }
+  #omaanSalkoon .varsi{ flex:1; height:1px; background:currentColor; margin-right:-1px }
+  #omaanSalkoon .karki{ flex:none; width:12px; height:3.8px }
   /* MOTS-napin koko teksti kursiivilla (käyttäjän päätös). */
   #omaan{ font-style:italic }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
@@ -207,7 +208,11 @@
 
   /* Kide: salot kuusikulmion kärjillä, valittu alakärjessä (renderPanel). Alamarginaali on Salkoni-kuvan alaosan
      verran (renderPanel), koska kuva ulottuu kiteen alareunan yli. */
-  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto }
+  /* Kide alempana niin, että yläkärjen kiertonappi kuusikulmioineen mahtuu aforismin alle samalla säännöllä kuin muut
+     (käyttäjän päätös): yläkärjen hiutale on 12 % kiteen leveydestä yläreunan alla, kiertonapin kuusikulmion yläreuna 65 px
+     sen yläpuolella. Marginaali sulautuu otsikkorivin 22 px:n alamarginaaliin, joten se on kokonaisväli. Kide on
+     palstan levyinen 380 px:iin asti, joten 12 % palstasta on enintään 45,6 px. */
+  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:calc(93px - min(12%, 45.6px)) auto 0 }
   .stage[hidden]{ display:none }
   .stage svg.arms{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
   .arm{ stroke:var(--dim); stroke-width:.5 }
@@ -272,14 +277,17 @@
   .valinnat .vaihtoehto + .vaihtoehto{ margin-left:1.2em }
   .valinnat.pino{ display:table; margin-left:auto; margin-right:auto; text-align:left }
   .valinnat.pino .vaihtoehto{ display:block; margin:2px 0 0 }
-  /* Muun kuin valitun salon napautus ei kierrä heti (käyttäjän päätös): hiutale kirkastuu, ja sen kohdalle kiteen kehää
-     ulommalle samankeskiselle kehälle, hiutaleen ulkopuolelle, tulee lyhyt kaarinuoli kiertosuuntaan (piirraKierto;
-     käyttäjän päätös). Nimi on samalla puolella, joten se piiloon. Erillisenä nappina, koska salko on itse nappi; piirros
-     napin keskeltä. Ei z-indeksiä: salot ovat DOMissa myöhemmin, joten päällekkäisellä alueella napautus menee hiutaleelle. */
-  .kierto{ position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; padding:0; border:0; background:none;
-    color:var(--text); cursor:pointer }
-  .kierto svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
-  .kierto:focus-visible{ outline:2px solid var(--muted); outline-offset:2px; border-radius:50% }
+  /* Muun kuin valitun salon ensimmäinen napautus ei kierrä eikä sulata (käyttäjän päätös): hiutaleen ympärille tulee haalea
+     katkoviivakuusikulmio ja sen ulkopuolelle samanlaisen kuusikulmion sisään kiertonappi (piirraKierto). Kuusikulmion
+     katkoviiva on symmetrinen: sivuilla sama kuvio ja kulmissa taittuva viiva (pathLength 60, viiva keskellä kärkeä).
+     Nimi on samalla puolella, joten se piiloon. Piirrokset napin tai kehyksen keskeltä. */
+  .kierto, .kehys{ position:absolute; width:38px; height:38px; margin:-19px 0 0 -19px }
+  .kierto{ padding:0; border:0; background:none; color:var(--text); cursor:pointer }
+  .kehys{ pointer-events:none }
+  .kierto svg, .kehys svg{ position:absolute; left:50%; top:50%; width:1px; height:1px; overflow:visible }
+  .kierto .kuusi, .kehys .kuusi{ fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:1.25 1.25; stroke-dashoffset:.625 }
+  .kierto:focus-visible{ outline:none }
+  .kierto:focus-visible .kuusi{ stroke:var(--text) }
   .slot.kysytty{ color:var(--text) }
   .slot.kysytty .nm{ visibility:hidden }
   /* Paluuohje versaalilla (käyttäjän päätös). */
@@ -439,13 +447,14 @@
     <div id="ui" hidden>
       <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
-        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" hidden><svg aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="currentColor"/></svg></button>
+        <span class="kehys" id="kehys" hidden><svg aria-hidden="true"><path class="kuusi" pathLength="60" d="M0 -19L-16.454 -9.5L-16.454 9.5L0 19L16.454 9.5L16.454 -9.5Z"/></svg></span>
+        <button class="kierto" type="button" id="kierto" aria-label="Maailman keskukseksi" hidden><svg aria-hidden="true"><path class="kuusi" pathLength="60" d="M0 -19L-16.454 -9.5L-16.454 9.5L0 19L16.454 9.5L16.454 -9.5Z"/><path class="kaari" fill="none" stroke="currentColor" stroke-width="1.7"/><path class="karki" fill="currentColor"/><circle cx="0" cy="0" r="1.6" fill="currentColor"/></svg></button>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
-      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><span class="varsi"></span><svg class="karki" viewBox="0 0 12 4.4"><path d="M0 0L12 2.2L0 4.4Z" fill="currentColor"/></svg></span></a></p>
+      <p class="omaan" id="omaanP" hidden><a class="btn big" id="omaanSalkoon" href="tusinapaja.html" target="_blank" rel="noopener"><span>Omaan salkoon</span><span class="nuoli" aria-hidden="true"><span class="varsi"></span><svg class="karki" viewBox="0 0 12 3.8"><path d="M0 0L12 1.9L0 3.8Z" fill="currentColor"/></svg></span></a></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
       <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
         <button class="opt" type="button" role="radio" data-lampo="raaka">
@@ -928,35 +937,25 @@ function pinoaValinnat(){
 }
 addEventListener('resize', pinoaValinnat);
 
-/* Kaarinuoli kysytyn salon ulkopuolella: kaaren keskikohta KIERTO_ULOS px hiutaleen keskeltä suoraan ulospäin (hiutale
-   20 px), ja nuoli osoittaa siihen suuntaan, johon salko kiertyisi maailman keskukseksi (alakärkeen lyhintä tietä;
-   vastakkaisesta kärjestä vasemman kautta kuten kierrossa). Kaaren säde KIERTO_SADE px (0 = kiteen kanssa
-   samankeskinen kehä); keskipiste on hiutaleen ulkopuolisella säteellä, joten kaari kaartuu kierron suuntaan. Kaukana
-   hiutaleesta ja selvästi kaareva (käyttäjän päätös): säde 26 px, noin 84°. Pituus
-   KIERTO_PITUUS px kärkineen kaarta pitkin. Kärki kapea suora kolmio kuten Omaan salkoon -nuolessa. */
-const KIERTO_ULOS = 42, KIERTO_SADE = 26, KIERTO_PITUUS = 38, KIERTO_KARKI = [5.5, 2.2];   // kärjen pituus ja puolileveys
+/* Kiertonappi kysytyn salon ulkopuolella (käyttäjän päätös): keskipiste KIERTO_ULOS px hiutaleen keskeltä suoraan
+   ulospäin kaikissa kärjissä (kide on siksi alempana, .stage). Sisällä pieni lähes täysi kippuranuoli ja keskellä piste
+   (keskukseen meneminen). Kippura kiertää samaan suuntaan kuin salko kiertyisi maailman keskukseksi (alakärkeen lyhintä
+   tietä; vastakkaisesta kärjestä vasemman kautta kuten kierrossa), ja kärki on ulkoreunalla salon kulkusuuntaan. Kärjen
+   kanta on kohtisuoraan kaaren päässä, joten kärki jatkaa viivaa. */
+const KIERTO_ULOS = 46, KIPPURA = { r: 6.8, kulma: 290, karki: [4.6, 3.3] };   // säde, kaaren kulma, kärjen pituus ja puolileveys
 function piirraKierto(){
-  const nuoli = $('kierto'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
-  nuoli.hidden = !el;
-  if (!el) return;
+  const nuoli = $('kierto'), kehys = $('kehys'), el = state.kysy && stage.querySelector(`.slot[data-id="${state.kysy}"]`);
+  const W = stage.clientWidth;
+  nuoli.hidden = kehys.hidden = !el || !W;   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
+  if (nuoli.hidden) return;
   const a = el._kohde ?? el._kulma, suunta = Math.sign(270 + 360 * Math.round((a - 270) / 360) - a) || 1;
-  const W = stage.clientWidth, Rk = SADE / 100 * W, R = KIERTO_SADE || Rk + KIERTO_ULOS, e = Rk + KIERTO_ULOS - R;
-  if (!W){ nuoli.hidden = true; return; }   // paneeli piilossa: piirretään, kun se näytetään (naytaSivu)
-  const deg = px => px / R * 180 / Math.PI, cx = W / 2 + e * Math.cos(rad(a)), cy = W / 2 - e * Math.sin(rad(a));
-  const p = t => [cx + R * Math.cos(rad(t)), cy - R * Math.sin(rad(t))];
-  const t0 = a - suunta * deg(KIERTO_PITUUS / 2), t2 = a + suunta * deg(KIERTO_PITUUS / 2), t1 = t2 - suunta * deg(KIERTO_KARKI[0]);
-  const [mx, my] = p(a), q = t => p(t).map((v, i) => v - [mx, my][i]);
-  const [x0, y0] = q(t0), [x1, y1] = q(t1), [x2, y2] = q(t2);
-  const tx = -Math.sin(rad(t2)) * suunta, ty = -Math.cos(rad(t2)) * suunta, [L, w] = KIERTO_KARKI;   // tangentti kärjessä
-  const [bx, by] = [x2 - tx * L, y2 - ty * L];
-  nuoli.style.left = f2(mx) + 'px'; nuoli.style.top = f2(my) + 'px';
-  /* Viistokärjissä nuoli kierretään keskeltään 8° (vasen ylä ja oikea ala myötäpäivään, oikea ylä ja vasen ala
-     vastapäivään), jottei se näytä vinolta (käyttäjän päätös). */
-  const vino = Math.cos(rad(a)) * Math.sin(rad(a));
-  nuoli.querySelector('svg').style.transform = Math.abs(vino) < 1e-6 ? '' : `rotate(${-8 * Math.sign(vino)}deg)`;
-  const [kaari, karki] = nuoli.querySelectorAll('path');
-  kaari.setAttribute('d', `M${f2(x0)} ${f2(y0)}A${f2(R)} ${f2(R)} 0 ${Math.abs(t1 - t0) > 180 ? 1 : 0} ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
-  karki.setAttribute('d', `M${f2(x2)} ${f2(y2)}L${f2(bx + ty * w)} ${f2(by - tx * w)}L${f2(bx - ty * w)} ${f2(by + tx * w)}Z`);
+  const [x, y] = kidePaikka(a).map(v => v / 100 * W), ux = Math.cos(rad(a)), uy = -Math.sin(rad(a));
+  kehys.style.left = f2(x) + 'px'; kehys.style.top = f2(y) + 'px';
+  nuoli.style.left = f2(x + KIERTO_ULOS * ux) + 'px'; nuoli.style.top = f2(y + KIERTO_ULOS * uy) + 'px';
+  const { r, kulma, karki: [L, w] } = KIPPURA, p = f => [r * Math.cos(rad(f)), -r * Math.sin(rad(f))];
+  const [x0, y0] = p(a - suunta * kulma), [x1, y1] = p(a), tx = suunta * -Math.sin(rad(a)), ty = suunta * -Math.cos(rad(a));
+  nuoli.querySelector('.kaari').setAttribute('d', `M${f2(x0)} ${f2(y0)}A${r} ${r} 0 1 ${suunta > 0 ? 0 : 1} ${f2(x1)} ${f2(y1)}`);
+  nuoli.querySelector('.karki').setAttribute('d', `M${f2(x1 + tx * L)} ${f2(y1 + ty * L)}L${f2(x1 + ty * w)} ${f2(y1 - tx * w)}L${f2(x1 - ty * w)} ${f2(y1 + tx * w)}Z`);
 }
 addEventListener('resize', piirraKierto);
 
@@ -982,15 +981,16 @@ document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click'
 stage.addEventListener('click', e => {
   if (e.target.closest('#kierto')){ state.active = state.kysy; state.kysy = null; tallenna(); renderPanel(); return; }
   const el = e.target.closest('.slot');
-  if (!el){ if (state.kysy){ state.kysy = null; state.melting = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu
+  if (!el){ if (state.kysy){ if (state.melting === state.kysy) state.melting = null; state.kysy = null; renderPanel(); } return; }   // kiteen tyhjä kohta peruu
   const id = el.dataset.id;
   if (id === 'vapaa'){ state.melting = state.melting === 'uusi' ? null : 'uusi'; state.kysy = null; }
   else if (id === state.melting){ state.melting = null; state.kysy = null; }
   else if (id === state.active){ state.melting = state.active; state.kysy = null; }
-  /* Muu salko (käyttäjän päätös): yksi napautus sulattaa sen heti muokattavaksi ja tuo lisäksi kaarinuolen, jolla sen saa
-     maailman keskukseksi; muuten matka muokkaukseen olisi pitkä ja mahdollisuudet vaikeita hahmottaa. Saman hiutaleen
-     uusi napautus peruu molemmat (edellinen haara). */
-  else { state.melting = id; state.kysy = id; }
+  /* Muu salko (käyttäjän päätös): ensimmäinen napautus kehystää hiutaleen ja tuo kiertonapin; toinen sulattaa sen
+     muokattavaksi kehysten ja napin pysyessä; kolmas peruu molemmat (edellinen haara). Kiertonappi tekee salosta maailman
+     keskuksen, ja auki oleva muokkaus jatkuu. */
+  else if (state.kysy === id){ state.melting = id; }
+  else { state.kysy = id; state.melting = null; }
   renderPanel();
 });
 $('clear').addEventListener('click', e => {
