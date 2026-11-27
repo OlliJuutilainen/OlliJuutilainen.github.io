@@ -9136,9 +9136,9 @@ De Locis Sanctis (by Adamnán of Iona)		590	cd	la	3b
 Exegesis on the Four Evangelists		32000	cd	la	3b	
 A Latin Dialogue of the Body and the Soul (attr. to Robert Grosseteste)		37005	cd	la	3b	
 The Vision of Tnugdalus (Visio Tnugdali)		69	cd	la	3b	
-The journey of Symon Semeonis from Ireland to the Holy Land [Itinerarium Symonis Semeonis ab…		1300002-001	d	la	2kl	
-Hymnum S. Cú Chuimne in laudem S. Mariae (Cú Chuimne Sapiens)		1400002	d	la	19b	
-Adelphus adelpha mater		63	d	la	19b	
+The journey of Symon Semeonis from Ireland to the Holy Land [Itinerarium Symonis Semeonis ab…		1300002-001	cd	la	2kl	
+Hymnum S. Cú Chuimne in laudem S. Mariae (Cú Chuimne Sapiens)		1400002	cd	la	19b	
+Adelphus adelpha mater		63	cd	la	19b	
 Mo Sinnu moccu Min		1600001	dgk	la	9i	
 Regimen na Sláinte 1 (by Magninus of Milan)		69A	dgk	la	9i	
 Regimen na Sláinte 2 (by Magninus of Milan)		7B	dgk	la	9i	
@@ -9965,20 +9965,20 @@ Aristarchus and the Epic Cycle	Gregory Nagy	Ogregory-nagy-/	bh	en	s6
 Inset Narratives in the Epic Cycle	Jim Marks	Ojim-marks-/	bh	en	s6	
 Folk-tale Elements in the Cypria	Malcolm Davies	Omalcolm-davies-/	bh	en	s6	
 Casus belli: Causes of the Trojan War in the Epic Cycle	Menelaos Christopoulos	Penelaos-christopoulos-/	bh	en	s6	
-Linking psychoanalysis and historiography in the ‘controlled use of anachronism’	Alice Pechriggl	M7-alice-pechriggl-/	h	en	gy	
-De l’oubli comme astuce politique: Athènes 403-Espagne 1936	Ana Iriarte	Pna-iriarte-de-loubli-comme-astuce-politique-athenes-403-espagne-1936/	h	en	gy	
-Le silence d’Iole	Athanassios Alexandridis	Pthanassios-alexandridis-le-silence-diole/	h	en	gy	
-L’opérateur féminin dans l’analyse du politique grec chez Nicole Loraux: le négatif et l’analogie	Catherine Darbo-Peschanski	Ocatherine-darbo-peschanski-loperateur-feminin-dans-lanalyse-du-politique-grec-chez-nicole-loraux-le-negatif-et-lanalogie/	h	en	gy	
-Sacrifice des filles d’Érechthée et autochtonie: Fondations étiologiques dans l’Athènes classique	Claude Calame	Plaude-calame-sacrifice-des-filles-derechthee-et-autochtonie/	h	en	gy	
-Conclusions	Claude Mossé	Vmosse-/	h	en	gy	
-Retour à Loraux pour une re-lecture féministe de l’Iphigénie en Aulide de Racine	Domna C. Stanton	Odomna-c-stanton-retour-a-loraux-pour-une-re-lecture-feministe-de-liphigenie-en-aulide-de-racine/	h	en	gy	
-Mise en scène et réglementations du deuil en Grèce ancienne	Florence Gherchanoc	Oflorence-gherchanoc-/	h	en	gy	
-Un singulier pluriel: quelques déesses grecques en image	François Lissarrague	Prancois-lissarrague-/	h	en	gy	
-Just Wars, Angry Wars, Democratic Wars: The Athenian Model	Giulia Sissa	Ogiulia-sissa-/	h	en	gy	
-Quelques remarques sur la stasis	Jean-Michel Rey	Ojean-michel-rey-/	h	en	gy	
-L’autonomie paradoxale ou le politique à l’épreuve des expériences d’Antigone « la séditieuse »	Maria Eleonora Sanna	Omaria-eleonora-sanna-lautonomie-paradoxale-ou-le-politique-a-lepreuve-des-experiences-dantigone-la-seditieuse/	h	en	gy	
-Platon, la mère, les mères après Nicole Loraux	Nathalie Ernoult	Onathalie-ernoult-/	h	en	gy	
-‘Les femmes, le féminin et le politique après Nicole Loraux’, avant-propos	Violaine Sebillotte Cuchet	Oviolaine-sebillotte-cuchet-les-femmes-le-feminin-et-le-politique-apres-nicole-loraux/	h	en	gy	
+Linking psychoanalysis and historiography in the ‘controlled use of anachronism’	Alice Pechriggl	M7-alice-pechriggl-/	fh	en	gy	
+De l’oubli comme astuce politique: Athènes 403-Espagne 1936	Ana Iriarte	Pna-iriarte-de-loubli-comme-astuce-politique-athenes-403-espagne-1936/	fh	en	gy	
+Le silence d’Iole	Athanassios Alexandridis	Pthanassios-alexandridis-le-silence-diole/	fh	en	gy	
+L’opérateur féminin dans l’analyse du politique grec chez Nicole Loraux: le négatif et l’analogie	Catherine Darbo-Peschanski	Ocatherine-darbo-peschanski-loperateur-feminin-dans-lanalyse-du-politique-grec-chez-nicole-loraux-le-negatif-et-lanalogie/	fh	en	gy	
+Sacrifice des filles d’Érechthée et autochtonie: Fondations étiologiques dans l’Athènes classique	Claude Calame	Plaude-calame-sacrifice-des-filles-derechthee-et-autochtonie/	fh	en	gy	
+Conclusions	Claude Mossé	Vmosse-/	fh	en	gy	
+Retour à Loraux pour une re-lecture féministe de l’Iphigénie en Aulide de Racine	Domna C. Stanton	Odomna-c-stanton-retour-a-loraux-pour-une-re-lecture-feministe-de-liphigenie-en-aulide-de-racine/	fh	en	gy	
+Mise en scène et réglementations du deuil en Grèce ancienne	Florence Gherchanoc	Oflorence-gherchanoc-/	fh	en	gy	
+Un singulier pluriel: quelques déesses grecques en image	François Lissarrague	Prancois-lissarrague-/	fh	en	gy	
+Just Wars, Angry Wars, Democratic Wars: The Athenian Model	Giulia Sissa	Ogiulia-sissa-/	fh	en	gy	
+Quelques remarques sur la stasis	Jean-Michel Rey	Ojean-michel-rey-/	fh	en	gy	
+L’autonomie paradoxale ou le politique à l’épreuve des expériences d’Antigone « la séditieuse »	Maria Eleonora Sanna	Omaria-eleonora-sanna-lautonomie-paradoxale-ou-le-politique-a-lepreuve-des-experiences-dantigone-la-seditieuse/	fh	en	gy	
+Platon, la mère, les mères après Nicole Loraux	Nathalie Ernoult	Onathalie-ernoult-/	fh	en	gy	
+‘Les femmes, le féminin et le politique après Nicole Loraux’, avant-propos	Violaine Sebillotte Cuchet	Oviolaine-sebillotte-cuchet-les-femmes-le-feminin-et-le-politique-apres-nicole-loraux/	fh	en	gy	
 Looking Back to Look Forward: Revisiting In a Different Voice	Carol Gilligan	M9-carol-gilligan-/	h	en	10j	
 Homeric Anger Revisited	Leonard Muellner	Oleonard-muellner-/	h	en	10j	
 Collatinus & Eulexis: Latin & Greek Dictionaries in the Digital Ages	Yves Ouvrard and Philippe Verkerk	E/	hj	en	gw	
@@ -11629,15 +11629,15 @@ From the Sublime to the Monstrous. Two Interpretations of Kant	Daniela Angelucci
 Does a genius produce his artworks like an apple tree, its apples?	Virginia Figueiredo	42	a	en	sa	
 Emotion and the beautiful in Art	Maria Borges	43	a	en	sa	
 Kant's Logic of the Pathological: Aesthetics and Politics	Fernando M. F. Silva, Paulo Jesus	44	a	en	sa	
-Las filosofías políticas de Kant y Marx	Howard Williams	45	a	es	n1	
-La teoría de la justicia de la paz de Kant	Otfried Höffe	46	a	es	n1	
-El misterio de la pobreza: ¿Cómo puede una Doctrina Metafísica del Derecho ayudarnos a entender la…	Alessandro Pinzani	47	a	es	n1	
-El origen de la desigualdad en la Doctrina del Derecho de Kant	Óscar Cubo Ugarte	48	a	es	n1	
-La usucapión como forma de adquisición en beneficio de la existencia	Laura Herrero Olivera	49	a	es	n1	
-La fundamentación filosófica del Derecho y el Estado en la Rechtslehre de la Metafísica de las…	Gustavo Leyva	320	a	es	n1	
-La ilustración kantiana como tarea del pueblo	Macarena Marey	41	a	es	n1	
-Kant sobre las leyes morales, jurídicas y religiosas	Bernd Dörflinger	42	a	es	n1	
-Dossier Derecho y sociedad en Kant. Lecturas contemporáneas de la ‘Doctrina del Derecho’	Óscar Cubo Ugarte, Laura Herrero Olivera, Gustavo…	43	a	es	n1	
+Las filosofías políticas de Kant y Marx	Howard Williams	45	afk	es	n1	
+La teoría de la justicia de la paz de Kant	Otfried Höffe	46	afk	es	n1	
+El misterio de la pobreza: ¿Cómo puede una Doctrina Metafísica del Derecho ayudarnos a entender la…	Alessandro Pinzani	47	afk	es	n1	
+El origen de la desigualdad en la Doctrina del Derecho de Kant	Óscar Cubo Ugarte	48	afk	es	n1	
+La usucapión como forma de adquisición en beneficio de la existencia	Laura Herrero Olivera	49	afk	es	n1	
+La fundamentación filosófica del Derecho y el Estado en la Rechtslehre de la Metafísica de las…	Gustavo Leyva	320	afk	es	n1	
+La ilustración kantiana como tarea del pueblo	Macarena Marey	41	afk	es	n1	
+Kant sobre las leyes morales, jurídicas y religiosas	Bernd Dörflinger	42	afk	es	n1	
+Dossier Derecho y sociedad en Kant. Lecturas contemporáneas de la ‘Doctrina del Derecho’	Óscar Cubo Ugarte, Laura Herrero Olivera, Gustavo…	43	afk	es	n1	
 Kant on Peoples, The People, and the State	Frederick Rauscher	44	a	en	t	
 Estudio histórico-genético de la diferencia sexual y el sexismo en el pensamiento de Immanuel Kant…	Natalia Andrea Lerussi	45	a	es	t	
 The Kantian Non-Moral Saint	Ali Sharaf	46	a	en	t	
@@ -21005,11 +21005,11 @@ Frontiers in Communication		2mmunication	bfgik	en	ls,284,3rt,2n6,1ar,24y,1la,36r
 Frontiers in Communications and Networks		=s-and-networks	g	en	3f,15d,25q,3d0,1o9,21h,2uh,38o,1df,3ti,1ev,1dh	
 Frontiers in Complex Systems		3plex-systems	g	en	1r,16z,23a,21x,21y,36l	
 Frontiers in Computational Neuroscience		4utational-neuroscience	g	en	1r	
-Frontiers in Computer Science		6er-science	gj	en	1r,22l,350,22k,2qh,1e1,40u,38p,3v2,22j	
+Frontiers in Computer Science		6er-science	fgj	en	1r,22l,350,22k,2qh,1e1,40u,38p,3v2,22j	
 Frontiers in Conservation Science		2nservation-science	fg	en	1r,1nz,2qm,3io,2ls,22v,22x	
 Frontiers in Control Engineering		3trol-engineering	gj	en	3f,1kl,239,38n,3at,23b,1mc,36k	
 Frontiers in Dementia		0dementia	g	en	1r,1xo,1lx,2jz,42c,265,2rf	
-Frontiers in Dental Medicine		2ntal-medicine	gk	en	56,2bv,26d,3gh,3ny,3oa,3fl,3yy,1lu,3dj	
+Frontiers in Dental Medicine		2ntal-medicine	fgk	en	56,2bv,26d,3gh,3ny,3oa,3fl,3yy,1lu,3dj	
 Frontiers in Detector Science and Technology		2tector-science-and-technology	g	en	1r,26j,26k,25i,31a	
 Frontiers in Developmental Psychology		2velopmental-psychology	efgi	en	1r,20t,3ty,1kx,26m,250	
 Frontiers in Digital Health		1igital-health	agjk	en	56,22q,3gr,2nd,11e,2qe,17f,2n7,2e4	
@@ -21027,7 +21027,7 @@ Frontiers in Electronics		:s	fg	en	3f,1t5,2gx,2se,2td,37i,46v,3kf,3d7
 Frontiers in Endocrinology		1ndocrinology	gk	en	56,203,3id,1bd,1w1,3yu,35g,1xp,2fl,428,1bx,3p5,2bu,41g,1uw,3bv,26z,2ml,3ow,1kz,1wv,26p,33g	
 Frontiers in Energy Efficiency		2ergy-efficiency	g	en	3f,2c3,2c6,2c2,2c5,2c4	
 Frontiers in Energy Research		7research	g	en	3f,3vd,3y1,3l7,1l1,2it,1t6,2b0,3tm,1wg,2qt,3b8,479,46t,37l,2cb,2c1	
-Frontiers in Environmental Archaeology		2vironmental-archaeology	fg	en	ls,1pw,48i,2x6,1pu,2q8	
+Frontiers in Environmental Archaeology		2vironmental-archaeology	dfg	en	ls,1pw,48i,2x6,1pu,2q8	
 Frontiers in Environmental Chemistry		>chemistry	g	en	1r,2cs,2t0,3vp,1xd,3dr,3sl,1yb,2b2,1l4	
 Frontiers in Environmental Economics		>economics	fg	en	ls,2a0,2c0,1m5,3pi,29t	
 Frontiers in Environmental Engineering		?ngineering	g	en	3f,46s,2d4,1mh,2cv	
@@ -21046,7 +21046,7 @@ Frontiers in Forests and Global Change		2rests-and-global-change	g	en	el,2hw,2hv
 Frontiers in Freshwater Science		1reshwater-science	gk	en	1r,1pa,2io,3py,2im	
 Frontiers for Young Minds		0	g	en	48b	
 Frontiers in Fuels		0fuels	g	en	1r,1td,3vf,3yj,3an	
-Frontiers in Fungal Biology		2ngal-biology	g	en	1r,18d,2j0,2j1,2j2,2j5,2j4,30b,2j3,32d	
+Frontiers in Fungal Biology		2ngal-biology	gk	en	1r,18d,2j0,2j1,2j2,2j5,2j4,30b,2j3,32d	
 Frontiers in Future Transportation		2ture-transportation	g	en	3f,22r,42p,2if,1l8,42m	
 Frontiers in Gastroenterology		0gastroenterology	egk	en	56,40y,2jd,40q,2bw,2j8,2p2	
 Frontiers in Genetics		1enetics	egijk	en	1r,1be,1c7,1ai,3wj,2dv,182,16b,1p3,224,3pz,3ku,2kg,2k4,18m,2b9,1dw,2q7,2ki,1w4,2rk,33k,2kh	
@@ -21070,7 +21070,7 @@ International Journal of Public Health		0	gk	en	56
 Journal of Abdominal Wall Surgery		1	gk	en	56	
 Journal of Cutaneous Immunology and Allergy		1	g	en	1r	
 Journal of Pharmacy & Pharmaceutical Sciences		1	g	en	1r	
-Frontiers in Lab on a Chip Technologies		0lab-on-a-chip-technologies	g	en	1r,33s,33t,33w,2re,326,3do,2dd	
+Frontiers in Lab on a Chip Technologies		0lab-on-a-chip-technologies	gk	en	1r,33s,33t,33w,2re,326,3do,2dd	
 Frontiers in Language Sciences		2nguage-sciences	bg	en	1r,2xj,3lm,1t0,392,3nu	
 Frontiers in Lupus		1upus	gk	en	56,2k1,28d,2ds,20b,429,3p8	
 Frontiers in Malaria		0malaria	g	en	1r,3f3,44f,1x9,1oo	
@@ -21081,7 +21081,7 @@ Frontiers in Materials		2terials	gij	en	3f,211,2cy,415,227,31s,3tn,1wf,3jn,1xx,3
 Frontiers in Mechanical Engineering		1echanical-engineering	gj	en	3f,17e,2cd,33x,31x,40z,42u,2h4,3vg,1tz,430,18y,456	
 Frontiers in Medical Engineering		2dical-engineering	gjk	en	3f,1l6,205,228,327	
 Frontiers in Medical Technology		8technology	egk	en	56,32v,1x0,37k,3h0,3oe,3ob,278,1o0	
-Frontiers in Medicine		5ine	egk	en	56,3f7,3pv,133,18i,2ox,38g,2l2,26g,32a,2fx,2tr,3of,3kq,2fo,2jk,3cz,2nh,3bz,2sl,2p1,443	
+Frontiers in Medicine		5ine	efgk	en	56,3f7,3pv,133,18i,2ox,38g,2l2,26g,32a,2fx,2tr,3of,3kq,2fo,2jk,3cz,2nh,3bz,2sl,2p1,443	
 Frontiers in Membrane Science and Technology		2mbrane-science-and-technology	g	en	1r,334,32z,32x,330,32y,32w	
 Frontiers in Metals and Alloys		2tals-and-alloys	gi	en	1r,1n3,2ix,31r,23s	
 Frontiers in Microbiology		1icrobiology	eghk	en	1r,3zy,15p,344,2ft,34a,2hc,3i3,3z0,1oq,45m,346,2sh,1tt,33y,34g,3gy,1no,347	
@@ -21090,7 +21090,7 @@ Frontiers in Molecular Biosciences		1olecular-biosciences	egk	en	1r,1b7,3q1,35k,
 Frontiers in Molecular Medicine		:medicine	egjk	en	1r,35s,35n,35o,35p,35m,2jl,1tl	
 Frontiers in Molecular Neuroscience		:neuroscience	egk	en	1r,35r,1v2,35w,33o,3ee,39q,35q	
 Frontiers in Musculoskeletal Disorders		1usculoskeletal-disorders	gk	en	56,3w3,3e2,3yr,36x	
-Frontiers in Nanotechnology		0nanotechnology	gj	en	1r,37u,1u3,2d8,37m,37n,37q,37p,37s,37o,22b,37r	
+Frontiers in Nanotechnology		0nanotechnology	gjk	en	1r,37u,1u3,2d8,37m,37n,37q,37p,37s,37o,22b,37r	
 Frontiers in Natural Products		2tural-products	gj	en	1r,2uy,2sr,1to,383,3wx	
 Frontiers in Nephrology		1ephrology	gk	en	56,1by,20d,2wr,1ur,3cm,2m1,1wn,248	
 Frontiers in Network Physiology		2twork-physiology	gj	en	1r,2i9,38l,38t,38r,38s,2ss,38u,38q,3yz,38v,2js	
@@ -21121,7 +21121,7 @@ Frontiers in Pediatrics		0pediatrics	efgk	en	56,1bx,1bz,1bo,1c0,1bw,16t,1c2,38f,
 Frontiers in Pharmacology		1harmacology	fgk	en	1r,1bf,2tf,3h7,1ws,2fm,2eg,2j9,2so,3pk,1c8,3kt,1bo,1c7,28w,28y,42b,3ox,3h4,3h6,3h3	
 Frontiers in Photobiology		2otobiology	g	en	1r,3hm,3hn,2ql,2yo	
 Frontiers in Photonics		5nics	gj	en	1r,3j3,3d2,1cq,2yp,3au,3hq,1u7,3zu,39n,2te	
-Frontiers in Physics		2ysics	fgj	en	1r,22d,2tv,192,16s,16j,1dp,1as,3wi,22o,1al,3d4,172,1dv,3mt,1bk,3v0,3ul,3nf,3ht,2j6,1r2,16z,2h3,1ka	
+Frontiers in Physics		2ysics	fgjk	en	1r,22d,2tv,192,16s,16j,1dp,1as,3wi,22o,1al,3d4,172,1dv,3mt,1bk,3v0,3ul,3nf,3ht,2j6,1r2,16z,2h3,1ka	
 Frontiers in Physiology		5ology	egjk	en	1r,163,1wj,22e,331,23x,185,2je,2ti,3o4,3wt,3oy,3pl,449,2ue,15q,34x,2yz,202,16j,1as,1rm,2ct,26q,3o1,1z1,3i1,33i,3t9,1xm,3p6,3tc	
 Frontiers in Plant Physiology		1lant-physiology	g	en	1r,3ho,2d6,3iu,35c	
 Frontiers in Plant Science		6science	g	en	1r,3ix,2iw,3im,3ip,3is,3it,3j1,3zg,3iw,3iv,3il,3in,3iy,3ik,3ii,249,3j0,1p9,3iz,3ij,3xw,3hp,2iv,3ir	
@@ -21137,7 +21137,7 @@ Frontiers in Remote Sensing		2mote-sensing	g	en	1r,1kf,36m,2yj,1m7,1r0,34h,2ra,2
 Frontiers in Reproductive Health		2productive-health	gk	en	56,1ky,2px,1nq,1qp,3p7,2mq,1kb,1ay	
 Frontiers in Research Metrics and Analytics		2search-metrics-and-analytics	g	en	1r,3pb,3pg,2bi,3rp,3f1,3pe	
 Frontiers in RNA Research		1na-research	g	en	1r,3q3,3q2,3ao,3q4	
-Frontiers in Robotics and AI		1obotics-and-ai	egij	en	3f,3q9,1u4,225,2qq,36n,3qa,3qb,3v1,1dq,2qk,18w,2gb,1t1,19f,37j,3q8	
+Frontiers in Robotics and AI		1obotics-and-ai	egijk	en	3f,3q9,1u4,225,2qq,36n,3qa,3qb,3v1,1dq,2qk,18w,2gb,1t1,19f,37j,3q8	
 Frontiers in Science		0science	g	en	1r	
 Frontiers in Sensors		1ensors	g	en	3f,3hz,1ya,3sh,2b3,2x1,1ub,33v,3si,3d6	
 Frontiers in Signal Processing		1ignal-processing	gk	en	3f,3t2,2rb,3nd,1dh,3wk,1u6,1r7,3yw	
@@ -22144,7 +22144,7 @@ Saddatthabhedacinta	Saddhammasiri Thera	Itbu	bc	pi	fo,ca
 Vakyamalava		Dvakyam_u	bc	pi	fo,ca	
 Kaccayanasara	Yasa Mahathera	Dyaskacsu	bc	pi	fo,ca	
 Abhidhanappadipika		>lex/abhidh_u	bc	pi	fo,27c	
-Subodhalankara		>rhet/subodh_u	c	pi	fo,3pu	
+Subodhalankara		>rhet/subodh_u	bc	pi	fo,3pu	
 Ayaranga | Dasaveyaliya | Isibhasiyaim | Suyagada 1 | Uttarajjhaya		3rakrt/ayarangu	c	pra		
 Dasaveyaliya		9dasaveyu	c	pra		
 Dhuttakkhana [a Jaina satire]	Haribhadra	9hadhut_u	c	pra		
@@ -23804,163 +23804,163 @@ Vie d’erba nel vuoto	Mattia Iorillo	>e-erba-vuoto	bi	it	2j
 La vita impigliata nella materia	Federico Stoto	>ta-impigliata-materia	bi	it	2j	
 Vivi al mondo	Jonida Prifti	>vi-mondo	bi	it	2j	
 Vivono, indifesi sotto la notte	Luca Starita	?ono-indifesi-sotto-notte	bi	it	2j	
-Abitare le rovine della modernità	Anna Ditta	1inguaggi/abitare-rovine-modernita	i	it	1w	
-L’alchimista del suono	Mario Luongo	;lchimista-suono	i	it	1w	
-Alex Garland: DEVS EX MACHINA	Emanuele Sacchi	:	i	it	1w	
-L’amore di dio è un virus	Franco Cimei	:amore-dio-virus	i	it	1w	
-L’anoressia mima la morte	Beatrice Sciarrillo	;noressia-mima-morte	i	it	1w	
-L’approccio “comprensivo” al complottismo	Gregorio Magini	;pproccio-comprensivo-complottismo	i	it	1w	
-Archiviare la giovinezza	Alice Sagrati	;rchiviare-giovinezza	i	it	1w	
-Arte e contesto in Ultimo tango a Parigi	Elvira Del Guercio	:	i	it	1w	
-Arti e lotte a Venezia	Annalisa Sacchi	;	i	it	1w	
-Arti in lotta	Jacopo Galimberti	;	i	it	1w	
-Autentico Lou Reed	Davide De Gennaro	;	i	it	1w	
-Autori masticati	Alice Sagrati	;	i	it	1w	
-Avvelenare il banchetto capitalista	Francesca Schinzani	:avvelenare-banchetto-capitalista	i	it	1w	
-Bruce Lee, Bruce Li, Bruce Le	Emanuele Sacchi	:	i	it	1w	
-Burocrazia e corpi simbolici	Antonio Semproni	:burocrazia-corpi-simbolici	i	it	1w	
-Calcolo e atmosfera	Ivan Carozzi	:	i	it	1w	
-California, cannabis e capitale	Franco Cimei	:california-cannabis-capitale	i	it	1w	
-Cannes 78	Elvira Del Guercio	:	i	it	1w	
-Cannes77	"	;	i	it	1w	
-Canzoni del mondo perso	Stefano Di Trapani	;	i	it	1w	
-Il corpo dietro uno schermo blu	Marco Arienti	:capolavoro-monocromo-derek-jarman	i	it	1w	
-La cattiva parola	Tommaso Ghezzi	<ttiva-parola	i	it	1w	
-Che suono ha un’epoca?	Davide De Gennaro	;he-suono-epoca	i	it	1w	
-A chi appartengono le idee?	Irene Frau	<i-appartengono-idee	i	it	1w	
-Chi decide cos’è rumore?	Franco Cimei	>decide-cose-rumore	i	it	1w	
-Il cinema evolutivo di Albert Pyun	Riccardo Papacci	;inema-evolutivo-albert-pyun	i	it	1w	
-Cinema, nuove ruralità e post-verità	Irene Frau	:	i	it	1w	
-Citadel: Diana e la fine del giudizio	Giacomo Giossi	:citadel-diana-fine-giudizio	i	it	1w	
-Come balla Napoli segreta	Stefano Di Trapani	:	i	it	1w	
-Il concorso di Venezia è un affare da uomini	Elvira Del Guercio	:concorso-venezia-affare-uomini	i	it	1w	
-Contemplare le nuvole	Giulia Crispiani	=templare-nuvole	i	it	1w	
-Contrabbando archeoacustico	Zoe De Luca Legge	:	i	it	1w	
-Controculture hippie e cyber, “comune” e sussunzione capitalistica	Antonio Semproni	:controculture-hippie-cyber-comune-sussunzione-capitalistica	i	it	1w	
-Corpi che vogliono danzare	Alice Sagrati	:	i	it	1w	
-Cristalli, ossa e corrosioni	Federico Stoto	:cristalli-ossa-corrosioni	i	it	1w	
-Curali!	Stefano Di Trapani	:	i	it	1w	
-Dal villaggio globale al monolocale	Silvio Lorusso	;	i	it	1w	
-Dalla lotta al salotto	Fabrizio Sinisi	;	i	it	1w	
-Dalla terra al cosmo	Claudia Bruno	;	i	it	1w	
-Un danno strutturale	Maria Giardina	:danno-strutturale	i	it	1w	
-Desideri contenuti	Fabio Ciancone	:	i	it	1w	
-Il desiderio lesbico di contaminarsi	AleSandra Cane	:desiderio-lesbico-contaminarsi	i	it	1w	
-La destituzione esausta del Gabibbo	Giovanni Padua	=tituzione-esausta-gabibbo	i	it	1w	
-La disabilità al cinema	Riccardo Papacci	;isabilita-cinema	i	it	1w	
-Divenire flusso	Giovanni Padua	:	i	it	1w	
-Per diventare un bambino vero	"	:diventare-bambino-vero	i	it	1w	
-Dopo la verità, prima della menzogna	Fabio Ciancone	;opo-verita-prima-menzogna	i	it	1w	
-È amore se ti travolge	Carolina Bandinelli	:	i	it	1w	
-Embryons desséchés	Luca Martignani, Matteo Bortolini, Serena Dibiase	;	i	it	1w	
-Estasi a Cupertino	Giorgiomaria Cornelio	:estasi-cupertino-appletopia-assisi	i	it	1w	
-Estetica del surriscaldamento	Vincenzo Estremo	=etica-surriscaldamento	i	it	1w	
-Estetiche queer della voce	Annalisa Pellino	:	i	it	1w	
-Fattografia sovietica	Devin Fore	;	i	it	1w	
-La fauna cadaverica delle controculture	Carolina Dema	:fauna-cadaverica-controculture	i	it	1w	
-Fenomenologia del corpo espanso	Marco Mancuso	:	i	it	1w	
-Il fuoco brucia tutto ciò che ha di fronte	Giacomo Giossi	:fuoco-brucia-tutto-fronte	i	it	1w	
-Sui Genesis	Stefano Di Trapani	:genesis	i	it	1w	
-Giallo t e l e p a t h	Riccardo Papacci	:	i	it	1w	
-Giocare alla fine del mondo	Giulia Trincardi	;	i	it	1w	
-Godzilla, l’eterno ritorno del rimosso	Giovanni Padua	:godzilla-leterno-ritorno-del-rimosso	i	it	1w	
-Un gran Baccano	Giulio Pecci	;ran-baccano	i	it	1w	
-La guerra è il contrario del conflitto	Fabio Ciancone	;uerra-contrario-conflitto	i	it	1w	
-Guerriglia onirica	Franco Cimei	:	i	it	1w	
-I want to wear your skin as a sweater	Claudia DAngelo	;	i	it	1w	
-Identità o comunità?	Irene Frau	:identita-comunita	i	it	1w	
-Idiocracy now	Franco Cimei	:	i	it	1w	
-Il fischio della fine	Fabio Ciancone	;	i	it	1w	
-Il pubblico bene	Irene Frau	;	i	it	1w	
-Il sicario è solo un cosplayer	Emanuele Sacchi	;	i	it	1w	
-Il social network dei morti	Giorgiomaria Cornelio	;	i	it	1w	
-Il Twin Peaks di Pupi Avati	Riccardo Papacci	;	i	it	1w	
-Intreccio e visione	Graziano Graziani	;	i	it	1w	
-Iperturismo e disperazione	Andrea Ariano	:iperturismo-disperazione	i	it	1w	
-Jack Bruce, il cantautore che veniva dal basso	Riccardo Papacci	:jack-bruce-cantautore-che-veniva-basso	i	it	1w	
-Kim Gordon dalla fine del noise al soundcloud rap	Stefano Di Trapani	:kim-gordon-dal-noise-al-soundcloud-rap	i	it	1w	
-King Cellophane	Eleonora Santamaria	:	i	it	1w	
-La finestra sull’orrore	Elvira Del Guercio	:la-finestra-sullorrore	i	it	1w	
-La lingua ignota di Daniela Pes	Edoardo Vitale	:	i	it	1w	
-La notte non finirà	Sara Marzullo	;	i	it	1w	
-Lanthimos essoterico	Emanuele Zoppellari Perale	;	i	it	1w	
-L’esperimento Wonka	Luca Sigurta	:lesperimento-wonka	i	it	1w	
-L’illusione di essere svegli	Franco Cimei	;illusione-essere-svegli	i	it	1w	
-I limiti della conoscenza nella ricerca della verità	Emanuele Sacchi	<miti-conoscenza-ricerca-verita	i	it	1w	
-Il linguaggio del jazz e dei sentimenti	Stefano Di Trapani	<nguaggio-jazz-sentimenti	i	it	1w	
-Lo chef come artista	Arianna Laurenti	:	i	it	1w	
-Luce delle nazioni	Felice Moramarco	;	i	it	1w	
-Mai più libri	Francesco Quatraro	;	i	it	1w	
-Dal mascherone nobiliare alla città vetrina	Giovanni Padua	:mascherone-nobiliare-citta-vetrina	i	it	1w	
-Materia viva	Claudia Bruno	:	i	it	1w	
-Tra me e il mio colonizzatore	Gennaro Ascione	:me-mio-colonizzatore	i	it	1w	
-I meme sono morti?	Alessandro Lolli	<me-morti	i	it	1w	
-La metafora della decolonizzazione e altri naufragi	Giorgia Tolfo	<tafora-decolonizzazione-altri-naufragi	i	it	1w	
-Al di là della metro Battistini	Stefano Di Trapani	=ro-battistini	i	it	1w	
-Minuscolo, enorme, sottomarino	"	:	i	it	1w	
-Misticismo sufi e rock’n’roll	Carolina Dema	:misticismo-sufi-e-rocknroll	i	it	1w	
-Miti d’oggi: Edoardo Prati	Giovanni Padua	<ti-doggi-edoardo-prati	i	it	1w	
-Modello Bologna	Francesco Spampinato	:	i	it	1w	
-Mostro, ombra, stalker, fan	Lorenzo Meloni	;	i	it	1w	
-Musica non musica	Fabio Acca	;	i	it	1w	
-Natura contro natura	Carlo Mazza Galanti	;	i	it	1w	
-Niente è davvero finito (anche se Netflix dice il contrario)	Giovanni Padua	;	i	it	1w	
-Nike sempiterna. L’umano all’ombra della vittoria	Simone Furzi	:nike-sempiterna-umano-ombra-vittoria	i	it	1w	
-No ego	Marcello Conti	:	i	it	1w	
-Non si può insegnare	Luca Pisapia	;	i	it	1w	
-Non tutti gli uomini	Silvia Gola	;	i	it	1w	
-Una nuova primavera	Luca Pisapia	:nuova-primavera	i	it	1w	
-Uno nuovo, più razzista e più violento	Fabio Ciancone	>o-razzista-violento	i	it	1w	
-Oltre gli chef star	Arianna Laurenti	:oltre-chef-star	i	it	1w	
-Oltre la parola	Irene Frau	@parola	i	it	1w	
-Ozzy Pop	Stefano Di Trapani	:	i	it	1w	
-Pane e Tamagotchi	Claudia Bruno	;	i	it	1w	
-Sono le parole che mancano!	Matteo Moca	:parole-mancano	i	it	1w	
-Per i poveri	Irene Frau	:	i	it	1w	
-Perché i film di guerra ci fanno godere?	Riccardo Papacci	;	i	it	1w	
-Giorni perfetti di midcult	Emanuele Sacchi	:perfect-days	i	it	1w	
-Poesia animale	Stefano Di Trapani	:	i	it	1w	
-Poppins Files	Luca Sigurta	;	i	it	1w	
-Rappresentare la Generazione X	Luca Gricinella	:rappresentare-generazione-x	i	it	1w	
-Rifare la madre	Elvira Del Guercio	:	i	it	1w	
-Rodari e l’animazione liquida	Alice Sagrati	:rodari-e-lanimazione-liquida	i	it	1w	
-Roma: pieghe, strati, buchi	Federico Stoto	:	i	it	1w	
-Sadismo confit	Giovanni Padua	;	i	it	1w	
-Sangue e Merda	Francesco Sticchi	;	i	it	1w	
-Sangue finto in vendita	Alice Sagrati	;	i	it	1w	
-Scegliere e tempo	Daniele Zinni	;	i	it	1w	
-La scena dark romana degli anni Ottanta	Stefano Di Trapani	:scena-dark-romana-anni-ottanta	i	it	1w	
-Scheherazade in carcere a Baabda	Giulia Moriconi	<heherazade-carcere-baabda	i	it	1w	
-Scrollare fino a impazzire	Francesco Marino	:	i	it	1w	
-Segnare l’asignificante	Federico Stoto	:segnare-asignificante	i	it	1w	
-Sei tu, mia moglie	Gaja Pollastrini	:	i	it	1w	
-Selfie, o il diritto al narcisismo	Giorgiomaria Cornelio	;	i	it	1w	
-Shifty. Cos’è andato storto?	Irene Frau	:shifty-cosa-andato-storto	i	it	1w	
-Shitpostare il teatro	Ivan Carozzi	:	i	it	1w	
-Il sociale e il parasociale	Alessandro Lolli	:sociale-parasociale	i	it	1w	
-Sogno un carnevale del rimosso	Mariacarla Mole	<gno-carnevale-rimosso	i	it	1w	
-Sovrasocialità e altre storie	Fabio Ciancone	:	i	it	1w	
-Nello specchio rosso	"	:specchio-rosso	i	it	1w	
-Staccando la coscienza da terra	Stefano Vernamonti	;taccando-coscienza-terra	i	it	1w	
-Storia come finzione	Emanuele Sacchi	:	i	it	1w	
-Storia occulta della tecnologia	Emanuele Zoppellari Perale	:storia-occulta-tecnologia	i	it	1w	
-(Sub)politica della frequenza	Giulia Mengozzi	;ubpolitica-della-frequenza	i	it	1w	
-Successo e sopravvivenza	Giovanni Padua	:	i	it	1w	
-Suoni dall’estinzione	Franco Cimei	:suoni-estinzione	i	it	1w	
-Il suono del Brasile	Mario Luongo	>o-brasile	i	it	1w	
-Il suono e la furia	Mariacarla Mole	@furia	i	it	1w	
-Suono, geometria e grazia	Stella Succi	:	i	it	1w	
-La trap spiegata ai bianchi	Lorenzo Pedrazzi	:trap-spiegata-bianchi	i	it	1w	
-La trappola del significato	Mariacarla Mole	>pola-significato	i	it	1w	
-Un amore dell’altro mondo	Dana Spiotta	:un-amore-dellaltro-mondo	i	it	1w	
-Un paesaggio di meno	Mariacarla Mole	:	i	it	1w	
-Un vero conte transilvano morto	Giovanni Padua	;	i	it	1w	
-Una battaglia apolitica dopo l’altra	Riccardo Papacci	:una-battaglia-apolitica-dopo-laltra	i	it	1w	
-Unite	Sara Poma	:	i	it	1w	
-La vaporwave delle IA	Riccardo Papacci	:vaporwave-ia	i	it	1w	
-La Via crucis del true crime	Giovanni Padua	;ia-crucis-true-crime	i	it	1w	
-Breve storia dell’8-bit italiano	Riccardo Papacci	<deogiochi-sono-diventati-genere-musicale	i	it	1w	
-Vivi e morti	Anna Castelli	:	i	it	1w	
+Abitare le rovine della modernità	Anna Ditta	1inguaggi/abitare-rovine-modernita	bi	it	1w	
+L’alchimista del suono	Mario Luongo	;lchimista-suono	bi	it	1w	
+Alex Garland: DEVS EX MACHINA	Emanuele Sacchi	:	bi	it	1w	
+L’amore di dio è un virus	Franco Cimei	:amore-dio-virus	bi	it	1w	
+L’anoressia mima la morte	Beatrice Sciarrillo	;noressia-mima-morte	bi	it	1w	
+L’approccio “comprensivo” al complottismo	Gregorio Magini	;pproccio-comprensivo-complottismo	bi	it	1w	
+Archiviare la giovinezza	Alice Sagrati	;rchiviare-giovinezza	bi	it	1w	
+Arte e contesto in Ultimo tango a Parigi	Elvira Del Guercio	:	bi	it	1w	
+Arti e lotte a Venezia	Annalisa Sacchi	;	bi	it	1w	
+Arti in lotta	Jacopo Galimberti	;	bi	it	1w	
+Autentico Lou Reed	Davide De Gennaro	;	bi	it	1w	
+Autori masticati	Alice Sagrati	;	bi	it	1w	
+Avvelenare il banchetto capitalista	Francesca Schinzani	:avvelenare-banchetto-capitalista	bi	it	1w	
+Bruce Lee, Bruce Li, Bruce Le	Emanuele Sacchi	:	bi	it	1w	
+Burocrazia e corpi simbolici	Antonio Semproni	:burocrazia-corpi-simbolici	bi	it	1w	
+Calcolo e atmosfera	Ivan Carozzi	:	bi	it	1w	
+California, cannabis e capitale	Franco Cimei	:california-cannabis-capitale	bi	it	1w	
+Cannes 78	Elvira Del Guercio	:	bi	it	1w	
+Cannes77	"	;	bi	it	1w	
+Canzoni del mondo perso	Stefano Di Trapani	;	bi	it	1w	
+Il corpo dietro uno schermo blu	Marco Arienti	:capolavoro-monocromo-derek-jarman	bi	it	1w	
+La cattiva parola	Tommaso Ghezzi	<ttiva-parola	bi	it	1w	
+Che suono ha un’epoca?	Davide De Gennaro	;he-suono-epoca	bi	it	1w	
+A chi appartengono le idee?	Irene Frau	<i-appartengono-idee	bi	it	1w	
+Chi decide cos’è rumore?	Franco Cimei	>decide-cose-rumore	bi	it	1w	
+Il cinema evolutivo di Albert Pyun	Riccardo Papacci	;inema-evolutivo-albert-pyun	bi	it	1w	
+Cinema, nuove ruralità e post-verità	Irene Frau	:	bi	it	1w	
+Citadel: Diana e la fine del giudizio	Giacomo Giossi	:citadel-diana-fine-giudizio	bi	it	1w	
+Come balla Napoli segreta	Stefano Di Trapani	:	bi	it	1w	
+Il concorso di Venezia è un affare da uomini	Elvira Del Guercio	:concorso-venezia-affare-uomini	bi	it	1w	
+Contemplare le nuvole	Giulia Crispiani	=templare-nuvole	bi	it	1w	
+Contrabbando archeoacustico	Zoe De Luca Legge	:	bi	it	1w	
+Controculture hippie e cyber, “comune” e sussunzione capitalistica	Antonio Semproni	:controculture-hippie-cyber-comune-sussunzione-capitalistica	bi	it	1w	
+Corpi che vogliono danzare	Alice Sagrati	:	bi	it	1w	
+Cristalli, ossa e corrosioni	Federico Stoto	:cristalli-ossa-corrosioni	bi	it	1w	
+Curali!	Stefano Di Trapani	:	bi	it	1w	
+Dal villaggio globale al monolocale	Silvio Lorusso	;	bi	it	1w	
+Dalla lotta al salotto	Fabrizio Sinisi	;	bi	it	1w	
+Dalla terra al cosmo	Claudia Bruno	;	bi	it	1w	
+Un danno strutturale	Maria Giardina	:danno-strutturale	bi	it	1w	
+Desideri contenuti	Fabio Ciancone	:	bi	it	1w	
+Il desiderio lesbico di contaminarsi	AleSandra Cane	:desiderio-lesbico-contaminarsi	bi	it	1w	
+La destituzione esausta del Gabibbo	Giovanni Padua	=tituzione-esausta-gabibbo	bi	it	1w	
+La disabilità al cinema	Riccardo Papacci	;isabilita-cinema	bi	it	1w	
+Divenire flusso	Giovanni Padua	:	bi	it	1w	
+Per diventare un bambino vero	"	:diventare-bambino-vero	bi	it	1w	
+Dopo la verità, prima della menzogna	Fabio Ciancone	;opo-verita-prima-menzogna	bi	it	1w	
+È amore se ti travolge	Carolina Bandinelli	:	bi	it	1w	
+Embryons desséchés	Luca Martignani, Matteo Bortolini, Serena Dibiase	;	bi	it	1w	
+Estasi a Cupertino	Giorgiomaria Cornelio	:estasi-cupertino-appletopia-assisi	bi	it	1w	
+Estetica del surriscaldamento	Vincenzo Estremo	=etica-surriscaldamento	bi	it	1w	
+Estetiche queer della voce	Annalisa Pellino	:	bi	it	1w	
+Fattografia sovietica	Devin Fore	;	bi	it	1w	
+La fauna cadaverica delle controculture	Carolina Dema	:fauna-cadaverica-controculture	bi	it	1w	
+Fenomenologia del corpo espanso	Marco Mancuso	:	bi	it	1w	
+Il fuoco brucia tutto ciò che ha di fronte	Giacomo Giossi	:fuoco-brucia-tutto-fronte	bi	it	1w	
+Sui Genesis	Stefano Di Trapani	:genesis	bi	it	1w	
+Giallo t e l e p a t h	Riccardo Papacci	:	bi	it	1w	
+Giocare alla fine del mondo	Giulia Trincardi	;	bi	it	1w	
+Godzilla, l’eterno ritorno del rimosso	Giovanni Padua	:godzilla-leterno-ritorno-del-rimosso	bi	it	1w	
+Un gran Baccano	Giulio Pecci	;ran-baccano	bi	it	1w	
+La guerra è il contrario del conflitto	Fabio Ciancone	;uerra-contrario-conflitto	bi	it	1w	
+Guerriglia onirica	Franco Cimei	:	bi	it	1w	
+I want to wear your skin as a sweater	Claudia DAngelo	;	bi	it	1w	
+Identità o comunità?	Irene Frau	:identita-comunita	bi	it	1w	
+Idiocracy now	Franco Cimei	:	bi	it	1w	
+Il fischio della fine	Fabio Ciancone	;	bi	it	1w	
+Il pubblico bene	Irene Frau	;	bi	it	1w	
+Il sicario è solo un cosplayer	Emanuele Sacchi	;	bi	it	1w	
+Il social network dei morti	Giorgiomaria Cornelio	;	bi	it	1w	
+Il Twin Peaks di Pupi Avati	Riccardo Papacci	;	bi	it	1w	
+Intreccio e visione	Graziano Graziani	;	bi	it	1w	
+Iperturismo e disperazione	Andrea Ariano	:iperturismo-disperazione	bi	it	1w	
+Jack Bruce, il cantautore che veniva dal basso	Riccardo Papacci	:jack-bruce-cantautore-che-veniva-basso	bi	it	1w	
+Kim Gordon dalla fine del noise al soundcloud rap	Stefano Di Trapani	:kim-gordon-dal-noise-al-soundcloud-rap	bi	it	1w	
+King Cellophane	Eleonora Santamaria	:	bi	it	1w	
+La finestra sull’orrore	Elvira Del Guercio	:la-finestra-sullorrore	bi	it	1w	
+La lingua ignota di Daniela Pes	Edoardo Vitale	:	bi	it	1w	
+La notte non finirà	Sara Marzullo	;	bi	it	1w	
+Lanthimos essoterico	Emanuele Zoppellari Perale	;	bi	it	1w	
+L’esperimento Wonka	Luca Sigurta	:lesperimento-wonka	bi	it	1w	
+L’illusione di essere svegli	Franco Cimei	;illusione-essere-svegli	bi	it	1w	
+I limiti della conoscenza nella ricerca della verità	Emanuele Sacchi	<miti-conoscenza-ricerca-verita	bi	it	1w	
+Il linguaggio del jazz e dei sentimenti	Stefano Di Trapani	<nguaggio-jazz-sentimenti	bi	it	1w	
+Lo chef come artista	Arianna Laurenti	:	bi	it	1w	
+Luce delle nazioni	Felice Moramarco	;	bi	it	1w	
+Mai più libri	Francesco Quatraro	;	bi	it	1w	
+Dal mascherone nobiliare alla città vetrina	Giovanni Padua	:mascherone-nobiliare-citta-vetrina	bi	it	1w	
+Materia viva	Claudia Bruno	:	bi	it	1w	
+Tra me e il mio colonizzatore	Gennaro Ascione	:me-mio-colonizzatore	bi	it	1w	
+I meme sono morti?	Alessandro Lolli	<me-morti	bi	it	1w	
+La metafora della decolonizzazione e altri naufragi	Giorgia Tolfo	<tafora-decolonizzazione-altri-naufragi	bi	it	1w	
+Al di là della metro Battistini	Stefano Di Trapani	=ro-battistini	bi	it	1w	
+Minuscolo, enorme, sottomarino	"	:	bi	it	1w	
+Misticismo sufi e rock’n’roll	Carolina Dema	:misticismo-sufi-e-rocknroll	bi	it	1w	
+Miti d’oggi: Edoardo Prati	Giovanni Padua	<ti-doggi-edoardo-prati	bi	it	1w	
+Modello Bologna	Francesco Spampinato	:	bi	it	1w	
+Mostro, ombra, stalker, fan	Lorenzo Meloni	;	bi	it	1w	
+Musica non musica	Fabio Acca	;	bi	it	1w	
+Natura contro natura	Carlo Mazza Galanti	;	bi	it	1w	
+Niente è davvero finito (anche se Netflix dice il contrario)	Giovanni Padua	;	bi	it	1w	
+Nike sempiterna. L’umano all’ombra della vittoria	Simone Furzi	:nike-sempiterna-umano-ombra-vittoria	bi	it	1w	
+No ego	Marcello Conti	:	bi	it	1w	
+Non si può insegnare	Luca Pisapia	;	bi	it	1w	
+Non tutti gli uomini	Silvia Gola	;	bi	it	1w	
+Una nuova primavera	Luca Pisapia	:nuova-primavera	bi	it	1w	
+Uno nuovo, più razzista e più violento	Fabio Ciancone	>o-razzista-violento	bi	it	1w	
+Oltre gli chef star	Arianna Laurenti	:oltre-chef-star	bi	it	1w	
+Oltre la parola	Irene Frau	@parola	bi	it	1w	
+Ozzy Pop	Stefano Di Trapani	:	bi	it	1w	
+Pane e Tamagotchi	Claudia Bruno	;	bi	it	1w	
+Sono le parole che mancano!	Matteo Moca	:parole-mancano	bi	it	1w	
+Per i poveri	Irene Frau	:	bi	it	1w	
+Perché i film di guerra ci fanno godere?	Riccardo Papacci	;	bi	it	1w	
+Giorni perfetti di midcult	Emanuele Sacchi	:perfect-days	bi	it	1w	
+Poesia animale	Stefano Di Trapani	:	bi	it	1w	
+Poppins Files	Luca Sigurta	;	bi	it	1w	
+Rappresentare la Generazione X	Luca Gricinella	:rappresentare-generazione-x	bi	it	1w	
+Rifare la madre	Elvira Del Guercio	:	bi	it	1w	
+Rodari e l’animazione liquida	Alice Sagrati	:rodari-e-lanimazione-liquida	bi	it	1w	
+Roma: pieghe, strati, buchi	Federico Stoto	:	bi	it	1w	
+Sadismo confit	Giovanni Padua	;	bi	it	1w	
+Sangue e Merda	Francesco Sticchi	;	bi	it	1w	
+Sangue finto in vendita	Alice Sagrati	;	bi	it	1w	
+Scegliere e tempo	Daniele Zinni	;	bi	it	1w	
+La scena dark romana degli anni Ottanta	Stefano Di Trapani	:scena-dark-romana-anni-ottanta	bi	it	1w	
+Scheherazade in carcere a Baabda	Giulia Moriconi	<heherazade-carcere-baabda	bi	it	1w	
+Scrollare fino a impazzire	Francesco Marino	:	bi	it	1w	
+Segnare l’asignificante	Federico Stoto	:segnare-asignificante	bi	it	1w	
+Sei tu, mia moglie	Gaja Pollastrini	:	bi	it	1w	
+Selfie, o il diritto al narcisismo	Giorgiomaria Cornelio	;	bi	it	1w	
+Shifty. Cos’è andato storto?	Irene Frau	:shifty-cosa-andato-storto	bi	it	1w	
+Shitpostare il teatro	Ivan Carozzi	:	bi	it	1w	
+Il sociale e il parasociale	Alessandro Lolli	:sociale-parasociale	bi	it	1w	
+Sogno un carnevale del rimosso	Mariacarla Mole	<gno-carnevale-rimosso	bi	it	1w	
+Sovrasocialità e altre storie	Fabio Ciancone	:	bi	it	1w	
+Nello specchio rosso	"	:specchio-rosso	bi	it	1w	
+Staccando la coscienza da terra	Stefano Vernamonti	;taccando-coscienza-terra	bi	it	1w	
+Storia come finzione	Emanuele Sacchi	:	bi	it	1w	
+Storia occulta della tecnologia	Emanuele Zoppellari Perale	:storia-occulta-tecnologia	bi	it	1w	
+(Sub)politica della frequenza	Giulia Mengozzi	;ubpolitica-della-frequenza	bi	it	1w	
+Successo e sopravvivenza	Giovanni Padua	:	bi	it	1w	
+Suoni dall’estinzione	Franco Cimei	:suoni-estinzione	bi	it	1w	
+Il suono del Brasile	Mario Luongo	>o-brasile	bi	it	1w	
+Il suono e la furia	Mariacarla Mole	@furia	bi	it	1w	
+Suono, geometria e grazia	Stella Succi	:	bi	it	1w	
+La trap spiegata ai bianchi	Lorenzo Pedrazzi	:trap-spiegata-bianchi	bi	it	1w	
+La trappola del significato	Mariacarla Mole	>pola-significato	bi	it	1w	
+Un amore dell’altro mondo	Dana Spiotta	:un-amore-dellaltro-mondo	bi	it	1w	
+Un paesaggio di meno	Mariacarla Mole	:	bi	it	1w	
+Un vero conte transilvano morto	Giovanni Padua	;	bi	it	1w	
+Una battaglia apolitica dopo l’altra	Riccardo Papacci	:una-battaglia-apolitica-dopo-laltra	bi	it	1w	
+Unite	Sara Poma	:	bi	it	1w	
+La vaporwave delle IA	Riccardo Papacci	:vaporwave-ia	bi	it	1w	
+La Via crucis del true crime	Giovanni Padua	;ia-crucis-true-crime	bi	it	1w	
+Breve storia dell’8-bit italiano	Riccardo Papacci	<deogiochi-sono-diventati-genere-musicale	bi	it	1w	
+Vivi e morti	Anna Castelli	:	bi	it	1w	
 Adriatica di Massimo Gezzi	Giacomo Giossi	0recensioni/adriatica-massimo-gezzi	i	it	2h	
 Aria di famiglia di Alessandro Piperno	"	<lessandro-piperno-aria-di-famiglia	i	it	2h	
 Animali si diventa. Femminismi e liberazione animale di Federica Timeto	Angela Balzano	;	i	it	2h	
@@ -25482,7 +25482,7 @@ Karl Ludwig Michelet’lle 9.5.1843, ote kirjeestä (julkaistu Der Gedanke -lehd
 Kasvatustieteen luentosarjan käsikirjoitus, kevätlukukausi 1861		2svatustieteen-luentosarjan-k%C3%A4sikirjoitus-kev%C3%A4tlukukausi-1861	am	fi	cp	
 Kerranpa alkaessa illansuun, runo Josefina Kellgrenin syntymäpäiväjuhlissa 2.1.1846		1erranpa-alkaessa-illansuun-runo-josefina-kellgrenin-syntym%C3%A4p%C3%A4iv%C3%A4juhlissa-211846	abm	fi	66	
 Kertomus setelinkierrosta, konsepti		0	am	fi	8	
-Kertomus tilastollisen viraston perustamisesta, konsepti		1	am	fi	2wn	
+Kertomus tilastollisen viraston perustamisesta, konsepti		1	abm	fi	2wn	
 Kirjoitus katovuosista, taloudenpidosta ym. ajankohtaisista kysymyksistä, konsepti		0kirjoitus-katovuosista-taloudenpidosta-ym-ajankohtaisista-kysymyksist%C3%A4-konsepti	am	fi	8	
 Kirjoitus metsänhoidosta, maanviljelijöistä, kadosta, konkursseista jne., konsepti		:mets%C3%A4nhoidosta-maanviljelij%C3%B6ist%C3%A4-kadosta-konkursseista-jne-konsepti	am	fi	8	
 Kodin suhteesta kouluun, esitelmä keväällä 1844		1odin-suhteesta-kouluun-esitelm%C3%A4-kev%C3%A4%C3%A4ll%C3%A4-1844	am	fi	113	
@@ -35159,7 +35159,7 @@ The Image of Africa in Ghana's Press: The Influence of Global News Organisations
 Plato's 'Republic': An Introduction	McAleer, Sean	29	a	en	k,1cg,db,4bk,49f,4rj,4l2,c7,ps	
 Auld Lang Syne: A Song and its Culture	Grant, Morag Josephine	131	bi	en	8g,1k,1re,4vr,4io,zf,4tu	
 Romanticism and Time: Literary Temporalities	Laniel-Musitelli, Sophie; Sabiron, Céline	22	b	en	2d,4xc,476,1vb,3qi,rg,2w,4fx,rj,c7,3g8,2w4,3re,2ic,4qj,4r7,t9,4i1,14c,4a8,44i,15j,n2,1s8,2ut,12d,1s3,db	
-Mendl Mann’s 'The Fall of Berlin'		23	bcd	en	12,t5,13x,2vp,3o0,12w,389,1ef,1f1,1f8,1sp,4qd,3we,137,11y,yp,489,10v	
+Mendl Mann’s 'The Fall of Berlin'		23	bcdf	en	12,t5,13x,2vp,3o0,12w,389,1ef,1f1,1f8,1sp,4qd,3we,137,11y,yp,489,10v	
 Terrestrial Mammal Conservation: Global Evidence for the Effects of Interventions for Terrestrial…	Littlewood, Nick A.; Rocha, Ricardo; Smith,…	24	g	en	bj,1r,3zx,1fl,yt,2u2,4gt	
 Writing and Publishing Scientific Papers: A Primer for the Non-English Speaker	Lövei, Gábor L.	25	bfg	en	4v,3u,4ug,4ul,1iw,14l,14e,2s,4wa,4ig,13o,4um,4uj,1gw	
 Making up Numbers: A History of Invention in Mathematics	Kopp, Ekkehard	26	g	en	fm,4mn,4ec,4eb,4os,4kw,4cj	
@@ -35427,7 +35427,7 @@ Passivisation in Semitic, Iranian, Armenian, and Beyond	Noorlander, Paul M.; Asa
 A Multipolar Approach to Early Christian Arabic: Vatican Arabic Ms 13 in the Linguistic Landscape…	Stokes, Phillip W.	27	bcdi	en	3u,3d,1pf,34j,1yt,1pe,32k,408,1pc	
 Distributing Knowledge: Openness, Equity, and Higher Education Transformation	Heller, Richard F.	120	fj	en	4v,bv,28h,3cq,1a3,27v,43l,3ct	
 Bourdieu and Literature	Speller, John R.W.	22	abfg	en	1x,k,2d,12u,vz,zf,o1,13s,xa,1ic,1ht,1i4	
-W. B. Yeats: Mythologies	Gould, Warwick; Toomey, Deirdre; Mann, Neil	24	b	en	2d,466,2ur,i5,2e2,2z5,359	
+W. B. Yeats: Mythologies	Gould, Warwick; Toomey, Deirdre; Mann, Neil	24	bc	en	2d,466,2ur,i5,2e2,2z5,359	
 Artificial Intelligence in Higher Education: A Phenomenological View	Aka, Philip; Derek Baker; Azra Branković; Eka…	25	af	en	4v,1x,k,93,49w,4xy,1k7,1a3,2tb,2ed	
 Beyond Popular Science	Silver, David H.	26	g	en	1r,3s2,22n,357,3op,31k,25z	
 Virgil, Aeneid 4, with Study Questions, Vocabulary, and Commentary	Gildenhard, Ingo	27	bdh	en	12,2d,8w,13j,102,yw,14p,fw,rz,sn,1ff	
@@ -35446,7 +35446,7 @@ The Philosophy of Julia Wedgwood: Imperfect Antithesis	Stone, Alison	23	acdf	en	
 Embedded Pedagogies: Digital Humanities Teaching and the Infrastructure of Change	Walsh, Brandon	24	bfij	en	4v,1x,3u,17d,27h,1dm	
 Plots, Motifs, and Concepts of Ugaritic Literature: Towards a Comparative-Historical Analysis	Berezkin, Yuri; Duvakin, Evgeny; Kharitonova,…	25	bcdhi	en	g2,3d,12,2d,43a,1nk,21t,1sx,3sf,2z6	
 Applied Psychology in Context: Stories and Lessons from Palestinian Villages	Hakim, Caesar; McLeod, Hamish J; Alkhatib,…	26	efk	en	37,1x,1p6,3ek,21j,24f,42r,3mj	
-Nicaragua Azul: Natural History of Nicaragua’s Subaquatic Ecological Heritage	Buitrago, Fabio; Barahona, Peltier	27	g	en	1r,bj,1an,2il,3c6,2d0,mw	
+Nicaragua Azul: Natural History of Nicaragua’s Subaquatic Ecological Heritage	Buitrago, Fabio; Barahona, Peltier	27	fg	en	1r,bj,1an,2il,3c6,2d0,mw	
 Bioethics in Apocalyptic Times	Henk ten Have	28	afgk	en	k,ga,2p,1r,1t8,2lv,1cz,2lw	
 Hydrology for Sustainability	Kampf, Stephanie	151	fg	en	1r,ib,bj,4v,2qu,w7,4yh,4w7,4in,4sa	
 Papers of the British School at Rome: Volume 94 (2026)		161	dfhi	en	12,g2,7m,1x,1pv,1qc,1d4,2v2,1nn	
@@ -35788,32 +35788,32 @@ Frontiers and Controversies in Astrophysics, Lecture 6: Microlensing, Astrometry
 Frontiers and Controversies in Astrophysics, Lecture 7: Direct Imaging of Exoplanets	"	K7	g	en	b5,b4	
 Frontiers and Controversies in Astrophysics, Lecture 8: Introduction to Black Holes	"	K8	g	en	b5,b4	
 Frontiers and Controversies in Astrophysics, Lecture 9: Special and General Relativity	"	K9	g	en	b5,b4	
-BENG 100: Frontiers of Biomedical Engineering	W. Mark Saltzman	0biomedical-engineering/beng-100		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 1: What Is Biomedical Engineering?	"	O/lecture-1		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 10: Biomolecular Engineering: Engineering of Immunity…	"	X10		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 11: Biomolecular Engineering: General Concepts	"	X11		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 12: Biomolecular Engineering: General Concepts (cont.)	"	X12		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 13: Cardiovascular Physiology	"	X13		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 14: Cardiovascular Physiology (cont.)	"	X14		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 15: Cardiovascular Physiology (cont.)	"	X15		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 16: Renal Physiology	"	X16		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 17: Renal Physiology (cont.)	"	X17		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 18: Biomechanics and Orthopedics	"	X18		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 19: Biomechanics and Orthopedics (cont.)	"	X19		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 2: What Is Biomedical Engineering? (cont.)	"	X2		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 20: Bioimaging	"	X20		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 21: Bioimaging (cont.)	"	X21		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 22: Tissue Engineering	"	X22		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 23: Tissue Engineering (cont.)	"	X23		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 24: Biomedical Engineers and Cancer	"	X24		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 25: Biomedical Engineers and Artificial Organs	"	X25		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 3: Genetic Engineering	"	X3		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 4: Genetic Engineering (cont.)	"	X4		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 5: Cell Culture Engineering	"	X5		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 6: Cell Culture Engineering (cont.)	"	X6		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 7: Cell Communication and Immunology	"	X7		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 8: Cell Communication and Immunology (cont.)	"	X8		en	an,am	
-Frontiers of Biomedical Engineering, Lecture 9: Biomolecular Engineering: Engineering of Immunity	"	X9		en	an,am	
+BENG 100: Frontiers of Biomedical Engineering	W. Mark Saltzman	0biomedical-engineering/beng-100	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 1: What Is Biomedical Engineering?	"	O/lecture-1	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 10: Biomolecular Engineering: Engineering of Immunity…	"	X10	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 11: Biomolecular Engineering: General Concepts	"	X11	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 12: Biomolecular Engineering: General Concepts (cont.)	"	X12	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 13: Cardiovascular Physiology	"	X13	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 14: Cardiovascular Physiology (cont.)	"	X14	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 15: Cardiovascular Physiology (cont.)	"	X15	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 16: Renal Physiology	"	X16	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 17: Renal Physiology (cont.)	"	X17	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 18: Biomechanics and Orthopedics	"	X18	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 19: Biomechanics and Orthopedics (cont.)	"	X19	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 2: What Is Biomedical Engineering? (cont.)	"	X2	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 20: Bioimaging	"	X20	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 21: Bioimaging (cont.)	"	X21	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 22: Tissue Engineering	"	X22	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 23: Tissue Engineering (cont.)	"	X23	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 24: Biomedical Engineers and Cancer	"	X24	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 25: Biomedical Engineers and Artificial Organs	"	X25	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 3: Genetic Engineering	"	X3	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 4: Genetic Engineering (cont.)	"	X4	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 5: Cell Culture Engineering	"	X5	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 6: Cell Culture Engineering (cont.)	"	X6	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 7: Cell Communication and Immunology	"	X7	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 8: Cell Communication and Immunology (cont.)	"	X8	gk	en	an,am	
+Frontiers of Biomedical Engineering, Lecture 9: Biomolecular Engineering: Engineering of Immunity	"	X9	gk	en	an,am	
 CHEM 125a: Freshman Organic Chemistry I	J. Michael McBride	0chemistry/chem-125a	g	en	3i,6u	
 Freshman Organic Chemistry I, Lecture 1: How Do You Know?	"	C/lecture-1	g	en	3i,6u	
 Freshman Organic Chemistry I, Lecture 10: Reality and the Orbital Approximation	"	M0	g	en	3i,6u	
@@ -40709,13 +40709,13 @@ Academic Integrity	Ulrike Kestler	Kintegrity		en
 Academic Writing Basics	Megan Robertson	Kwritingbasics		en	t2	
 Anatomy and Physiology II	Michael Kiraly	Dnatomyandphysiology2	gk	en	15l,2q9	
 The Ancient and Medieval World	Adrianna Bakos, Barrie Brill, Niall Christie,…	Ecientandmedievalworld	dh	en	2ex,1np	
-APA Style Citations	Ulrike Kestler	Dpastyle		en	x2	
+APA Style Citations	Ulrike Kestler	Dpastyle	f	en	x2	
 Arts Research, Scholarship, and Creativity Journal - Issue 1		Drtsjournalissue1		en		
-Structured Work Experience Placement Handbook	Nicola Soles	Dseswephandbook		en	101	
+Structured Work Experience Placement Handbook	Nicola Soles	Dseswephandbook	f	en	101	
 Pressbooks Template	Amanda Grey	Cbooktemplate		en		
 Student Engagement Activities for Business Communications	Melissa Ashman, Arley Cruthers, Sarah Duncan,…	Dusinesscomms	b	en	wh,2xg,1aa	
 Business Writing For Everyone	Arley Cruthers	Kwriting		en	wh,t2	
-Chicago Style Citations	Ulrike Kestler, Sigrid Kargut	Cchicagostyle		en	x2	
+Chicago Style Citations	Ulrike Kestler, Sigrid Kargut	Cchicagostyle	f	en	x2	
 Developing Organizational and Managerial Wisdom - 2nd Edition	Brad C. Anderson	Cdevelopingwisdom	af	en	s2,xu,wi,tx,wj,wk	
 Developing Organizational and Managerial Wisdom - 2nd Edition (Audio plus text version)	"	Saudiobook	af	en	s2,xu,wi,tx,wj,wk	
 Discrete Mathematics for Information Technology	Simon Crothers	Discretemath	gj	en	289,31n	
@@ -40723,29 +40723,29 @@ Doing Research	Celia Brinkerhoff	Doingresearch	j	en	19h
 Effective Editing	Christina Page, Kwantlen Polytechnic University…	Ceffectiveediting	b	en	1aa,r3	
 Gender in Canada: A Companion Workbook	Rebecca Yoshizawa (Ed.)	Cgenderincanadaworkbook	f	en	18j,xd,2g5,18k,18l,3uk	
 Marilynne Robinson's Housekeeping: A Collection of Critical Essays	Paul Tyndall	Chousekeeping	bd	en	16i	
-Inclusive Pedagogies	Christina Page, Jennifer Hardwick, Seanna Takacs	Cinclusivepedagogies		en	qc	
+Inclusive Pedagogies	Christina Page, Jennifer Hardwick, Seanna Takacs	Cinclusivepedagogies	f	en	qc	
 Indigenous Information Literacy - 2nd Edition	Rachel Chong, Bronte Chiang, Christian Isbister,…	Edigenousinformationliteracy2edition	j	en	op,127	
-Indigenous Teaching Resources: Students Collection	Katelyn Bouvier, Michelle Souliere, Lilach Marom,…	Mteachingresources		en	op,8v	
+Indigenous Teaching Resources: Students Collection	Katelyn Bouvier, Michelle Souliere, Lilach Marom,…	Mteachingresources	f	en	op,8v	
 Intermediate Canadian Tax - 2nd Edition	Sam Newton, Wahaj Awan	Etercanadiantax2e		en	15c	
 Interculturality for Personal Development and Organizational Leadership	Christina Page	Iulturalityforstudents		en	24c,11s,17g	
-Interculturalizing the Curriculum	"	Qzingcurriculum		en	qc,ei	
+Interculturalizing the Curriculum	"	Qzingcurriculum	f	en	qc,ei	
 Intermediate Algebra	Terrance Berg	Hmediatealgebra	g	en	104	
-Getting to Know Your International Students (2nd Edition)	Christina Page	Hnationalstudents		en	8v	
-Faculty Guide for International Student Success	Arts Committee on Faculty, International Student…	Xuccess		en	qc	
+Getting to Know Your International Students (2nd Edition)	Christina Page	Hnationalstudents	f	en	8v	
+Faculty Guide for International Student Success	Arts Committee on Faculty, International Student…	Xuccess	f	en	qc	
 Introductory Canadian Tax - 2nd Edition	Sam Newton, Wahaj Awan	Frocanadiantax2e		en	15c	
 Introduction to Criminology - 2nd Edition	Dr. Shereen Hassan, Dan Lett, M.A.	Irim2e		en	173	
 Introduction to Marketing	Pamela Ip	Hductiontomarketing		en	1d7,1l9,1v6	
 Introduction to Psychology Study Guide	Sarah Murray	Hpsychologystudyguide	ef	en	37,pc	
 Introduction to Entrepreneurship	Katherine Carpenter	Htoentrepreneurship	f	en	2co,u3,tx,1bh	
 The Laws of Settlement	Erick Villagomez	Clawofsettlement	i	en	1pz	
-Learning to Learn Online	KPU Learning Centres	Dearningtolearnonline		en	m4,17q	
-Level One Peer Tutoring Fundamentals and Integration Workbook	Alice Macpherson, Christina Page	Evelonepeertutoringfundamentals		en	8v,v4,ei	
-Level Three Peer Tutoring Fundamentals and Integration Workbook	"	Hthreepeertutoringfundamentals		en	8v,v4,ei	
-Level Two Peer Tutoring Fundamentals and Integration Workbook	"	Iwopeertutoringfundamentals		en	8v,v4,ei	
+Learning to Learn Online	KPU Learning Centres	Dearningtolearnonline	f	en	m4,17q	
+Level One Peer Tutoring Fundamentals and Integration Workbook	Alice Macpherson, Christina Page	Evelonepeertutoringfundamentals	f	en	8v,v4,ei	
+Level Three Peer Tutoring Fundamentals and Integration Workbook	"	Hthreepeertutoringfundamentals	f	en	8v,v4,ei	
+Level Two Peer Tutoring Fundamentals and Integration Workbook	"	Iwopeertutoringfundamentals	f	en	8v,v4,ei	
 Lorrain's Logbook	Edited by Kyle Jackson, Natasha McConnell, Nick…	Dorrains-logbook	cdf	en	1cp,3tx,3ax,3os	
-MLA Style Citations	Ulrike Kestler	Cmlastyle		en	x2	
+MLA Style Citations	Ulrike Kestler	Cmlastyle	f	en	x2	
 Making Sense of a Global Pandemic - 2nd Edition	Balbir Gurm, Jennifer Marchbank, Glaucia Salgado,…	Cnevr2e	efk	en	1eo,13a,1yf,3ss,28m,16n,2ng,3sq,3u1,18j,xd,18k,18l,op,1ll,1lo,1lm,1ln,1lp,y8,1yj,y9,1n7,1xg,3ol,3lx,1de,3oc,2i,47w,18x,1ag,243,174	
-Open Education Workbook	Amanda Grey, Centre for Educational…	Coeworkbook		en	8v	
+Open Education Workbook	Amanda Grey, Centre for Educational…	Coeworkbook	f	en	8v	
 Open Education Strategic Plan 2018-2023	Rajiv Jhangiani	Dpeneducation		en		
 An Open Guide to Integrated Marketing Communications (IMC)	Andrea Niosi, KPU Marketing 4201 Class of Summer…	Gimc	f	en	3rb,1d7,3cr,1bh	
 Organic Chemistry I	Xin Liu	Drganicchemistry	g	en	xt	
@@ -40758,19 +40758,19 @@ Research Methods in Psychology	Rajiv S. Jhangiani, I-Chant A. Chiang, Carrie…	
 Reading Texts: An Interactive Workshop	KPU Learning Centres	Creadingtextsworkshop		en	r3	
 Research Methods in Criminology		Esearchmethodscrim		en	173,qv,2bq,3mo,3mk,1p7	
 Cases on Social Issues: For Class Discussion - 2nd Edition	Deirdre Maultsaid	Csocial-issue-cases-2e	fk	en	13a,16n,283,2wz,2s6,18x,3ua	
-Storying Universal Design for Learning	Seanna Takacs, Lilach Marom, Alex Vanderveen,…	Dtoryingudl		en	qc,v4	
+Storying Universal Design for Learning	Seanna Takacs, Lilach Marom, Alex Vanderveen,…	Dtoryingudl	f	en	qc,v4	
 University 101: Study, Strategize and Succeed	KPU Learning Centres	Eudystrategizesucceed		en	r3	
 Teamwork Skills in University	Jamie Verschoor, Vanshika Kesar, Rebekah Lin,…	Cteamworkinuniversity	f	en	2ai	
 Time Management for Busy Students	KPU Learning Centres	Dimemanagement		en	41p,r3	
 UN Sustainable Development Goals Open Pedagogy Fellowship	Deborah Baker, Christine Crefton, Urooj Nizami,…	Cunsdgtoolkit		en		
-Untold Stories	Lindsay Wood	Etoldstories		en	qc,yd,17g,2hj	
+Untold Stories	Lindsay Wood	Etoldstories	f	en	qc,yd,17g,2hj	
 ¡Voy en camino!	Constanza Rojas-Primus, Ana Robles	C	b	en	xl,yb,sm	
 Acknowledging and Addressing the Achievement Gaps in Undergraduate Education	Brian Gibbens	0open.lib.umn.edu/addressingachievementgaps		en		
 Words that Help: Affirmations for any age, every stage	Jean Illsley Clarke, Ph.D	Bffirmationsthathelp		en		
 The Evolution of Affordable Content Efforts in the Higher Education Environment: Programs, Case…	Kristi Jensen, Shane Nackerud, Editors	Dordablecontent		en		
 American Government and Politics in the Information Age		Bmericangovernment		en		
 Apples	Originally Edited by Samuel Green	A		en	15h,2j7	
-Becoming a Doctor at the University of Minnesota	Authored, Edited by University of Minnesota…	Abecomingadoctor2021		en	1at	
+Becoming a Doctor at the University of Minnesota	Authored, Edited by University of Minnesota…	Abecomingadoctor2021	k	en	1at	
 Business Communication for Success		Businesscommunication		en		
 Developing Change Agents	Edited by Kristi L. Kremers, Alexander S.…	Achangeagents		en	el,yf	
 The Change Management Guide to Incorporating Educational Technology	Sherry Mooney	Gmanagementguidetotechimplementation		en		
@@ -40811,7 +40811,7 @@ University of Minnesota Libraries Staff Cookbook	UMN Libraries Staff	Bibrariesco
 Principles of Macroeconomics		Amacroeconomics		en		
 Mapping, Society, and Technology	Steven Manson	Cpping1e		en		
 The Mapping Prejudice Curriculum	Marguerite Mills	Hprejudicecurriculum		en		
-Medical Device Innovation Handbook	William Durfee, Paul Iaizzo	Bdih		en	1u2,328	
+Medical Device Innovation Handbook	William Durfee, Paul Iaizzo	Bdih	gk	en	1u2,328	
 Understanding Media and Culture		Bediaandculture		en		
 Substitute Lab Plans	mprokop	Bprokop		en		
 Gardening with Native Grasses in Cold Climates	Diane M. Narem, Mary Hockenberry Meyer	Anativegrasses		en	11d	
@@ -40845,12 +40845,12 @@ Vet Med: Applied GI Physiology- Supplemental Notes	Erin Malone DVM PhD	Avetphysi
 Veterinary Preventive Medicine	Margaret Root Kustritz	Erevmed	k	en	1ej	
 Woodland Stewardship: A Practical Guide for Midwestern Landowners, 3rd Edition	U of Minnesota Extension	Awoodlandstewardship		en	2i4,2i1	
 World Regional Geography	Royal Berglee, PhD	Crldgeography		en		
-Writing Boxes	Lisa Von Drasek	Britingboxes	j	en	23z,127,8v	
+Writing Boxes	Lisa Von Drasek	Britingboxes	fj	en	23z,127,8v	
 Writing for Success		Hforsuccess		en		
-Aerodynamics and Aircraft Performance, 3rd edition	James F. Marchman III	0pressbooks.lib.vt.edu/aerodynamics		en	15f,1mj,15e,110	
+Aerodynamics and Aircraft Performance, 3rd edition	James F. Marchman III	0pressbooks.lib.vt.edu/aerodynamics	g	en	15f,1mj,15e,110	
 Cardiovascular Pathophysiology for Pre-Clinical Students	Andrew Binks	Fcardiovascularpathophysiology	gk	en	12x	
 Cell Biology, Genetics, and Biochemistry for Pre-Clinical Students	Renée J. LeClair	Gellbio	gk	en	12x	
-Teaching History with Chatty Geeps: A Technocurious Approach to Using Generative AI in the Classroom	Amy Allen, David Hicks	Ghattygeeps	dj	en	2jt,8v,12	
+Teaching History with Chatty Geeps: A Technocurious Approach to Using Generative AI in the Classroom	Amy Allen, David Hicks	Ghattygeeps	dfj	en	2jt,8v,12	
 Say It Well: Writing for Real-World Communication	Claire H. Boor, Dorothy Conner, Kacy McAllister,…	Gommskillshandbook1		en	t2	
 Lecture Notes on Configuration Aerodynamics	William H. Mason, edited by Pradeep Raj	Hnfigurationaerodynamics		en	15e,15f	
 Construction Contracting	Stuart H. Bartholomew	Istructioncontracting	k	en	22y,ja	
@@ -40861,12 +40861,12 @@ Fundamentals of Business	Stephen J. Skripak	Gundamentalsofbusiness2e	f	en	u3
 Fundamentals of Business, 3rd edition	Adapted by Stephen Skripak with Ron Poff	Xness3e	f	en	u3	
 Fundamentals of Business, 4th edition	Adapted by Ron Poff	Xness4e		en	s2	
 The GeoCoin Adventure!	John McGee	Fgeocoinstart		en	2kk	
-Making Open Educational Resources with and for PreK12	Anita R. Walz, Julee P. Farley	Fhigheredk12collaborationtoolkit		en	8v,m4,x9	
+Making Open Educational Resources with and for PreK12	Anita R. Walz, Julee P. Farley	Fhigheredk12collaborationtoolkit	f	en	8v,m4,x9	
 Introduction to Earth Science	adapted by Laura Neser	Fintroearthscience	g	en	qb,15y,qh	
 Introduction to Earth Science, Second Edition	"	W2e	g	en	qb,15y,qh	
 Significant Statistics - beta (extended) version	Adapted by John Morgan Russell, from Barbara…	Kstatistics		en	uv	
-Working with Lidar Using ArcGIS Pro (2nd Edition)	Tammy Parece, John McGee	Flidar		en	2ae	
-Methods of Teaching Agriculture, third edition	L. H. Newcomb, J. David McCracken, J. Robert…	Fmethodsofteachingagriculture		en	8v,we	
+Working with Lidar Using ArcGIS Pro (2nd Edition)	Tammy Parece, John McGee	Flidar	f	en	2ae	
+Methods of Teaching Agriculture, third edition	L. H. Newcomb, J. David McCracken, J. Robert…	Fmethodsofteachingagriculture	f	en	8v,we	
 Microbiology, Pharmacology, and Immunology for Pre-Clinical Students	Jennifer L. Cleveland, Andrew P. Binks, Renée J.…	Gicropharmimmuno	gk	en	12a,2ro,32c,12m	
 Neuroscience for Pre-Clinical Students	Renee J. LeClair	Fneuroscience	egk	en	39z,12x	
 Biographical Dictionary of the History of Paleoanthropology	Matthew Goodrum	Fpaleoanthropology	dfgk	en	1tj,106,3kw	
@@ -40876,8 +40876,8 @@ Significant Statistics: An Introduction to Statistics	Adapted by John Morgan Rus
 Strategic Management	Adapted by Reed Kennedy, with Eli Jamison, Joseph…	Gtrategicmanagement		en	wk	
 Strategic Management and Case Analysis: An Integrated Approach	Lori Anderson, Dirk Buengel, Joseph J. Simpson	Xtandcaseanalysis		en	13d,s2	
 Sustainable Property Management	Erin A. Hopkins	Gustainablepropertymanagement		en	301,el,3ld,1vp	
-The Art and Science of Teaching Agriculture: Four Keys to Dynamic Learning	M. Susie Whittington, Rick Rudd, Jack Elliot	Fteachagriculture	g	en	8v,we,1m6,2ab	
-Teaching in the University	Donna Westfall-Rudd, Courtney Vengrin, Jeremy…	Funiversityteaching		en	8v	
+The Art and Science of Teaching Agriculture: Four Keys to Dynamic Learning	M. Susie Whittington, Rick Rudd, Jack Elliot	Fteachagriculture	fg	en	8v,we,1m6,2ab	
+Teaching in the University	Donna Westfall-Rudd, Courtney Vengrin, Jeremy…	Funiversityteaching	f	en	8v	
 Academic Writing Skills	Patricia Williamson	0uq.pressbooks.pub/academicwritingskills		en	t2,r3	
 Airbnb Before, During and After COVID-19		Cirbnb-978-1-74272-321-1		en	11j,2ym	
 Anthropology as a Vocation		Cnthropology-vocation	f	en	106	
@@ -40896,7 +40896,7 @@ Exercise Delivery	Emma Beckman, Chloe Salisbury	Cxercisedelivery		en	184
 Resources and Strategies for Gender Expansive Language Education	Adriana Díaz, Riccardo Amorati, Elena Pirovano	Bgender-expansive-language-education	b	en	1a8	
 Practical Learning in Hospitality Education		Bhospitalityeducation		en	11j,2q1	
 Indigenising Curriculum at The University of Queensland		Bindigenising-curriculum-handbook		en	10n	
-Inquiry in Action: Using AI to Reimagine Learning and Teaching: Case Studies from the Frontline of…		Dquiry-in-action	j	en	ei,wg	
+Inquiry in Action: Using AI to Reimagine Learning and Teaching: Case Studies from the Frontline of…		Dquiry-in-action	fj	en	ei,wg	
 Insect Science	Gurion Ang, Kathryn Ebert	B		en	2t9	
 + JUNTXS	Adriana Diaz	Binterspanish	bh	en	xl,yb,1af	
 Introduction to the Social Sciences	Zoe Staines, Gerhard Hoffstaedter, Ned Binnie	Eroduction-social-sciences	adf	en	pc,2pt,139,3uo,y8	
@@ -40907,7 +40907,7 @@ Legal Research Skills: An Australian Law Guide: 2024 Edition	The University of Q
 UQ Master of Pharmaceutical Industry Practice Placement Handbook	School of Pharmacy	Bmaster-pharmacy-industry-practice-placement-handbook	k	en	12n	
 UQ Master of Pharmacy Industry Practice Placement Supervisor Handbook	"	Xry-practice-placement-supervisor-handbook	k	en	12n	
 Mastering Reinforcement Learning	Tim Miller	B	j	en	wg	
-Music Research Essentials	Adam McCarthy, Felicity Berends, Kat Lee, Simon…	Bmusicessentials	i	en	17s	
+Music Research Essentials	Adam McCarthy, Felicity Berends, Kat Lee, Simon…	Bmusicessentials	fi	en	17s	
 The Practice of Counselling and Psychotherapy	Denis O'Hara, Jim Schirmer, Michael Ellwood, Kate…	Bpractice-counselling-psychotherapy	efk	en	sp,3u3,3m0	
 Principles of Disease: Parasitology	Malcolm Jones, Anne Beasley, Lyn Knott	Dinciples-disease-parasitology		en	44r	
 Psychological Research Methods Workbook	PSYC3010 Working Team	B	e	en	37,qv	
@@ -40915,28 +40915,28 @@ Public Interest Communication	Jane Johnston, Robyn Gulliver	Bpublicinterestcomm	
 Quality in Healthcare: Assessing What We Do	Catherine Kilgour, Lori Delaney	Bquality-in-healthcare	k	en	xq	
 Science Communication 2.0: Storytelling Through Technology	Jack Wang	Bscience-communication	g	en	ws,31i	
 Social Cost Benefit Analysis and Economic Evaluation	Suzanne Bonner	Cocialcba	f	en	2i,xo,46x	
-Storying the ATSIS Unit at UQ	Bronwyn Fredericks, Richard Leo, Anna Temby	B		en	op,ei	
+Storying the ATSIS Unit at UQ	Bronwyn Fredericks, Richard Leo, Anna Temby	B	f	en	op,ei	
 CSR Communication and Cultures of Sustainability	Franzisca Weder, Marte Eriksen	Bstratcommsustainability	fgi	en	xu,3mb,el,1do,2dj,112,10k	
 Strategic Media in an AI World	Renée Mickelburgh, Jane Johnston, Thu Luong Le	Gegic-media-ai-world	j	en	ws,wg	
 Sustainable Finance	Jacquelyn Humphrey, Saphira Rekker, Aaron…	Custainablefinance	afg	en	2mg,139,2gk,10k,el	
 Women’s voices in tourism research		Btourismknowledge		en	11j	
-Understanding Child and Adolescent Development	Elizabeth Edwards, Linh Chu, Brooke Avery-Overduin	Bunderstanding-child-adolescent-development		en	2ac	
+Understanding Child and Adolescent Development	Elizabeth Edwards, Linh Chu, Brooke Avery-Overduin	Bunderstanding-child-adolescent-development	f	en	2ac	
 Using Language Data to Learn About Language: A Teachers' Guide to Classroom Corpus Use		Csing-language-data	bj	en	1a9,222	
 Additional Authorized Practice (AAP) Preceptor Handbook	Jeannine Bruce	0www.saskoer.ca/aaphandbook	k	en	xq	
 Abnormal Psychology	Jorden A. Cummings	@bnormalpsychology	ef	en	1k2,37,pc	
-Academic Success	Cristy Bartlett, Tyler Cawthray, Linda Clark,…	@cademicsuccess		en	ei	
+Academic Success	Cristy Bartlett, Tyler Cawthray, Linda Clark,…	@cademicsuccess	f	en	ei	
 Accessibility Toolkit - 2nd Edition	Amanda Coolidge, Sue Doner, Tara Robertson, Josie…	Acessibilitytoolkituregina		en	t2,130	
-Adoption Guide - 2nd Edition	Lauri M. Aesoph	@doptopentextbook	bij	en	8v,131,2wy,2wx	
+Adoption Guide - 2nd Edition	Lauri M. Aesoph	@doptopentextbook	bfij	en	8v,131,2wy,2wx	
 Advanced Procedural Skills	Brittany Stephenson, NP, BScN, MN	Avancedprceduralskills2		en		
 The Evolution of Affordable Content Efforts in the Higher Education Environment: Programs, Case…	Kristi Jensen, Shane Nackerud, Editors	@ffordablecontent		en		
 Thriving Online: A Guide for Busy Educators	Robin H. Kay, William J. Hunter, Sharon…	@guideforbusyeducators	defi	en	8v,2pr,17o,17p,17n,qc,1de,ei,2yc,x2,17r,2aj,x3,2ad,2hn,18b,x9,2hk,2hm	
-Generative Artificial Intelligence: Practical Uses in Education	Troy Heaps	@iineducation		en	10y	
+Generative Artificial Intelligence: Practical Uses in Education	Troy Heaps	@iineducation	f	en	10y	
 2024 Automotive Service Technician	Gina Marshall, Centennial College, Garrett Nalepka	@longtest		en		
-APA Style for Nursing		@pacollabnursing	j	en	127,8v,yd	
+APA Style for Nursing		@pacollabnursing	fj	en	127,8v,yd	
 Ryerson Open Textbook Authoring Guide	Ryerson University	@uthorsguide		en		
 Basic Electricity For Technology Programs	Tim Schneider	?basicelectricity		en	2ay	
-Beyond the Exam	A Collaboration between McMaster University,…	@eyondtheexam		en	17n,ei,m4	
-Branching Scenarios: A Guide for Higher Ed	Gwenna Moss Centre for Teaching, Learning (GMCTL)	@ranchingscenarios		en	8v	
+Beyond the Exam	A Collaboration between McMaster University,…	@eyondtheexam	f	en	17n,ei,m4	
+Branching Scenarios: A Guide for Higher Ed	Gwenna Moss Centre for Teaching, Learning (GMCTL)	@ranchingscenarios	f	en	8v	
 Cost Accounting	Bill Bonner	@us388		en	23u	
 Business 104: Introduction to Business	Ameen Bery	Binessintrobus104	f	en	u3	
 Developing Change Agents	Edited by Kristi L. Kremers, Alexander S.…	?changeagents		en	el,yf	
@@ -40944,24 +40944,24 @@ Choosing & Using Sources: A Guide to Academic Research, 1st Canadian Edition	Lin
 Leadership Through Communication: Essential Skills and Strategies for Managers	Verna Johnson	@ommunication-leadership		en	wh,11s,s2	
 eCampusOntario Open Competency Toolkit	Dennis Green, Carolyn Levy	Bpetencytoolkit		en		
 Composting Toolkit	Keri Sapsford	Cost	fg	en	1m4,15h,yf,1p1,2hi,1er,170,17w,46g,we,43t	
-Course Design Handbook	Gwenna Moss Centre for Teaching, Learning (GMCTL)	Aursedesignhandbook		en	8v	
+Course Design Handbook	Gwenna Moss Centre for Teaching, Learning (GMCTL)	Aursedesignhandbook	f	en	8v	
 Cree: Language of the Plains / nēhiyawēwin: paskwāwi-pīkiskwēwin	Jean L. Okimasis	@reelanguageofplains	bf	en	1a9,sm,1ab,xl,2xk,2xi,2xh,176,10m,24x,3tw	
 Cultural and Social Considerations in Health Assessment: A Holistic Approach	Gillian Spring, Mackenzie Wiebe, Amanda Perkin,…	@ultureinhealth	fk	en	sp,2fe,3bg	
-Curriculum Design Guide	Susan Bens, Sara Dzaman, Aditi Garg, Wendy James	?		en	10n,8v	
+Curriculum Design Guide	Susan Bens, Sara Dzaman, Aditi Garg, Wendy James	?	f	en	10n,8v	
 Decolonization and Justice: An Introductory Overview	Muhammad Asadullah, Charmine Cortez, Geena…	?decolonizingjustice	fk	en	242,241,1x4,3j8,1ag,1kr,244,3j9,23i	
 Developing Organizational and Managerial Wisdom - 2nd Edition (Audio plus text version)	Brad C. Anderson	Avelopingwisdomaudiobook	af	en	s2,xu,wi,tx,wj,wk	
 Digital Citizenship Toolkit	Edited by Michelle Schwartz	@igcit		en		
-Digital Teaching and Learning at the UofL	Joerdis Weilandt	Bpeduofl	a	en	3hg,17p,10y,10w,ei	
+Digital Teaching and Learning at the UofL	Joerdis Weilandt	Bpeduofl	af	en	3hg,17p,10y,10w,ei	
 Disinformation: Dealing with the Disaster	Nina Verishagen, Diane Zerr	Asinformation		en	28f	
-Dissident Knowledge in Higher Education	James McNinch, Marc Spooner, Budd L. Hall,…	Bsidentknowledge		en	qc	
+Dissident Knowledge in Higher Education	James McNinch, Marc Spooner, Budd L. Hall,…	Bsidentknowledge	f	en	qc	
 Diversity and Social Justice - Faculty Guide (2021 Edition)	LWTech DSJ Faculty	@sj2021		en		
 Essential Skills for Graduate Studies (HPE)	Roberta Campbell-Chudoba, Michael Cottrell,…	?eadm990		en		
 Sharing Our Knowledge: Best Practices for Supporting English Language Learners in Schools	Nadia Prokopchuk, Collection Editor	Albestpractices		en		
-ECE 142: Health, Safety and Nutrition. Second Edition	Carrie Flegel	@ce142hsn2ed		en	29c	
+ECE 142: Health, Safety and Nutrition. Second Edition	Carrie Flegel	@ce142hsn2ed	f	en	29c	
 Intermediate Microeconomics	Joel Bruneau, Clinton Mahoney	Aon211	f	en	2i,xo,pc	
-Engineering Economics	Schmid, B., Vanderby, S.	@ngecon	f	en	110,2i	
-Zero Textbook Cost Degree Toolkit	Ann Ludbrook	@rotextbookcost		en	m4	
-Streamlined Instructional Design with AI	Paula MacDowell, ETAD 873	@tad873streamlinedinstructionaldesignwithai	i	en	x3	
+Engineering Economics	Schmid, B., Vanderby, S.	@ngecon	fg	en	110,2i	
+Zero Textbook Cost Degree Toolkit	Ann Ludbrook	@rotextbookcost	f	en	m4	
+Streamlined Instructional Design with AI	Paula MacDowell, ETAD 873	@tad873streamlinedinstructionaldesignwithai	fi	en	x3	
 Faculty OER Toolkit	Shannon Moist	?facultyoertoolkit	b	en	124,130	
 Contemporary Families: An Equity Lens	Elizabeth B. Pearce	Amilies	f	en	y9,8v,3up,3uy,3ke,13a,3u8	
 Global Femicide	Brenda Anderson, Shauneen Pete, Wendee Kubik,…	@emicide	abfik	en	139,xd,1do,42z,1eo,45i,174,op	
@@ -40973,42 +40973,42 @@ Introductory Physical Geology Laboratory Manual – First Canadian Edition (v.3 
 Introductory Physical Geology Laboratory Manual – First Canadian Edition (v.3 - Jan 2020)	"	Iuregina	g	en	qh,qb	
 An Introduction to Geological Field Trips	Monica Cliveti, Maria Velez	Cogy240labmanual	dg	en	qh,v4,3la,1e0,x1,2kr,199,3ie,3ki,3v4,1vy	
 Physical Geology Workbook	Joyce McBeth	Cworkbook	g	en	qh,45y,138,1c6,36g,2lf,10k	
-A Guide to Physical Activity	Eydie Kramer	@uidetophysicalactivity	g	en	3w8	
+A Guide to Physical Activity	Eydie Kramer	@uidetophysicalactivity	fg	en	3w8	
 High Quality Online Courses	University of Waterloo, Queen's University,…	?hqoc		en		
 Physical Assessment Essentials for Health Sciences	Dr. Ivy Poulin, NP, DNP, CDE	@sphysicalassessment		en		
 Biomechanics of Human Movement	Karine Hamm	@umanbiomechanics		en		
 Humanizing Online Teaching and Learning	Whitney Kilgore	Dmoocuregina		en		
 Pulling Together: A Guide for Curriculum Developers	Asma-na-hi Antoine, Rachel Mason, Roberta Mason,…	?indigenizationcurriculumdevelopersuregina		en		
 Pulling Together: Foundations Guide	Kory Wilson	Mfoundations	f	en	op,8v,ei,216	
-Pulling Together: A Guide for Front-Line Staff, Student Services, and Advisors	Ian Cull, Robert L. A. Hancock, Stephanie…	Nrontlineworkers		en	op,x9	
-Pulling Together: A Guide for Teachers and Instructors	Bruce Allan, Amy Perreault, John Chenoweth,…	Minstructorsuregina	a	en	op,1cc,8v,1dz	
+Pulling Together: A Guide for Front-Line Staff, Student Services, and Advisors	Ian Cull, Robert L. A. Hancock, Stephanie…	Nrontlineworkers	f	en	op,x9	
+Pulling Together: A Guide for Teachers and Instructors	Bruce Allan, Amy Perreault, John Chenoweth,…	Minstructorsuregina	af	en	op,1cc,8v,1dz	
 Pulling Together: A Guide for Leaders and Administrators	Sybil Harrison, Janice Simcoe, Dawn Smith,…	Mleadersadministrators		en		
 Indigenous Voices Learning Modules	Gwenna Moss Centre for Teaching, Learning (GMCTL)	Fousvoices		en		
-Connecting the Dots: Improving Student Outcomes and Experiences with Exceptional Instructional…	Whitney Kilgore, Diane Weaver	Astructionaldesign2improvelearning	i	en	x3	
+Connecting the Dots: Improving Student Outcomes and Experiences with Exceptional Instructional…	Whitney Kilgore, Diane Weaver	Astructionaldesign2improvelearning	fi	en	x3	
 Instructional Strategies in Health Professions Education	Kalyani Premkumar (Instructor), ECUR 836	Lstrategiesinhpe		en		
 Integrative Health Care	Karen Scott Barss	Ategrativehealthcare	ak	en	1cl,34q	
 Introduction to Bio-Organic Chemistry	Steven Langdon	Bro-bioorganic-chemistry	g	en	xt,3i	
 Introduction to Organic Chemistry	"	Eorganic-chemistry	g	en	xt,3i	
-APA Style Citation Tutorial	Sarah Adams, Debbie Feisst	Dapatutorial7		en	yd,8v	
+APA Style Citation Tutorial	Sarah Adams, Debbie Feisst	Dapatutorial7	f	en	yd,8v	
 Introduction to Psychology	Jorden A. Cummings, Lee Sanders	Dductiontopsychology	ef	en	37,pc	
 Introduction to Geomatics	Scott Bell	Dgeomatics	g	en	x1,2cg	
 Introduction to Applied Statistics for Psychology Students	Gordon E. Sarty	Dtoappliedstatsforpsych	fg	en	uv,pc,fm	
 Introduction to College Research	Walter D. Butler, Aloha Sargent, Kelsey Smith	Fcollegeresearch		en		
-Introduction to Open Educational Practices	Roberta Campbell-Chudoba, DeDe Dawson, Jade Hupé,…	Foep		en	8v	
+Introduction to Open Educational Practices	Roberta Campbell-Chudoba, DeDe Dawson, Jade Hupé,…	Foep	f	en	8v	
 The Diaries and Selected Letters of Jeanne Demessieux	Lynn Cavanagh	?jeannedemessieux	di	en	1cp,2ps	
-A Comprehensive Guide to Applying Universal Design for Learning	Dr. Seanna Takacs, Junsong Zhang, Helen Lee, Lynn…	@ibcudl		en	8v	
+A Comprehensive Guide to Applying Universal Design for Learning	Dr. Seanna Takacs, Junsong Zhang, Helen Lee, Lynn…	@ibcudl	f	en	8v	
 The Lymphatic System of the Dog	Hermann Baum	?k9lymphaticsystem	k	en	1ei,1ej	
 Academic Integrity	Ulrike Kestler	@puacademicintegrity		en		
 Ways to Achieve Academic Success	Kwantlen Polytechnic University Learning Centres,…	Jsuccess		en		
 Physical Geology Lab Manual	Joyce McBeth, J Normand	?labmanualgeol201	dfg	en	qb,1yc,qh,138,199,1c6,17l,420,3qc,1vx,2ko,2hl	
-Language Learning in K-12 Schools: Theories, Methodologies, and Best Practices	Nadia Prokopchuk	Anguagelearningk12	b	en	1ac,2xm,sm,8v	
+Language Learning in K-12 Schools: Theories, Methodologies, and Best Practices	Nadia Prokopchuk	Anguagelearningk12	bf	en	1ac,2xm,sm,8v	
 Leadership and Influencing Change in Nursing	Joan Wagner	@eadershipandinfluencingchangeinnursing	k	en	xq,12e	
 Leadership and Influencing Change in Nursing	"	Xhangeinnursinguregina	k	en	xq,12e	
-Learning to Learn Online at Fanshawe	Kwantlen Polytechnic University Learning Centres,…	Brningtolearnonlineatfanshawe		en	8v,17q	
+Learning to Learn Online at Fanshawe	Kwantlen Polytechnic University Learning Centres,…	Brningtolearnonlineatfanshawe	f	en	8v,17q	
 Lifespan Development	Lumen Learning	@ifespandevelopment		en		
 Lightboard Studio Guide	Jordan Epp	Aghtboard	ij	en	10u	
 A Guide to Making Open Textbooks with Students	Ed. Elizabeth Mays	?makingopentextbookswithstudents		en		
-Marking Open and Affordable Courses: Best Practices and Case Studies	Breeman Ainsworth, Nicole Allen, Jessica Dai,…	Arkingopenandaffordablecourses		en	8v	
+Marking Open and Affordable Courses: Best Practices and Case Studies	Breeman Ainsworth, Nicole Allen, Jessica Dai,…	Arkingopenandaffordablecourses	f	en	8v	
 Completing the Medical Certificate of Death in Saskatchewan	Shelley Giebel, NP, BSN, MN(APN)	@edcertdeathsask	k	en	2nc	
 Medical Terminology for Healthcare Professions	Andrea Nelson, Katherine Greene	Bicalterminologyuwf	gk	en	sp,12a,324,32f,3m6,1at	
 Northern and Indigenous Health and Healthcare	Heather Exner-Pirot, Bente Norbye, Lorna Butler	?northernhealthcare	k	en	sp	
@@ -41016,20 +41016,20 @@ Northern and Indigenous Health and Healthcare	"	Quregina		en
 Leadership for Nurses in Clinical Settings	Kirsten Woodend RN, MSc, PhD, Manon Lemonde RN,…	@ursingleadership	k	en	12e	
 Nursing Skills	Chippewa Valley Technical College	Fskills2	k	en	3bf	
 OER Creation Toolkit	Amanda Coolidge, Ariana Santiago, Josie Gray, Sue…	?oercreationtoolkit	abfij	en	16k,1ab,1ac,2xl,ei,101,m4,3ze,1e0,10x,u3,tx,wj,wi,tz,2qr,18b,x9,2ho,3pr	
-OER by Subject Directory	Donna Thiessen	Bdiscipline		en	8v	
+OER by Subject Directory	Donna Thiessen	Bdiscipline	f	en	8v	
 OER: A Field Guide for Academic Librarians | Editor's Cut	Christy Allen, Nicole Allen, Jean Amaral, Alesha…	Bfieldguide		en		
 OER and Alternative Textbook Handbook	Ariana Santiago	Bhandbook		en		
 The OER Starter Kit	Abbey Elder	Bstarterkit		en		
-The OER Starter Kit for Program Managers	Abbey K. Elder, Stefanie Buck, Jeff Gallant,…	Lpm		en	1cm,10w	
-Open Pedagogy Approaches	Alexis Clifton, Kimberly Davies Hoffman	@penpedagogy		en	ei,m4	
+The OER Starter Kit for Program Managers	Abbey K. Elder, Stefanie Buck, Jeff Gallant,…	Lpm	f	en	1cm,10w	
+Open Pedagogy Approaches	Alexis Clifton, Kimberly Davies Hoffman	@penpedagogy	f	en	ei,m4	
 Open Pedagogy Approaches	"	Kapproaches		en		
 Parenting and Family Diversity Issues	Diana Lang	?parentingfamilydiversity		en		
-Pedagogy that Aids Transition in Higher-Ed Students	Martyna Siekanowicz, Yasaman Delaviz, Azeezah…	Aths		en	ei	
+Pedagogy that Aids Transition in Higher-Ed Students	Martyna Siekanowicz, Yasaman Delaviz, Azeezah…	Aths	f	en	ei	
 PERFECT TIMING - Recollections of Coping with Cancer During a Pandemic	Barbara Reul	@erfecttiming	acdefgik	en	23h,379,1ri,335,37x,xd,1cl,1ye,3b7,2nf,1ay,184,3oo,3sb,24o,1b1,17s,17r,2ah,qi,13d	
 Nursing Pharmacology	Chippewa Valley Technical College	@harmacology	k	en	12m	
-Pharmacy Non-Sterile Compounding in Canada	Janet Hoda, BSP, BSc	?		en	m4	
+Pharmacy Non-Sterile Compounding in Canada	Janet Hoda, BSP, BSc	?	f	en	m4	
 Physical Geology, First University of Saskatchewan Edition	Karla Panchuk	?physicalgeology	g	en	x1,qb	
-Project Management for Instructional Designers	ETAD 874	@m4id	j	en	10x	
+Project Management for Instructional Designers	ETAD 874	@m4id	fj	en	10x	
 Collaborative Nurse Practitioner Program (CNPP) Preceptor Handbook	Lara Metheral, NP, BScN, MN(ANP)	@receptorcnpp	k	en	sp,yd	
 Presenter Toolkit	Rebecca Shortt	Bsentertoolkit		en	3vz,wh	
 Sask Polytechnic Pressbooks Guide	Donna Thiessen, OER Production Team	Csbooks	b	en	124	
@@ -41037,7 +41037,7 @@ Using LaTeX in Pressbooks	Laura Greenstreet	Ilatex	j	en	2r3
 Canada and Speeches from the Throne	Alexander Washkowsky, Braden Sapara, Brady Dean,…	Aimeministers2020	df	en	1ti,3ji	
 Research Methods in Psychology	Rajiv S. Jhangiani, I-Chant A. Chiang, Carrie…	@sychmethods4e	ef	en	37,qv,y8	
 Designing and Developing High Quality Student-Centred Online/Hybrid Learning Experiences	eCampusOntario	?qualitycourses		en		
-Effective Professional Communication: A Rhetorical Approach	Rebekah Bennetch, Corey Owen, Zachary Keesey	?rcm200	i	en	ws,1e5,110	
+Effective Professional Communication: A Rhetorical Approach	Rebekah Bennetch, Corey Owen, Zachary Keesey	?rcm200	gi	en	ws,1e5,110	
 The RCM 401 Speakers’ Handbook	Rebekah Bennetch (Instructor)	B401		en		
 Reading Texts: An Interactive Workshop	KPU Learning Centres, Christina Page	@eadingtextsworkshop		en	r3	
 The Rebus Guide to Publishing Open Textbooks (So Far)	Apurva Ashok, Zoe Wake Hyde	Abusguidepubopentextbooks		en	3mc,t2	
@@ -41048,7 +41048,7 @@ The Scholarship of Writing in Nursing Education: 1st Canadian Edition	Jennifer L
 Scientific Inquiry in Social Work	Matthew DeCarlo	Aientificinquiryinsocialwork	f	en	qv,y9	
 SDG Toolkit for Canadian Colleges and Institutes	cican	@dgcicanguide		en		
 Introduction to the Sustainable Development Goals (SDGs)	Jocelyn Baker	Bintro		en		
-Embedding Sustainable Development Goals in Teaching and Learning	Aditi Garg	Bs		en	10y,el	
+Embedding Sustainable Development Goals in Teaching and Learning	Aditi Garg	Bs	f	en	10y,el	
 Foundations in Sociology I	Susan Robertson	@oc112	f	en	aa,pc	
 Digging into Canadian Soils	Canadian Society of Soil Science	Ailscience	g	en	3vb,x1,138,yf,112,170,3jk,17w,we	
 Introduction à la science du sol: de la théorie à la pratique en sols canadiens	La société canadienne de science du sol (SCSS)	Jfrench	g	fr	3mi,3ry,3z2,2dk,2l8,22u,3jl,3rz	
@@ -41056,27 +41056,27 @@ The Spiritual Dimension of Health Care	Karen Scott Barss	@piritualdimensionofhea
 Project Management: A Strategic Approach	Associate Professor Carmen Reaiche	@trategicprojectmanagement		en	1cm	
 Strategies for Academic Success	Liv Marken	Gesforacademicsuccess		en		
 University 101: Study, Strategize and Succeed	Kwantlen Polytechnic University Learning Centres	Audystrategizesucceed		en	r3	
-Academic Success	Cristy Bartlett, Tyler Cawthray, Linda Clark, Sam…	@uccessfulstudy		en	ei	
-Cultivating Change: A Prairie Guide to Sustainability Teaching and Learning Practices	Aditi Garg, Brooke Klassen, Eric Micheels,…	Astainability		en	ei,el	
+Academic Success	Cristy Bartlett, Tyler Cawthray, Linda Clark, Sam…	@uccessfulstudy	f	en	ei	
+Cultivating Change: A Prairie Guide to Sustainability Teaching and Learning Practices	Aditi Garg, Brooke Klassen, Eric Micheels,…	Astainability	f	en	ei,el	
 Teaching Autoethnography: Personal Writing in the Classroom	Melissa Tombro	?teachingautoethnography		en		
 Instructional Methods, Strategies and Technologies to Meet the Needs of All Learners	Paula Lombardi M.Ed.	Gdiverselearners		en		
-Guide to Teaching with Technology	Centre for Pedagogical Innovation	Gtech		en	m4	
+Guide to Teaching with Technology	Centre for Pedagogical Innovation	Gtech	f	en	m4	
 Tools for Creating OER	Isaac Mulolani	@oolsforcreatingoer	afij	en	x3,47p,16k,321,m4,101,ei,10x,176,2ag,10t,wc,10n,22m,2af,13d	
 The Turn of the Screw	Henry James	@urnofthescrew		en		
 UCreate Studio Guide	Jordan Epp	?ucreate	ij	en	10u	
 Choose your own Adventure: Exploring Educational Technology and Encouraging Interest in UDL	Tasha Maddison, Heather Touet, Myra Zubot Mitchell	@dlsaskpoly	ij	en	1dz,wc	
 Undergraduate Diagnostic Imaging Fundamentals	Brent Burbridge, MD, FRCPC	@ndergradimaging	k	en	329,sp,325,32b	
-Understanding Canadian Schools: An Introduction to Educational Administration (6th Edition)	Dawn Wallin, Jon Young, Benjamin Levin	Dstandingcanadianschools		en	10w,8v	
-Universal Design for Learning (UDL) for Inclusion, Diversity, Equity, and Accessibility (IDEA)	Darla Benton Kearney	Aiversaldesign	ij	en	ei,wc	
-Universal Design for Learning: One Small Step	Gwenna Moss Centre for Teaching, Learning (GMCTL)	Nforlearning	j	en	8v,131	
+Understanding Canadian Schools: An Introduction to Educational Administration (6th Edition)	Dawn Wallin, Jon Young, Benjamin Levin	Dstandingcanadianschools	f	en	10w,8v	
+Universal Design for Learning (UDL) for Inclusion, Diversity, Equity, and Accessibility (IDEA)	Darla Benton Kearney	Aiversaldesign	fij	en	ei,wc	
+Universal Design for Learning: One Small Step	Gwenna Moss Centre for Teaching, Learning (GMCTL)	Nforlearning	fj	en	8v,131	
 University Success (2nd Edition)	N. Mahoney, B. Klassen, M. D'Eon, & L. Marken,…	Fitysuccess2ndedition		en		
 The University of Regina OER by Subject Directory		@reginaoerdirectory		en	3o5,280	
 Veterinary Clinical Pathology: An Introduction	Marion Jackson, Beverly Kidney, Nicole Fernandez	?vet-clinical-pathology-intro		en	452	
 Victorian Prose and Poetry	Kylee-Anne Hingston McKechnie	@ictorianproseandpoetry		en	2z8	
 Video Production Basics DIY Guide	Jordan Epp	Adeoproduction	ij	en	2gj,1e5,10u,2yn,45e,2gh,2gg,3zq	
 Vital Sign Measurement Across the Lifespan – 2nd Canadian edition	Jennifer L. Lapum, Margaret Verkuyl, Wendy…	Atalsign2nd		en		
-WordPress Guide: sites.usask.ca	Gwenna Moss Centre for Teaching and Learning…	?wordpressguide		en	8v	
-Working Group Guide	Lucas Wright, Krista Lambert	Bkinggroupguide		en	m4,130	
+WordPress Guide: sites.usask.ca	Gwenna Moss Centre for Teaching and Learning…	?wordpressguide	f	en	8v	
+Working Group Guide	Lucas Wright, Krista Lambert	Bkinggroupguide	f	en	m4,130	
 #Problemos	https://www.journals.vu.lt/problemos/	
 Problemos		0en				
 EDITOR’S FOREWORD	Vytis Silius	2/article/view/10350	a	en		SUDARYTOJO ŽODIS
@@ -42990,8 +42990,8 @@ Verčiant Benthamą	Ieva Vasilionytė | Vilius Dranseika	B3	a	lt	5z	Translating 
 G. DICKIE’O EKSTENSIONALISTINIO-INSTITUCINIO MENO APIBRĖŽIMO NEAPIBRĖŽTUMAS	Ieva Straukaitė	B4	ai	lt	10a	
 KAIP PABĖGTI IŠ SVETIMO SAPNO?	Kristupas Sabolius	B5	ai	lt	10a	
 ŽANRINIO APOKALIPSĖS KINO DEKONSTRUKCIJA A. KUROSAWOS „RASHOMONE“	Nerijus Milerius	B6	ai	lt	10a	
-NAUJOSIOS MEDIJOS KAIP KLASIKINĖS UGDYMO PARADIGMOS ALTERNATYVA	Darius Klibavičius	B7	a	lt	1cb	
-ERDVĖS IR LAIKO SAMPRATOS UGDYMO FILOSOFIJOJE: NUO MOKSLINĖS PEDAGOGIKOS PRIE KASDIENĖS PRAKTIKOS	Lilija Duoblienė	B8	a	lt	1cb	
+NAUJOSIOS MEDIJOS KAIP KLASIKINĖS UGDYMO PARADIGMOS ALTERNATYVA	Darius Klibavičius	B7	af	lt	1cb	
+ERDVĖS IR LAIKO SAMPRATOS UGDYMO FILOSOFIJOJE: NUO MOKSLINĖS PEDAGOGIKOS PRIE KASDIENĖS PRAKTIKOS	Lilija Duoblienė	B8	af	lt	1cb	
 NEPAPRASTOJI PADĖTIS IR DIEVIŠKASIS SMURTAS: CARLO SCHMITTO IR WALTERIO BENJAMINO MINČIŲ KRYŽKELĖS	Kasparas Pocius	B9	a	lt	9q	
 LEO STRAUSSAS: ISTORIZMAS, POLITINĖ FILOSOFIJA IR POLITIKOS MOKSLAS	Mindaugas Stoškus	A30	a	lt	9q	
 METAETIKA KAIP ROMANTIZMO FORMA	Alvydas Jokubaitis	B1	a	lt	9q	
@@ -43086,9 +43086,9 @@ A Christian Observes Yom Kippur	Harvey Cox	9	c	en	hf
 A Christian Scholar’s Dialogue with Muslims	Hans Kung	8a-christian-scholars-dialogue-with-muslims	cd	en	8x	
 A Christological Hermeneutic: Crisis and Conflict in Hermeneutics	Donald G. Bloesch	8	c	en	4d	
 A Church in the Wildwood	James T. Baker	9	ci	en	s7	
-A College Recovers Its Christian Identity	Robert Benne	9	c	en	3m	
+A College Recovers Its Christian Identity	Robert Benne	9	cf	en	3m	
 A Contested Classic: Critics Ask: Whose Christ? Which Culture?	Peter R. Gathje	9	c	en	v9	
-A Crisis in Practical Theology	Thomas G. Long	9	c	en	3m	
+A Crisis in Practical Theology	Thomas G. Long	9	cf	en	3m	
 A Critical View of Inherited Theology	John B. Cobb, Jr.	9	c	en	6w	
 A Critique of Process Theodicy from an African Perspective	Thomas H. Graves	9	c	en	s	
 A Curious Man (John 3:1-17)	Margaret B. Hess	8a-curious-man-john-31-17	c	en	e	
@@ -43121,7 +43121,7 @@ A Mathematical Root of Whitehead’s Cosmological Thought	Robert Andrew Ariel	:m
 A Matter of Being, and a Matter of Being Right	Walter Wangerin, Jr.	8	c	en	9e	
 A Matter of Taste?	Frank Burch Brown	9	c	en	4x	
 A Metaphysics for the Love-and-Science Symbiosis	Thomas Jay Oord	9	c	en		
-A Ministry to Students	A Symposium	9	c	en	3m	
+A Ministry to Students	A Symposium	9	cf	en	3m	
 A Model for Learned Pastors	Roland M. Kawano	9	c	en	3p	
 A Modest Proposal	Dennis Smith	9	cf	en	6k	
 A Monistic Interpretation of Whitehead’s Creativity	John R. Wilcox	8a-monistic-interpretation-of-whiteheads-creativity	c	en	s	
@@ -43139,7 +43139,7 @@ A New World Order in Communication	William F. Fore	9	c	en	dv
 A Passion for Reconciliation: An interview with Chris Rice	Jason Byassee	9	c	en	3p	
 A Pastoral and Theological Response to Losses in Pregnancy	Janet S. Peterman	9	c	en		
 A Pattern for Prayer	John D. Witvliet	9	c	en		
-A Pedestrian-Idealist’s Approach to Education	William Barnwell	8a-pedestrian-idealists-approach-to-education	c	en	3m	
+A Pedestrian-Idealist’s Approach to Education	William Barnwell	8a-pedestrian-idealists-approach-to-education	cf	en	3m	
 A Pioneer Figure in Church-State Rulings	John Dart	8	c	en		
 A Place Called Community	Parker J. Palmer	9	cf	en	wo	
 A Place for God?	Stanley Hauerwas	9	cg	en	8q	
@@ -43172,11 +43172,11 @@ A Scientist’s Search for Comprehensive Knowledge	Steve Pope	8a-scientists-sear
 A Season of Prayer (Acts 1:1-14)	Kelly Lyn Logue	;eason-of-prayer-acts-11-14	c	en	e	
 A Second Advent (Jer. 31:31-34).	Ronald Goetz	<cond-advent-jer-3131-34	c	en	e	
 A Second Look at Inductive Preaching	William H. Shepherd, Jr.	8	ci	en	9f	
-A Seminary’s Artist in Residence: Cathy Kapikian’s Fabric of Faith	Linda-Marie Delloff	8a-seminarys-artist-in-residence-cathy-kapikians-fabric-of-faith	c	en	3m	
+A Seminary’s Artist in Residence: Cathy Kapikian’s Fabric of Faith	Linda-Marie Delloff	8a-seminarys-artist-in-residence-cathy-kapikians-fabric-of-faith	cf	en	3m	
 A Short Guide to the Fine Art of Naysaying	James Sellers	8	ac	en	76	
 A Small Church Redefines its Mission	Richard H. Bliese	9	c	en	9e	
 A Soulful Afternoon in the Library	James M. Wall	9	ci	en	8u	
-A Southern Baptist Context	E. Glenn Hinson	9	c	en	3m	
+A Southern Baptist Context	E. Glenn Hinson	9	cf	en	3m	
 A Sustainable Society	John B. Cobb, Jr.	9	acf	en	6l	
 A Tale of Two Sundays: Liturgical Reform Gone Astray	Frederick J. Parrella	9	c	en	4x	
 A Tale That Will Tax the Imagination	Vernard Eller	9	c	en	3j	
@@ -43214,7 +43214,7 @@ Abortion and Theology	Martin E. Marty	8	cf	en	ha
 About Questions of Guilt	Martin Niemoller	9	cf	en	6k	
 Above and Beyond (Lk. 24:44-53; Acts 1:1-11)	Lawrence Wood	8above-and-beyond-lk-2444-53-acts-11-11	c	en	e	
 Abundant Life (Prov. 25:6-7; Heb. 13:1-8,15-16; Lk. 14:1, 7-14)	Martha P. Sterne	:undant-life-prov-256-7-heb-131-815-16-lk-141-7-14	c	en	e	
-Academic Values and Prophetic Discernment	Myron B. Bloy, Jr.	8	c	en	3m	
+Academic Values and Prophetic Discernment	Myron B. Bloy, Jr.	8	cf	en	3m	
 Achievable Miracles in Subsidized Housing	J. S. Fuerst	9	cf	en	wo	
 Acknowledgment (Ps. 23; I Sam. 13:1-16;Eph. 5:8-14;John 9:1-41)	Richard Lischer	8acknowledgment-ps-23-i-sam-131-16eph-58-14john-91-41	c	en	e	
 Acting Out Faith Through Organ Donation	Mark Moran	8	c	en	3j	
@@ -43322,7 +43322,7 @@ Apocalypticism and Modern Thinking	Thomas J.J. Altizer	9	cf	en	7u
 Apology For The Hireling: A Work Ethic For the Global Marketplace	Dennis P. McCann	9	acf	en	6l	
 Apostle at my Door (Is. 58:1-12; I Cor. 2:1-16;Ps. 112:1-10; Matt. 5:13-20.)	Mitchell Hay	8apostle-at-my-door-is-581-12-i-cor-21-16ps-1121-10-matt-513-20	c	en	e	
 Approach and Avoidance: The Bible as Literature	Giles Gunn	8	c	en	4d	
-Are Church-Related Colleges Also Christian Colleges?	Richard G. Hutcheson, Jr.	9	c	en	3m	
+Are Church-Related Colleges Also Christian Colleges?	Richard G. Hutcheson, Jr.	9	cf	en	3m	
 Are Humans Wired to Dream?	Jon Magnuson	9	cf	en	81	
 Are ‘Mother’ and ‘Father’ Appropriate Titles for Protestant Clergy?	David L. Holmes	9	bc	en	jb	
 Are Tax Exemptions Subsidies?	Dean M Kelley	9	c	en		
@@ -43359,7 +43359,7 @@ Autobiography	John B. Cobb, Jr.	9	c	en	6w
 Awakened by Easter	Gayraud Wilmore	9	ci	en	9f	
 Axis of One: The ‘Unipolarist’ Agenda	Gary Dorrien	9	acd	en	5r	
 Azusa Street Revival	Edith Blumhofer	9	c	en		
-Back to Baccalaureate	Donald G. Shockley	9	c	en	3m	
+Back to Baccalaureate	Donald G. Shockley	9	cf	en	3m	
 Back to Basics: Rx for Congregational Health	Anthony B. Robinson	9	c	en	9e	
 Back to Fundamentals	Jimmy Carter	9	c	en	4k	
 Back to Life (John 11:1-45)	Suzanne Guthrie	8back-to-life-john-111-45	c	en	e	
@@ -43479,11 +43479,11 @@ Cakes for the Queen of Heaven: 2,500 Years of Religious Ecstasy	Peter Berger	8ca
 Call Me (Deut. (18:15-20; Ps. 111; I Cor. 8:1-13)	Paul Keim	:ll-me-deut-1815-20-ps-111-i-cor-81-13	c	en	e	
 Called to Order (Deut. 18:15-20; Ps. 111; I Cor. 8:1-13	"	<ed-to-order-deut-1815-20-ps-111-i-cor-81-13	c	en	e	
 Called to Unity Through the Cross	Barbara Brown Zikmund	8	bc	en	jb	
-Campus Ministry in the Last Decade of the Century	F. Thomas Trotter	9	c	en	3m	
+Campus Ministry in the Last Decade of the Century	F. Thomas Trotter	9	cf	en	3m	
 Camus, God, and Process Thought	James Goss	9	c	en	s	
 Can a Jew Be a Christian?	Jason Byassee	9	c	en	hf	
 Can Catholics Find Common Ground?	Bill O’Brien	9	cf	en	hu	
-Can Christianity Shape Higher Education in a Pluralistic Age?	John B. Cobb, Jr.	9	c	en	3m	
+Can Christianity Shape Higher Education in a Pluralistic Age?	John B. Cobb, Jr.	9	cf	en	3m	
 Can Christians Serve in the Armed Forces?	Martin L. Cook	9	acd	en	5r	
 Can Churches Save the City? A Look at Resources	Arthur E. Farnsley II	9	cf	en	wo	
 Can Corporations Assume Responsibility for the Environment?	John B. Cobb, Jr.	9	cfg	en	5l	
@@ -43493,7 +43493,7 @@ Can Leclerc’s Composite Actualities Be Substances?	John D. Kronen	8can-leclerc
 Can “Sustainability” Be Sustained?	Max L. Stackhouse	8	acf	en	6l	
 Can the Church Bless Divorce?	John Shelby Spong	9	cf	en	8b	
 Can the Church Help God Save the World?	John B. Cobb, Jr.	9	cf	en	ao	
-Can the Nonconservative Seminaries Help the Churches?	Edward Farley	9	c	en	3m	
+Can the Nonconservative Seminaries Help the Churches?	Edward Farley	9	cf	en	3m	
 Can We Expect Greatness from the Clergy	Carnegie Samuel Calian	9	c	en	3p	
 Can Whitehead Be Made a Christian Philosopher?	Paul G. Kuntz	9	c	en	s	
 Can You Get There from Here? Problems in Bible Translation	Roger L. Omanson	9	c	en	4d	
@@ -43550,13 +43550,13 @@ Children of Divorce	Elizabeth Marquardt	8	cf	en	8b
 China: World Mission Policy	Bao Jiayuan	9	c	en	55	
 Choosing a Bible Study	Timothy F.and Walter Brueggmann Simpson	9	c	en	4d	
 Choosing Life	John B. Cobb, Jr.	9	c	en	6w	
-Choosing the Impossible: Seminary Students Speak Out	A Roundtable	9	c	en	3m	
+Choosing the Impossible: Seminary Students Speak Out	A Roundtable	9	cf	en	3m	
 Christ and Culture in Moscow	Robin Lovin	9	c	en	bg	
 Christ For The World (Is. 7:10-16; Ps. 80:1-7, 17-19; Rom. 1:1-7; Matt. 1:18-25)	Ruth A. Meyers	8christ-for-the-world-is-710-16-ps-801-7-17-19-rom-11-7-matt-118-25	c	en	e	
 Christ-haunted Landscape (Lev. 19:1-2,15-18)	Bruce Modahl	?haunted-landscape-lev-191-215-18	c	en	e	
 Christ is Not as We Are (Matt. 17:1-9)	Fred B. Craddock	?is-not-as-we-are-matt-171-9	c	en	e	
 Christ is Risen (Matthew 28: 1-10)	T.V. Philip	8	c	en	e	
-Christian Colleges: A Dying Light or a New Refraction?	Mark U. Edwards, Jr.	9	c	en	3m	
+Christian Colleges: A Dying Light or a New Refraction?	Mark U. Edwards, Jr.	9	cf	en	3m	
 Christian Conscience and Nuclear Escapism	Robert Bachelder	9	acd	en	5r	
 Christian Council of Asia: Partnership in Mission	Dhyanchand Carr	9	c	en	55	
 Christian Ethics and International Affairs	John C. Bennett	9	acd	en	5r	
@@ -43575,7 +43575,7 @@ Christian Science Today: Resuming the Dialogue	Stephen Gottschalk	9	cd	en	as
 Christian Spirituality (1 Corinthians 1:18-25)	T.V. Philip	8christian-spirituality-1-corinthians-118-25	c	en	e	
 Christian Themes in Harry Potter	Leonie Caldecott	8	bci	en	3s	
 Christian Theology: Towards an Asian Reconstruction	C.S. Song	9	c	en	55	
-Christianity and Academic Soul-searching	Mark R. Schwehn and Dorothy Bass	9	c	en	3m	
+Christianity and Academic Soul-searching	Mark R. Schwehn and Dorothy Bass	9	cf	en	3m	
 Christianity and Animal Rights: The Challenge and Promise	Tom Regan	9	cfg	en	5l	
 Christianity and Cultures: Transforming Niebuhr’s Categories	George Marsden	8christianity-and-cultures-transforming-niebuhrs-categories	c	en	v9	
 Christianity and Empire	John B. Cobb, Jr.	8	c	en	6w	
@@ -43600,7 +43600,7 @@ Churches’ Witness on the Family	W. Bradford Wilcox	9	cf	en	8b
 Churchgoers From Elsewhere	John Dart	9	c	en	bg	
 Cityscape	James W. Lewis	9	cf	en	9r	
 Civil Society: Unity and Oikos (the House of God)	Yong-Bok Kim	9	cf	en	gu	
-Class Issues	Lillian Daniel	9	c	en	3m	
+Class Issues	Lillian Daniel	9	cf	en	3m	
 Clay Pots (Romans 8:1-11; Matthew 13:1-9, 18-23)	Bill O’Brien	8clay-pots-romans-81-11-matthew-131-9-18-23	c	en	e	
 Clean Sweep (Luke 15:1-10)	Jennifer E. Copeland	:ean-sweep-luke-151-10	c	en	e	
 Cleaning Up the Wedding	William Willimon	8	c	en	3p	
@@ -43689,7 +43689,7 @@ Covenant with the Poor: Toward a New Concept of Economic Justice	Yong-Bok Kim	9	
 Covenanting: New Directions for Ecumenism	Elizabeth Achtemeier	9	cf	en	gu	
 Coventry Cathedral’s Message of Forgiveness	David Douglas	8coventry-cathedrals-message-of-forgiveness	ci	en	s7	
 Cover-ups (Psalm 85)	Fleming Rutledge	8	c	en	e	
-Creating a Respect for Theology	James Daane	9	c	en	3m	
+Creating a Respect for Theology	James Daane	9	cf	en	3m	
 Creating an Indigenous African Church	Ronald J. Allen	9	c	en	55	
 Creating Open and Welcoming Communities	James R. Adams	9	c	en	4p	
 Creation in Our Own Image: Ethical Questions	James H. Burtness	9	cg	en	8q	
@@ -43844,17 +43844,17 @@ Economism as Idolatry	John B. Cobb, Jr.	9	cf	en	dl
 Ecumenical Hermeneutics for a Plural Christianity: Reflections on Contextuality and Catholicity	Rudolf von Sinner	9	cf	en	gu	
 Ecumenicity: Rx for Urban Health	David F. Cox	9	cf	en	gu	
 Educating the Congregation	Susan E. Schreiner	9	c	en		
-Education and Economism	John B. Cobb, Jr.	9	c	en	3m	
-Education as Furniture and Propellant	Joseph Sittler	9	c	en	3m	
-Educational Process, Feminist Practice	Rebecca S. Chopp	9	c	en	3m	
+Education and Economism	John B. Cobb, Jr.	9	cf	en	3m	
+Education as Furniture and Propellant	Joseph Sittler	9	cf	en	3m	
+Educational Process, Feminist Practice	Rebecca S. Chopp	9	cf	en	3m	
 Edwards for Us	Max L. Stackhouse	9	c	en	52	
 Efficient Causation Within Concrescence	Lewis S. Ford	9	c	en	s	
 El Pueblo Unido Jamás Será Vencido	Jorge Lara-Braud	8el-pueblo-unido-jams-ser-vencido	cf	en	6k	
 Eliot’s Cats Come Out Tonight	Janet Karsten Larson	:iots-cats-come-out-tonight	ci	en	lj	
-Embarrassed by the Church: Congregations and the Seminary	Stanley Hauerwas and W. Willimon	8	c	en	3m	
+Embarrassed by the Church: Congregations and the Seminary	Stanley Hauerwas and W. Willimon	8	cf	en	3m	
 Emerging God	Philip Clayton	9	c	en	ch	
 Emil Brunner: A Centennial Perspective	I. John Hesselink	9	c	en	52	
-Emphasizing the Congregation: New Directions for Seminaries	Christopher Walters-Bugbee	9	c	en	3m	
+Emphasizing the Congregation: New Directions for Seminaries	Christopher Walters-Bugbee	9	cf	en	3m	
 Empirical Theology: A Revisable Tradition	Willliam Dean	9	c	en	s	
 Empiricism and Process Theology: God Is What God Does	David Miller	9	c	en	ch	
 Empowering Love for Revolution: Divine and Creaturely Action	Thomas Jay Oord	9	c	en		
@@ -43866,7 +43866,7 @@ Ending the Abortion War: A Modest Proposal	Frances Kissling	9	cf	en	ha
 Energy Ethics Reaches the Church’s Agenda	Bruce C. Birch	8energy-ethics-reaches-the-churchs-agenda	cfg	en	5l	
 Energy-Events and Fields	Joseph A. Bracken, S.J.	8	c	en	s	
 Enter Here (Acts 2:42-47,1 Peter 2:19-25, John 10:1-10)	Amy B. Hunter	8enter-here-acts-242-471-peter-219-25-john-101-10	c	en	e	
-Envisioning a Fifth Model	John B. Cobb, Jr.	8	c	en	3m	
+Envisioning a Fifth Model	John B. Cobb, Jr.	8	cf	en	3m	
 Epistemological Modesty: An Interview with Peter Berger		9	cf	en	9h	
 Equus: Human Conflicts and the Trinity	Mitchell Hay	9	bci	en	3s	
 Eros and Agape in Creative Evolution: A Peircean Insight	Carl R. Hausman	9	c	en	s	
@@ -43874,7 +43874,7 @@ Error in Causal Efficacy	Robert H. Kimball	9	c	en	s
 Eruption of Truth: An Interview with Raimon Panikkar		9	c	en	52	
 Escape From the Tomb (Jn. 20:1-18)	Barbara Brown Taylor	8escape-from-the-tomb-jn-201-18	c	en	e	
 Essential Question (John 6:56-69)	Cynthia M. Campbell	:sential-question-john-656-69	c	en	e	
-Ethical Collapse in Higher Education	Ronald Goetz	8	c	en	3m	
+Ethical Collapse in Higher Education	Ronald Goetz	8	cf	en	3m	
 Ethics and Evangelism: Learning from the Third-Century Church	Robert E. Webber	9	c	en	90	
 Ethics, Economics and Free Trade	John B. Cobb, Jr.	9	acf	en	6l	
 Ethics for This World	Robin Lovin	9	ac	en	76	
@@ -43896,7 +43896,7 @@ Evolutionist Theories and Whitehead’s Philosophy	George R. Lucas, Jr.	Aist-the
 Evolving Sensibilities of our Conception of Nature	Jay Schulkin	8	c	en	s	
 Examining Islamic Militancy	Charles A. Kimball	9	cd	en	8x	
 Excellence Beyond Standards (Is.25:6-9; Phil.4:4-13; Mt.22:1-10)	Delores S. Williams	8excellence-beyond-standards-is-256-9-phil-44-13-mt-221-10	c	en	e	
-Exercising a Christian Intellect	Glenn Tinder	8	c	en	3m	
+Exercising a Christian Intellect	Glenn Tinder	8	cf	en	3m	
 Expecting the Second Coming	Barbara Brown Taylor	9	c	en	3j	
 Experience and Philosophy: A Review of Hartshorne’s Creative Synthesis and Philosophic Method	Robert Neville	8experience-and-philosophy-a-review-of-hartshornes-creative-synthesis-and-philosophic-method	c	en	s	
 Experience, Dialectic, and God	Herbert J. Nelson	8	c	en	s	
@@ -43919,7 +43919,7 @@ Faith-Based Action	Arthur E. Farnsley II	9	c	en
 Faith-based Politics	"	9	cf	en	6k	
 Faith, Hope and Bigotry	Milton Rokeach	9	cf	en	9h	
 Faith, Hope and Love: Psalm 82	John B. Cobb, Jr.	9	c	en	6w	
-Faith in Learning: Integrative Education and Incarnational Theology	Jerry H. Gill	9	c	en	3m	
+Faith in Learning: Integrative Education and Incarnational Theology	Jerry H. Gill	9	cf	en	3m	
 Faith on Idle (2 Thessalonians 3:6-13)	Michael Battle	8faith-on-idle-2-thessalonians-36-13	c	en	e	
 Faithful Citizens	Gerald L. Sittser	8	cf	en	6k	
 Faithful to the Script	William Willimon	9	ci	en	8u	
@@ -43935,7 +43935,7 @@ Farewell to the Clown: A Tribute to Charlie	Conrad Hyers	8	ci	en	8u
 Farm Factories	Bernard E. Rollin	9	cfg	en	5l	
 Farming for God	H. Paul Santmire	9	cfg	en	5l	
 Feeling as a Metaphysical Category: Hartshorne from an Analytical View	L. Bryant Keeling	9	c	en	s	
-Feminism and Ministerial Education	Iris V. Cully	9	c	en	3m	
+Feminism and Ministerial Education	Iris V. Cully	9	cf	en	3m	
 Feminism and Peace	Rosemary Ruether	9	cf	en	97	
 Feminist Concerns and Whitehead’s Theory of Perception	Marilyn Thie	8feminist-concerns-and-whiteheads-theory-of-perception	c	en	s	
 Feminist Hermeneutics and Biblical Studies	Phyllis Trible	8	cf	en	97	
@@ -43952,7 +43952,7 @@ Finding the Church: Post-Traditional Discipleship	Robert N. Bellah	9	cf	en	9h
 Finding the Face of Jesus	Ronald Goetz	9	ci	en	k9	
 Finding the Good at Garden Grove	Browne Barr	9	c	en	4p	
 Fire in the Dark (Acts 2:1-21)	Mark Harris	8fire-in-the-dark-acts-21-21	c	en	e	
-Fit For Ministry?	Barbara G. Wheeler	8	c	en	3m	
+Fit For Ministry?	Barbara G. Wheeler	8	cf	en	3m	
 Fit for the Reign of God (I Kings 19:19-21; Luke 9:57-62; Gal. 5:1, 13-25)	Joseph M. McShane, S.J.	8fit-for-the-reign-of-god-i-kings-1919-21-luke-957-62-gal-51-13-25	c	en	e	
 Flannery O’Connor: Her Vision	F. Thomas Trotter	9lannery-oconnor-her-vision	bci	en	3s	
 Fleeing Before Herod (Matt. 4:12-13)	Fred B. Craddock	:eeing-before-herod-matt-412-13	c	en	e	
@@ -43973,15 +43973,15 @@ For the Sake of Ten (Gen. 18:24)	Kosuke Koyama	8for-the-sake-of-ten-gen-1824	c	e
 Foreign Aid: Does It Harm or Help?	David Sogge	8	acf	en	6l	
 Foreword To the Newly Reprinted British Edition of Science and the Modern World	Robert M. Young	9	c	en	s	
 Forgiven and Forgiving (Matt. 18:21-35)	Susan Pendelton Jones	8forgiven-and-forgiving-matt-1821-35	c	en	e	
-Formative Years: The Seminary Experience	Ellen T. Charry	8	c	en	3m	
-Formed for Ministry: A Program in Spiritual Formation	L. Gregory Jones and Willie J. Jennings	9	c	en	3m	
+Formative Years: The Seminary Experience	Ellen T. Charry	8	cf	en	3m	
+Formed for Ministry: A Program in Spiritual Formation	L. Gregory Jones and Willie J. Jennings	9	cf	en	3m	
 Forming a Family	Adrian Thatcher	9	cf	en	8b	
 Forming Students Through the Bible	Frederick Niedner	9	c	en	e	
 Forums for Dialogue: Teleconferencing and the American Catholic Church	Frances Ford Plude	9	c	en	q8	
 Fostering Family (Romans 8:12-25)	Rachel M. Srubas	8fostering-family-romans-812-25	c	en	e	
 Foundations of Cognitive Metaphysics	Jason W. Brown	8	c	en	s	
 Four Churches in One: Latin American Catholicism	Robert Jones	9	cf	en	hu	
-Four Types of Universities	John B. Cobb, Jr.	9	c	en	3m	
+Four Types of Universities	John B. Cobb, Jr.	9	cf	en	3m	
 Fourteen Years After ‘Unity in Mid-Career’	A. J. van der Bent	9	cf	en	gu	
 Fractures in the Future	Douglas W. Johnson	9	c	en	bg	
 Fragments from an Earthen Jar–James Robinson and the Nag Hammadi Library	John Dart	9	c	en	4k	
@@ -44003,7 +44003,7 @@ From Lorenzen Through Husserl to Whitehead	Hiroshi Endo	9	c	en	s
 From Mimesis to Kinesis: The Aristotelian Dramatic Matrix, Psychoanalysis, and Some Recent Alternati	Ekbert Faas	9	c	en	s	
 From Preaching to Painting: Van Gogh’s Religious Zeal	Kathleen Powers Erickson	8from-preaching-to-painting-van-goghs-religious-zeal	ci	en	k9	
 From Secularity to World Religions	Peter Berger	8	cf	en	9h	
-From Seminary to Parish	William Willimon	9	c	en	3m	
+From Seminary to Parish	William Willimon	9	cf	en	3m	
 From Songs of Protest to Hymns of Praise	L. Catherine Cook	9	c	en	4x	
 From the Other Side of the Pulpit	M. L. Brownsberger	9	c	en	3p	
 From Time Immemorial? Dwellers in the Holy Land	Robert L. Wilken	9	cf	en	b8	
@@ -44162,7 +44162,7 @@ Here be Dragons (Acts 11:1-18; Ps. 148; Rev.21:1-6; Jn. 13:31-35)	J. Nelson Kray
 Heresy, Diversity and Grace (Eph. 4:1-16)	Ronald Goetz	<sy-diversity-and-grace-eph-41-16	c	en	e	
 Hidden Dynamics Block Women’s Access to Pulpits	Ruth Brandon Minter	9idden-dynamics-block-womens-access-to-pulpits	c	en	ou	
 Hidden Pursuits	Lillian Daniel	8	cf	en	sz	
-Higher Education and the Periodization of History	John B. Cobb, Jr.	9	c	en	3m	
+Higher Education and the Periodization of History	John B. Cobb, Jr.	9	cf	en	3m	
 Hindutva, Religious and Ethnocultural Minorities, and Indian-Christian Theology	Sathianathan Clarke	9	c	en	cs	
 Hints of Redemption	Jill P. Baumgaertner	9	bci	en	3s	
 His Majesty: the President of the United States	Charles Levendosky	9	cf	en	f5	
@@ -44202,7 +44202,7 @@ Hospice: Caring at Life’s Edge	Robert Hirschfield	8hospice-caring-at-lifes-edg
 Hospitality Theology (Gen. 18:1-10a; Col. 1:15-28; Lk. 10:38-42)	Mary W. Anderson	=tality-theology-gen-181-10a-col-115-28-lk-1038-42	c	en	e	
 How Baptists Assessed Hitler	William Loyd Allen	8	c	en		
 How Christians Can Cope with Inflation	Thomas E. Ludwig and David Myers	9	acf	en	6l	
-How Communication Studies Can Help Us to Bridge the Gap in Our Theology Megaphors	Frances Ford Plude	9	c	en	wt	
+How Communication Studies Can Help Us to Bridge the Gap in Our Theology Megaphors	Frances Ford Plude	9	cf	en	wt	
 How Divided are United Methodists?	O. Wesley Allen, Jr.	9	c	en	bg	
 How Do We Live with Dying? Job 19:23-27a, II Thess. 2:13-3:5, Luke 20:27-28)	Joseph M. McShane, S.J.	8how-do-we-live-with-dying-job-1923-27a-ii-thess-213-35-luke-2027-28	c	en	e	
 How Does the Bible Function in the Christian Life?	William A. Dryness	8	c	en	4d	
@@ -44241,7 +44241,7 @@ Idol Behavior (Acts 17:22-31; 1 Peter 3:13-22)	Jenny Williams	8idol-behavior-act
 Idolatry and the Family	Leo Sandon, Jr.	8	cf	en	8b	
 If the Truth Weree Told	Michael Root	9	c	en		
 If You Give a Feast, Invite the Poor (Luke 14:7-14)	Kosuke Koyama	8if-you-give-a-feast-invite-the-poor-luke-147-14	c	en	e	
-Imagination and History	F. Thomas Trotter	8	c	en	3m	
+Imagination and History	F. Thomas Trotter	8	cf	en	3m	
 Imagination and the Pastoral Life	Craig Dykstra	9	c	en	3p	
 Imagination in Religious Pluralism	David C. Scott	9	c	en	55	
 Imaginative Generalization as Epogoge	Gregory Reichberg	9	c	en	s	
@@ -44284,11 +44284,11 @@ Indigenous Ministry in the Context of the United States	Tex Sample	9	c	en	3p
 Individualism and the Crisis of Civic Membership	Robert Bellah, et al	9	cf	en	gf	
 Indonesia: World Mission Policy	Rev. Sularso Sopater	9	c	en	55	
 Inequality, U.S.A.	Michael Jinkins	9	acf	en	6l	
-Inescapable Frameworks of Meaning	Robin Lovin	9	c	en	3m	
+Inescapable Frameworks of Meaning	Robin Lovin	9	cf	en	3m	
 Infant versus Believers’ Baptism: Search for Ecumenical Understanding	J. Jayakiran Sebastian	9	c	en	cs	
 Influence as Confluence: Bergson and Whitehead	Randall E. Auxier	9	c	en	s	
 Information Technology in Congregations	Nancy S. Armstrong, Aaron Spiegel, & John Wimmer	9	c	en	3p	
-Information Technology in Seminaries	Raymond B. Williams	9	c	en	3m	
+Information Technology in Seminaries	Raymond B. Williams	9	cf	en	3m	
 Inhuman Behavior	Kermit D. Johnson	9	cf	en	f5	
 Insiders Look at Fundamentalism	Martin E. Marty	9	cf	en	g3	
 Institutional Ties	William L. Sachs	9	cf	en	gf	
@@ -44435,7 +44435,7 @@ Letting Parables Live	Walter Wink	8	c	en	4k
 Lewis S. Ford: A Life In Process	George R. Lucas, Jr.	9	c	en	s	
 Lewis S. Ford and Traditional Interpretations of Whitehead’s Metaphysics	Denis Hurtubise	8lewis-s-ford-and-traditional-interpretations-of-whiteheads-metaphysics	c	en	s	
 Lewis S. Ford’s Theology: A Critical Appreciation	Robert Neville	Ds-theology-a-critical-appreciation	c	en	s	
-Liberal Learning and the Practice of Freedom	Philip H. Phenix	8	c	en	3m	
+Liberal Learning and the Practice of Freedom	Philip H. Phenix	8	cf	en	3m	
 Liberal Questions: A Response to William Placher	James M. Gustafson	9	cf	en	7u	
 Liberalism After 9/11	E.J. Dionne	8liberalism-after-911	cf	en	gv	
 Liberalism and Lost Days: A Re-evaluation of Fosdick	Leonard I. Sweet	8	c	en	52	
@@ -44479,7 +44479,7 @@ Living by the Word (Romans 6:1b-11)	Evan Drake Howard	R61b-11	c	en	e
 Living by the Word: Speak My Word Faithfully (Jer. 23:28)	Kosuke Koyama	Kspeak-my-word-faithfully-jer-2328	c	en	e	
 Living Faithfully in a Democratic Society	Robin Lovin	8	ac	en	76	
 Living on Tiptoe (Lk. 2:22-40; Ps. 148)	Christine Pohl	8living-on-tiptoe-lk-222-40-ps-148	c	en	e	
-Living Out the Gospel in Seminary Life	Grant S. Shockley	8	c	en	3m	
+Living Out the Gospel in Seminary Life	Grant S. Shockley	8	cf	en	3m	
 Living Sacrifice (Hebrews 10: 11-18)	T.V. Philip	9	c	en	e	
 Living with Alzheimer’s: Body, Soul and the Remembering Community	Stephen Sapp	8living-with-alzheimers-body-soul-and-the-remembering-community	c	en		
 Living with Chronic Illness: Why Should I Go On?	Stephen Schmidt	8	c	en		
@@ -44518,7 +44518,7 @@ Making Moral Sense of the Market	Douglas A. Hicks	9	cf	en	dl
 Making Prenatal Choices	Amy Laura Hall	9	c	en		
 Making Schools Work For The Rich And The Poor	Ronald J. Sider	9	cf	en	nn	
 Making the Invisible Visible: Russian Icons of the Golden Age	Laurel Gasque	9	c	en	4x	
-Making Theology Central in Theological Education	Ronald F. Thiemann	9	c	en	3m	
+Making Theology Central in Theological Education	Ronald F. Thiemann	9	cf	en	3m	
 Male Clergy Adultery as Vocational Confusion	Janet Fishburn	9	c	en	3p	
 Male Clergy in Economic Crisis	Matthew J. Price	9	c	en	3p	
 Male Sexuality: Moving Beyond the Myths	Merle Longwood	9	ac	en	i0	
@@ -44865,7 +44865,7 @@ Power Source (2 Corinthians 12:2-10)	Daniel Harrell	>source-2-corinthians-122-10
 PowerPointless	Debra Dean Murphy	8	c	en	4x	
 Practical Help for Afghans	Fred P. Hochberg	9	cf	en	f5	
 Practical Theology for Creative Ministry	John B. Cobb, Jr.	9	c	en	4p	
-Practical Theology: What Will It Become	John H. Perkins	9	c	en	3m	
+Practical Theology: What Will It Become	John H. Perkins	9	cf	en	3m	
 Practicing Fidelity (Ps. 80:1-7; Is 7:10-17; Rom 1:1-7; Matt. 1:18-25)	Rosalind Brown	8practicing-fidelity-ps-801-7-is-710-17-rom-11-7-matt-118-25	c	en	e	
 Practicing Liberation in the Black Church	James Henry Harris	8	cf	en	s3	
 Praising the Triune God: Beyond Gender?	Ruth E. Duck	9	bc	en	jb	
@@ -44997,7 +44997,7 @@ Reconciled in Worship	Ryan J. Jack McDermott	9	c	en	4x
 Reconsidering Albert Schweitzer	David L. Dungan	9	c	en	52	
 Recovering Healing Prayer	Gordon Dalbey	9	c	en		
 Recovering the Covenant	William Johnson Everett	9	c	en	ab	
-Recreational Sex: Lost Souls at the University	William Willimon	9	c	en	3m	
+Recreational Sex: Lost Souls at the University	William Willimon	9	cf	en	3m	
 Refiner’s Fire (Zep. 3:14-20; Is. 12:2-6; Phil. 4:4-7; Lk. 3:7-18)	John C. Morris	8refiners-fire-zep-314-20-is-122-6-phil-44-7-lk-37-18	c	en	e	
 Refining the Question About Women’s Ordination	Hermann J. Pottmeyer	=ing-the-question-about-womens-ordination	cf	en	97	
 Reflections of an Ecclesiastical Expatriate	Peter Berger	8	c	en	4p	
@@ -45017,7 +45017,7 @@ Reinventing the Church	Donald E. Messer	8	c	en	4p
 Rejection, Influence, and Development: Hartshorne in the History of Philosophy	Colin Gunton	9	c	en	s	
 Relativity Physics and the God of Process Philosophy	Paul Fitzgerald	9	c	en	s	
 Religion and Economics	John B. Cobb, Jr.	9	c	en	6w	
-Religion and Education	"	9	c	en	3m	
+Religion and Education	"	9	cf	en	3m	
 Religion and Liberty: From Vision to Politics	Michael Novak	9	cf	en	8c	
 Religion and Politics	Lawrence Falkowski	9	cf	en	8c	
 Religion and Television: Report on the Research	William F. Fore	9	c	en	q8	
@@ -45045,7 +45045,7 @@ Remembering Who We Are (Psalm 8)	Stacey Elizabeth Simpson	8	c	en	e
 Remembering	Roberta C. Bondi	9	c	en	3j	
 Remorse and Hope (Joel 2:1-2, 12-17; Matt. 6:1-6, 16-21)	Susan B. W. Johnson	8remorse-and-hope-joel-21-2-12-17-matt-61-6-16-21	c	en	e	
 Renewed Appreciation for an Unchanging Story	Elizabeth Achtemeier	8	c	en	bz	
-Reorientation and Retrieval in Systematic Theology	Gabriel Fackre	9	c	en	3m	
+Reorientation and Retrieval in Systematic Theology	Gabriel Fackre	9	cf	en	3m	
 Repeat Offenders (Romans 1:16-17)	Maureen Dallison Kemeza	8repeat-offenders-romans-116-17	c	en	e	
 Repent, Then Obey (Jer. 31:31-34; Ps.; 51:1-12; Ps. 119:9-16; Heb. 5:5-10)	Stanley S. Harakas	<nt-then-obey-jer-3131-34-ps-511-12-ps-1199-16-heb-55-10	c	en	e	
 Reply to the Basingers on Divine Omnipotence	Alvin Plantinga	8	c	en	s	
@@ -45073,10 +45073,10 @@ Reverence for Our God, Faith in Another	Daniel J. Ritter	9	c	en	ic
 Revising Both Science and Theology	John B. Cobb, Jr.	9	c	en	6w	
 Revising the Concept of Vocation for the Industrial Age	Robert G. Middleton	9	c	en	3j	
 Revisioning God and the Self: Lessons from Buddhism	Glen McDonald	9	cfg	en	5l	
-Revisioning Seminary as Ministry-Centered	Glenda Hope	9	c	en	3m	
+Revisioning Seminary as Ministry-Centered	Glenda Hope	9	cf	en	3m	
 Revisioning the Future of Oldline Protestantism	William McKinney	9	c	en	4p	
 Revisiting The Church In Socialism	Max L. Stackhouse	9	cf	en	dl	
-Revitalizing College Ministry: the ‘Church-on-Campus’ Model	John N. Brittain	9	c	en	3m	
+Revitalizing College Ministry: the ‘Church-on-Campus’ Model	John N. Brittain	9	cf	en	3m	
 Rhetorical Criticism of the Bible: A Resource for Preaching	Paul E. Koptak	9	c	en	ab	
 Rhetorical Identification In Paul’s Autobiographical Narrative	"	8rhetorical-identification-in-pauls-autobiographical-narrative	c	en	4k	
 Right and Wrong: A Framework for Moral Reasoning	Kenneth W. Thompson	8	ac	en	76	
@@ -45118,14 +45118,14 @@ Save Your Roof! Build a Ramp!	Nina Herrmann	9	cf	en	81
 Saving Faith, Evangelical Witness	William C. Placher	9	c	en	bz	
 Saving Saul (Acts 9:1-19)	Heidi A. Peterson	8saving-saul-acts-91-19	c	en	e	
 Saving the Earth	John B. Cobb, Jr.	8	cfg	en	5l	
-Saving the Soul of Higher Education	Myron A. Marty	9	c	en	3m	
+Saving the Soul of Higher Education	Myron A. Marty	9	cf	en	3m	
 Savior at Large (John 20:1-18)	Craig Barnes	8savior-at-large-john-201-18	c	en	e	
 Savior Like a Shepherd (Ps. 23; 1 Jn. 3:16-24; Jn. 10:1-18)	William Brosend	?like-a-shepherd-ps-23-1-jn-316-24-jn-101-18	c	en	e	
 Says Who? (Matthew 21:33-46)	Gracia Grindal	:ys-who-matthew-2133-46	c	en	e	
 Scandalous Behavior (Luke 7:36-8:3)	Michael Lindvall	9candalous-behavior-luke-736-83	c	en	e	
 Schemes from a Marriage	Janet Karsten Lawson	8	ci	en	8u	
 Schism Memoirs	Bill J. Leonard	9	c	en		
-Scholars for the Church	Bonnie and Ted A. Smith McLemore	9	c	en	3m	
+Scholars for the Church	Bonnie and Ted A. Smith McLemore	9	cf	en	3m	
 Science and Religion: Getting the Conversation Going	William H. King	9	cg	en	8q	
 Science: From the Womb of Religion	Stanley L. Jaki	9	cg	en	8q	
 Science under Siege	Michael Ruse	9	cg	en	8q	
@@ -45143,11 +45143,11 @@ Seeing with a Thousand Eyes	Lawrence Wood	8	bci	en	3s
 Seeking a Theology of the Finite	Donald L. Berry	9	cf	en	4q	
 Seeking Christian Interiority: An Interview with Louis Dupré		8seeking-christian-interiority-an-interview-with-louis-dupr	cf	en	6k	
 Seeking the Lost Sheep (Ex. 32:7-14;Ps. 51;1-10; 1 Tim. 1:12-17; Lk. 15:1-10)	Martha P. Sterne	@the-lost-sheep-ex-327-14ps-511-10-1-tim-112-17-lk-151-10	c	en	e	
-Seizing the Moment for Teaching Pastoral Care	Ian Dixon	8	c	en	3m	
+Seizing the Moment for Teaching Pastoral Care	Ian Dixon	8	cf	en	3m	
 Self-Emptying (Philippians 2: 5-8)	T.V. Philip	9	c	en	e	
 Self-Organization and Agency: In Chemistry and In Process Philosophy	Joseph E. Earley	9	c	en	s	
 Selling Native American Soul	Jon Magnuson	9	cf	en	9j	
-Seminary Education Tested by Praxis	Janet F. Fishburn and Neill Q. Hamilton	9	c	en	3m	
+Seminary Education Tested by Praxis	Janet F. Fishburn and Neill Q. Hamilton	9	cf	en	3m	
 Send Lazarus (Luke 16:19-31)	J. Mary Luti	8send-lazarus-luke-1619-31	c	en	e	
 Sensa and Patterns	Villard Alan White	8	c	en	s	
 Sent of God to Witness (John 1:19-41)	Fred B. Craddock	8sent-of-god-to-witness-john-119-41	c	en	e	
@@ -45215,7 +45215,7 @@ Socialism and Sin	Bruce Douglass	9	cf	en	dl
 Socialism’s Obituary Is Premature	Philip Wogaman	8socialisms-obituary-is-premature	cf	en	dl	
 Socializing Capitalism: The Century During the Great Depression	Mark G. Toulouse	8	c	en		
 Sociological Criticism of the Old Testament	Norman K. Gottwald	9	c	en	ab	
-Sola Gratia in Lake Wobegon	William Lee Miller	9	c	en	3m	
+Sola Gratia in Lake Wobegon	William Lee Miller	9	cf	en	3m	
 Sold into Slavery	Jonathan Tran	9	cf	en	9j	
 Solving the Housing Crisis Pragmatically	Robert Bachelder	9	cf	en	9r	
 Solzhenitsyn: Postmodern Moralist	Robert Inchausti	9	bci	en	3s	
@@ -45253,7 +45253,7 @@ Spirituality for Protestants	Matthew Fox	9	c	en	3j
 Spirituality in Abstract Art	Pamela Schaeffer	9	ci	en	k9	
 Spirituality While Facing Tragedy: How Then Shall We Live?	Henry Gustafson	9	c	en	3j	
 Splitting Up	Jason Byassee	9	c	en	4p	
-Spread Too Thin	William C. Placher	9	c	en	3m	
+Spread Too Thin	William C. Placher	9	cf	en	3m	
 Stalking the Spiritual in the Visual Arts	David Morgan	9	ci	en	k9	
 Standing on Promises (Is. 6:1-4,8-11; Ps. 16; I Thes. 5:16-24; John 1:6-8, 19-28)	Kathleen Norris	8standing-on-promises-is-61-48-11-ps-16-i-thes-516-24-john-16-8-19-28	c	en	e	
 Standing the Founding Fathers on Their Heads	Richard V. Pierard	8	cf	en	ev	
@@ -45322,8 +45322,8 @@ Taming the Savage Market	Robert Bellah, et al	9	acf	en	6l
 Taxing Church Property: An Imminent Possibility?	Jeffrey Warren Scott	9	c	en		
 Teaching About Religion: A Middle Way for Schools	Niels C. Nielsen	9	c	en		
 Teaching the Eco-Justice Ethic: The Parable of the Billerica Dam	J. Ronald Engel	9	acf	en	6l	
-Teaching Theology in a New Cultural Environment	Peter Horsfield	9	c	en	3m	
-Teaching Theology in Context	Luke T. and Charlotte McDaniel Johnson	9	c	en	3m	
+Teaching Theology in a New Cultural Environment	Peter Horsfield	9	cf	en	3m	
+Teaching Theology in Context	Luke T. and Charlotte McDaniel Johnson	9	cf	en	3m	
 Teaching Theology in the Church	Anthony B. Robinson	9	c	en		
 Teaching Values in South India: An Experiment in Education	Max L. Stackhouse	9	c	en	55	
 Teen-age Sexuality and Public Morality	Allen J. Moore	9	ac	en	i0	
@@ -45386,7 +45386,7 @@ The Century and Civil Rights: Indirect Action	Mark G. Toulouse	9	c	en
 The Century and Women Feminist Gains	"	9	c	en		
 The Century in Transition: 1916-1922	Linda-Marie Delloff	9	c	en		
 The Challenge of Conservative Theology	Peter M. Schmeichen	9	cf	en	gv	
-The Challenge of John 3:16 for Theological Education	Carnegie Samuel Calian	8the-challenge-of-john-316-for-theological-education	c	en	3m	
+The Challenge of John 3:16 for Theological Education	Carnegie Samuel Calian	8the-challenge-of-john-316-for-theological-education	cf	en	3m	
 The Challenge to Theological Education	John B. Cobb, Jr.	8	c	en	55	
 The Challenges of Adulthood for a Liberal Society	Michael Novak	9	ac	en	76	
 The Changing Face of Old Testament Studies	Christopher Seitz	9	c	en	ab	
@@ -45401,7 +45401,7 @@ The Christian Witness in a Secular Age	Reinhold Niebuhr	9	c	en	no
 The Christology of John Cobb	James C. Carpenter	9	c	en	s	
 The Church Amid Racial Tensions	Alan Paton	9	ac	en	76	
 The Church and Abortion: Signs of Consensus	Mark Ellingsen	9	cf	en	ha	
-The Church and Communication in the Technological Era	William F. Fore	9	c	en	wt	
+The Church and Communication in the Technological Era	William F. Fore	9	cf	en	wt	
 The Church and Contemporary Culture	Paul Tillich	9	c	en		
 The Church and Electronic Culture	Peter Horsfield	9	ci	en	c8	
 The Church and Political Life: A Loss of Confidence	Max L. Stackhouse	9	cf	en	8c	
@@ -45412,14 +45412,14 @@ The Church and the Coming Electronic Revolution: An interview with	Parker Rossma
 The Church and the Family Crisis:	Don & Carol Browning	9	cf	en	8b	
 The Church as a Global Society	Timothy M. Njoya	9	c	en	55	
 The Church as Prophetic Critic	John C. Bennett	9	cf	en	6k	
-The Church-Based University	Ronald A. Wells	9	c	en	3m	
+The Church-Based University	Ronald A. Wells	9	cf	en	3m	
 The Church: Beyond the Christian Religion	Douglas John Hall	9	c	en	4p	
 The Church Faces Its World	Winfred Ernest Garrison	9	c	en		
 The Church in the Centrifuge	Wade Clark Roof	9	cf	en	9h	
 The Church Moves Toward Film Discrimination	F. Thomas Trotter	9	ci	en	8u	
 The Church of the Living God	Wallace M. Alston, Jr.	9	c	en	4p	
 The Churches and Day Care	Eileen W. Lindner	9	cf	en	8b	
-The Churches’ Role in Media Education and Communication Advocacy	National Council of Churches	9	c	en	wt	
+The Churches’ Role in Media Education and Communication Advocacy	National Council of Churches	9	cf	en	wt	
 The Church’s False Witness Against Jews	Carl D. Evans	8the-churchs-false-witness-against-jews	c	en	hf	
 The Church’s New Concern with the Arts	Amos N. Wilder	Dnew-concern-with-the-arts	ci	en	ed	
 The Church’s Stake in the Arts	F. Thomas Trotter	Dstake-in-the-arts	ci	en	ed	
@@ -45492,10 +45492,10 @@ The Evangelical Groundswell in Latin America	Guillermo Cook	9	c	en	55
 The Evangelical-Jewish Alliance	Donald Wagner	9	cf	en	b8	
 The Expansion of Christianity: An Interview with Andrew Walls		9	c	en	55	
 The Experience of Value and Theological Argumentation	Philip E. Devenish	9	c	en	s	
-The Faculty Members of the Future: How Are They Being Shaped?	Barbara G. Wheeler	9	c	en	3m	
+The Faculty Members of the Future: How Are They Being Shaped?	Barbara G. Wheeler	9	cf	en	3m	
 The Fading of an Era: The Last Missionaries in the Punjab	Mark Juergensmeyer	9	c	en	55	
 The Failure of Individualism	Jack Bakunin	9	acf	en	6l	
-The Faith of the Scholars	Daniel L. Pals	9	c	en	3m	
+The Faith of the Scholars	Daniel L. Pals	9	cf	en	3m	
 The Fall and Rise of Creationism	Conrad Hyers	9	cg	en	8q	
 The Family Debate: A Middle Way	Browning Don and Ian Evison	9	cf	en	8b	
 The Fantasies of the New Theologians	Carl Raschke	9	cf	en	7u	
@@ -45512,7 +45512,7 @@ The Future Came Yesterday	Michael Leach	9	c	en
 The Future of Liberal Christianity	Donald E. Miller	9	cf	en	4q	
 The Future of Open Theology	Thomas Jay Oord	9	c	en		
 The Future of Postliberal Theology	Gary Dorrien	9	cf	en	7u	
-The Future We Shan’t See: Evelyn Underhill”s Pacificism	Robert Gail Woods	8the-future-we-shant-see-evelyn-underhills-pacificism	c	en	3m	
+The Future We Shan’t See: Evelyn Underhill”s Pacificism	Robert Gail Woods	8the-future-we-shant-see-evelyn-underhills-pacificism	cf	en	3m	
 The Gift of Aging	Carroll E. Simcox	8	c	en	sw	
 The Gift of Faith	B. A. Gerrish	9	cf	en	4q	
 The Giving and Taking of Life: New Power at Life’s Thresholds	Kenneth Vaux	8the-giving-and-taking-of-life-new-power-at-lifes-thresholds	cf	en	81	
@@ -45530,7 +45530,7 @@ The Gotcha Game (Lk. 20:27-38;Mk. 12:18; Acts 23:8)	F. Dean Lueking	8the-gotcha-
 The Grandeur of Politics	Robert G. Middleton	8	cf	en	8c	
 The Grapes of Wrath Fifty Years Later	John H. Timmerman	9	bci	en	3s	
 The Greatest Songs	Peter Paulsen	9	c	en	ab	
-The Greening of Theology	John B. Cobb, Jr.	9	c	en	3m	
+The Greening of Theology	John B. Cobb, Jr.	9	cf	en	3m	
 The Habit of Imagining	Judith Moffett	9	c	en	3j	
 The Hanna-Barbera Cartoons: Compounding Bible Ignorance?	Helen Lee Turner, Jones & Blazer	9	c	en	4d	
 The Health and Wealth Gospel	Jason Byassee	9	c	en	4p	
@@ -45550,7 +45550,7 @@ The Horizons of the Organic Vision of the Universe and Humanity: Vladimir Solovy
 The Human Self: An Actual Entity or a Society?	Rem B. Edwards	9	c	en	s	
 The Human Web: Reflections on the State of Pastoral Theology	Bonnie J. Miller-McLemore	9	c	en	3p	
 The Icon Tree	Madeline L’Engle	9	c	en	4d	
-The Identity Crisis in the Seminaries	James T. Laney	9	c	en	3m	
+The Identity Crisis in the Seminaries	James T. Laney	9	cf	en	3m	
 The Image of a Machine in The Liberation of Life	Granville C. Henry, Jr.	9	c	en	s	
 The Impact of a Cultural Revolutionary	James M. Cone	9	cd	en	j6	
 The Impact of Orthodox Theology	Jason Byassee	9	c	en	bg	
@@ -45589,7 +45589,7 @@ The Liberation of White Theology	Frederick Herzog	9	cf	en	4q
 The Light in the Darkness	Marcus Borg	9	c	en	4d	
 The Light of God in Action	George A.F. Knight	9	c	en	4k	
 The Limits of Celebrity Activism	Douglas A. Hicks	9	c	en	8t	
-The Listening Point	Lloyd Steffen	9	c	en	3m	
+The Listening Point	Lloyd Steffen	9	cf	en	3m	
 The Liturgy of Abundance, The Myth of Scarcity	Walter Brueggemann	9	cfg	en	5l	
 The Living Bread (John 6: 52-58)	T.V. Philip	9	c	en	e	
 The Living of These Days: A Tribute to Harry Emerson Fosdick	Deane William Ferm	9	c	en	52	
@@ -45750,7 +45750,7 @@ The Restoration Vision in Pentecostalism	D. William Faupel	9	cd	en	as
 The Resurrection: A Truth Beyond Understanding	Ronald Goetz	9	cf	en	4q	
 The Resurrection of the Human Jesus	Joseph M. Hallman	9	c	en	s	
 The Revelation of God in Christ	Henry Nelson Weiman	9	c	en	s	
-The Revival of Practical Theology	Don Browning	9	c	en	3m	
+The Revival of Practical Theology	Don Browning	9	cf	en	3m	
 The Revival of Religion and the Decay of Ethics	Robert Gordis	9	cf	en	g3	
 The Riddle of Religion in the Making	Lewis S. Ford	9	c	en	s	
 The Rise and Fall of Public Housing	Robert Westbrook	9	cf	en	9r	
@@ -45809,7 +45809,7 @@ The Sunday School of Tomorrow	John H. Westerhoff III	9	c	en
 The Super Bowl as Religious Festival	Joseph L. Price	9	ci	en	c8	
 The Superbowl Culture of Male Violence	Eugene C. Bianchi	9	ci	en	c8	
 The Symbiosis Between Poverty and Globalization: A Need for a Critique from Political Ethics	I. John Mohan Razu	9	cf	en	qy	
-The Teaching Life: Defining a Calling	Gabriel Fackre	9	c	en	3m	
+The Teaching Life: Defining a Calling	Gabriel Fackre	9	cf	en	3m	
 The Temporality of Divine Freedom	James W. Felt	9	c	en	s	
 The Testament of Friends	Stanley Hauerwas	9	c	en	4p	
 The Thanatos Syndrome: Exciting, Horrifying, Disappointing	Ralph C. Wood	9	bci	en	3s	
@@ -45841,9 +45841,9 @@ The Urge to Travel (Genesis 12:1-4; Psalm, 121)	Wilma Ann Bailey	8the-urge-to-tr
 The Use of Scripture in the Wesleyan	Donald W. Dayton	8	c	en	4d	
 The Use of the Bible in Theology	John Howard Yoder	9	c	en	4d	
 The Uses of American Power: On a Mission	Lloyd Steffen	9	acd	en	5r	
-The Uses of an Ecumenical Seminary	Donald W. Shriver, Jr.	9	c	en	3m	
+The Uses of an Ecumenical Seminary	Donald W. Shriver, Jr.	9	cf	en	3m	
 The Uses of Imagination in Religious Experience	F. Thomas Trotter	9	ci	en	ed	
-The Value of a Theological Education: Is It Worth It?	John Dart	9	c	en	3m	
+The Value of a Theological Education: Is It Worth It?	John Dart	9	cf	en	3m	
 The Value of the Dialogue Between Process Thought and Psychotherapy	David E. Roy	9	c	en	s	
 The Vatican’s Quarrel with Roger Haight	Thomas P. Rausch	8the-vaticans-quarrel-with-roger-haight	c	en	ic	
 The Violets: “A Cosmological Reading of a Cosmology”	Robin Blaser	8	c	en	s	
@@ -45874,8 +45874,8 @@ Theism and Religious Humanism: The Chasm Narrows	William R. Jones	9	cf	en	7u
 Then and Now: The Recovery of Patristic Wisdom	Thomas C. Oden	9	c	en	id	
 Theologian in the Service of Piety: A New Portrait of Calvin	Randall C. Zachman	9	c	en		
 Theologians Re-Imaging Redemption	June Christine Goudey	9	c	en	bz	
-Theological Education: Healing the Blind Beggar	Walter Brueggemann	9	c	en	3m	
-Theological Publishing: In Need of a Mandate	Barbara G. Wheeler	9	c	en	3m	
+Theological Education: Healing the Blind Beggar	Walter Brueggemann	9	cf	en	3m	
+Theological Publishing: In Need of a Mandate	Barbara G. Wheeler	9	cf	en	3m	
 Theological Realism	John B. Cobb, Jr.	9	c	en	6w	
 Theological Wisdom, British Style	David F. Ford	9	cf	en	7u	
 Theologizing in a Win/Lose Culture	Carnegie Samuel Calian	8theologizing-in-a-winlose-culture	c	en	3j	
@@ -45945,7 +45945,7 @@ Toward a Kierkegaardian Understanding of Hitler, Stalin, and the Cold War	Charle
 Toward a New Asceticism	Margaret R. Miles	9	c	en	3j	
 Toward a Process-Relational Christian Eschatology	David L. Wheeler	9	c	en	s	
 Toward a Process-Relational Christian Soteriology	"	9	c	en	s	
-Toward a Public Sense of Pastoral Care	Donald W. Shriver, Jr.	9	c	en	3m	
+Toward a Public Sense of Pastoral Care	Donald W. Shriver, Jr.	9	cf	en	3m	
 Toward an Earth Charter	Larry Rassmussen	9	cfg	en	5l	
 Toward the Heart of the Matter	Eberhard Jungel	9	cf	en	7u	
 Toward the Prophetic: A New Direction in the Practice of New Thought	Liza J. Rankow	9	c	en	bg	
@@ -45972,7 +45972,7 @@ Turn in the Road	Mary Schertz	9	c	en	e
 Turning to Islam — African-American Conversion Stories	Rose-Marie Armstrong	9	cd	en	8x	
 Turning to Orthodoxy	Amy Johnson Frkyholm	9	c	en	bg	
 Tutu’s Story	Lawrence Wood	8tutus-story	c	en		
-TV Faith: Rituals of Secular Life	Gregor Goethals	8	c	en	wt	
+TV Faith: Rituals of Secular Life	Gregor Goethals	8	cf	en	wt	
 Twelve Steps for Women Alcoholics	Gail Unterberger	9	c	en		
 Twice Healed (2 Cor. 1:18-22; Mk. 2:1-12)	Douglas R. Loving	8twice-healed-2-cor-118-22-mk-21-12	c	en	e	
 Two Arenas for Faithfulness (Matthew 5:13-20)	Fred B. Craddock	:o-arenas-for-faithfulness-matthew-513-20	c	en	e	
@@ -46016,7 +46016,7 @@ Viewing The Bible Through The Eyes And Ears of Subalterns In India	Sathianathan 
 Violence in Electronic Media and Film, a National Council of Churches Polity Statement		9	c	en	dv	
 Violence: Media’s Desperate Remedy	James A. Taylor	8violence-medias-desperate-remedy	c	en	dv	
 Violence Undone	James Alison	8	ac	en	eg	
-Virtual Seminary	Jason Byassee	9	c	en	3m	
+Virtual Seminary	Jason Byassee	9	cf	en	3m	
 Virtual Virtuosity (Mark 12:38-44)	Robin R. Meyers	8virtual-virtuosity-mark-1238-44	c	en	e	
 Virtual Worship	Mark U. Edwards, Jr.	8	c	en	4x	
 Von Balthasar and Christian Humanism	Edgardo Antonio Colón-Emeric	9	cf	en	ao	
@@ -46073,7 +46073,7 @@ What Is “Process Hermeneutics”?	David J. Lull	9	c	en	s
 What is Religious Art?	F. Thomas Trotter	9	ci	en	k9	
 What is the Church For?	Jason Byassee	9	c	en	4p	
 What is the Focus of Spiritual Life?	Scott McKnight	9	c	en	3j	
-What is the Role of the Theological School in Today’s World?	William F. Fore	8what-is-the-role-of-the-theological-school-in-todays-world	c	en	3m	
+What is the Role of the Theological School in Today’s World?	William F. Fore	8what-is-the-role-of-the-theological-school-in-todays-world	cf	en	3m	
 What is Wrong with the Mirror Image? A Brief Reply to Simoni-Wastila on the Problem of Radical Parti	Donald Wayne Viney	8	c	en	s	
 What Kind of Growth?	John B. Cobb, Jr.	9	acf	en	6l	
 What Luther Got Wrong	David C. Steinmetz	9	c	en	52	
@@ -46081,7 +46081,7 @@ What Makes Faith Mature	Eugene C. Roehlkepartain	9	c	en
 What Religious People Think About the Poor	Robert Wuthnow	9	cf	en	9h	
 What Rembrandt Saw	Stephanie Dickey	9	ci	en	ed	
 What Shall We Do About “God”?	John B. Cobb, Jr.	9	c	en	6w	
-What Students Crave	Jennifer E. Copeland	9	c	en	3m	
+What Students Crave	Jennifer E. Copeland	9	cf	en	3m	
 What Teens Believe	Carol E. Lytch	9	cf	en	8b	
 What the Mainline Denominations Are Doing in Evangelism	Alfred C. Krass	9	c	en	ly	
 What Then Shall We Do?	William Willimon	9	c	en	e	
@@ -46094,7 +46094,7 @@ Whatever Happened to Liberation Theology?	Nancy E. Bedford	8	c	en	jo
 Whatever Happened to Ministers’ Wives	L. Michael Jendrzejczyk	9	c	en	3p	
 What’s Behind "Left Behind?"	Jason Byassee	8whats-behind-left-behind	cf	en	g3	
 What’s New in Interpreting Genesis	Paul E. Koptak	>new-in-interpreting-genesis	c	en	ab	
-What’s Theological About a Theological School?	David Kelsey	>theological-about-a-theological-school	c	en	3m	
+What’s Theological About a Theological School?	David Kelsey	>theological-about-a-theological-school	cf	en	3m	
 Wheat and Chaff (Is. 11:1-10; Rom. 15:4-13; Matt. 3:1-12)	Ruth A. Meyers	:eat-and-chaff-is-111-10-rom-154-13-matt-31-12	c	en	e	
 When Hard Work Doesn’t Pay	Marcia Z. Nelson	;n-hard-work-doesnt-pay	cf	en	9j	
 When History Is All We Have	Will Campbell	8	c	en		
@@ -46182,7 +46182,7 @@ Why Faith Needs Process Philosophy	John B. Cobb, Jr.	9	c	en	6w
 Why Fasting Makes Sense: Soul Food	Amy Johnson Frkyholm	9	c	en	3j	
 Why Follow a Crucified Christ? (Mk. 8:27-38)	Kenneth L. Carder	8why-follow-a-crucified-christ-mk-827-38	c	en	e	
 Why I Did Not Leave Nazi Germany in Time	Werner Weinberg	8	c	en		
-Why Is the D.Min. So Popular?	Jackson W. Carroll	9	c	en	3m	
+Why Is the D.Min. So Popular?	Jackson W. Carroll	9	cf	en	3m	
 Why is the Dead Sea Dying?	Bruce Borthwick	9	cf	en	b8	
 Why Liberals Need Conservatives	Barbara G. Wheeler	9	c	en	bg	
 Why Maria Crossed Over	John Fanestil	9	cf	en	9j	
@@ -46194,7 +46194,7 @@ Why Only Two? Why Not Three?	Lewis S. Ford	9	c	en	s
 Why Pastors Leave Parish Ministry	David Wood	9	c	en	3p	
 Why Peace Movements Fail	James Clotfelter	9	acd	en	5r	
 Why Psychicalism? Comments on Keeling’s and Shepherd’s Criticisms	Charles Hartshorne	8why-psychicalism-comments-on-keelings-and-shepherds-criticisms	c	en	s	
-Why Seminaries Don’t Change: A Reflection on Faculty Specialization	Edward Farley	<seminaries-dont-change-a-reflection-on-faculty-specialization	c	en	3m	
+Why Seminaries Don’t Change: A Reflection on Faculty Specialization	Edward Farley	<seminaries-dont-change-a-reflection-on-faculty-specialization	cf	en	3m	
 Why ‘Separation’ Is Not the Key to Church-State Relations	Michael W. McConnell	8	c	en		
 Why Should Anyone Believe? Apologetics and Theological Education	Dennis M. Campbell	9	c	en	4p	
 Why Spirituality Needs Jesus	Eugene H. Peterson	9	c	en	3j	
@@ -46282,7 +46282,7 @@ Anselm’s Discovery: A Re-examination of the Ontological Proof for God’s Exis
 As One Without Authority	Fred B. Craddock	5	ci	en	9f	
 Becoming and Belonging	Norman Pittenger	6	c	en	ch	
 Beliefs That Count	Georgia Harkness	6	cf	en	4q	
-Between Athens And Berlin: The Theological Education Debate	David Kelsey	6	c	en	3m	
+Between Athens And Berlin: The Theological Education Debate	David Kelsey	6	cf	en	3m	
 Care of Souls in the Classic Tradition	Thomas C. Oden	6	c	en	90	
 Charles Hartshorne	Alan Gragg	6	c	en	52	
 Christian Affirmations	Norman Pittenger	6	cf	en	4q	
@@ -46303,7 +46303,7 @@ Doubting Thomas: Christology in Story Form	John B. Cobb, Jr.	6	cf	en	4q
 Dynamics of Faith	Paul Tillich	6	c	en		
 East of the Euphrates: Early Christianity in Asia	T.V. Philip	6	c	en		
 Edinburgh to Salvador: Twentieth Century Ecumenical Missiology	"	6	c	en	55	
-Education and the Common Good: A Moral Philosophy of the Curriculum	Philip H. Phenix	6	c	en	3m	
+Education and the Common Good: A Moral Philosophy of the Curriculum	Philip H. Phenix	6	cf	en	3m	
 Encounter in Humanization: Insights for Christian-Marxist Dialogue and Cooperation	Paulose Mar Paulose	6	c	en	v6	
 Essays in the History of Religions	Joachim Wach	6	cf	en	9h	
 Essays on Biblical Interpretation	Paul Ricoeur	6	c	en	4d	
@@ -46445,7 +46445,7 @@ The Theology of Altizer: Critique and Response	John B. Cobb, Jr. (editor)	6	cf	e
 The Unquenchable Light	Kenneth Scott Latourette	6	c	en		
 The Varieties of Religious Experience: A Study in Human Nature	William James	6	c	en		
 The World to Come: From Christian Past to Global Future	Lloyd Geering	6	cf	en	7u	
-To Understand God Truly	David Kelsey	6	c	en	3m	
+To Understand God Truly	David Kelsey	6	cf	en	3m	
 Toward Understanding the Bible	Georgia Harkness	6	c	en	4d	
 Twelve Tests of Character	Harry Emerson Fosdick	6	c	en	3j	
 Understanding and Counseling the Alcoholic	Howard J. Clinebell, Jr.	6	c	en	90	
@@ -51637,21 +51637,21 @@ Vegas spår	"	X0001	bm	sv	1p,2z,j9
 Strandbrinken	"	X0002	bm	sv	1p,2z,j9	
 Ett Lützen-minne	"	X0003	bm	sv	1p,2z,j9	
 Finska rytteriets marsch i trettioåra kriget	"	X0004	bm	sv	1p,2z,j9	
-Ludvig van Beethovens minne	"	X0005	bm	sv	1p,2z,g7	
-Bertel Thorvaldsen	"	X0006	bm	sv	1p,2z,g7	
-I Konstnärsgillets Album	"	X0007	bm	sv	1p,2z,g7	
-Konstnärsgillet i Helsingfors	"	X0008	bm	sv	1p,2z,g7	
-Robert Wilhelm Ekman	"	X0009	bm	sv	1p,2z,g7	
-Konstnärens maka	"	X0010	bm	sv	1p,2z,g7	
-Magnus von Wright	"	X0011	bm	sv	1p,2z,g7	
-Karl Collan	"	X0012	bm	sv	1p,2z,g7	
-Karl Emanuel Jansson	"	X0013	bm	sv	1p,2z,g7	
-Jenny Lind	"	X0014	bm	sv	1p,2z,g7	
-Till en skådespelerska	"	X0015	bm	sv	1p,2z,g7	
-Flickan från Miletos	"	X0016	bm	sv	1p,2z,g7	
-Cendrillon	"	X0017	bm	sv	1p,2z,g7	
-Till Fredrik Pacius	"	X0018	bm	sv	1p,2z,g7	
-Var lugn för vår tid!	"	X0019	bm	sv	1p,2z,g7	
+Ludvig van Beethovens minne	"	X0005	bim	sv	1p,2z,g7	
+Bertel Thorvaldsen	"	X0006	bim	sv	1p,2z,g7	
+I Konstnärsgillets Album	"	X0007	bim	sv	1p,2z,g7	
+Konstnärsgillet i Helsingfors	"	X0008	bim	sv	1p,2z,g7	
+Robert Wilhelm Ekman	"	X0009	bim	sv	1p,2z,g7	
+Konstnärens maka	"	X0010	bim	sv	1p,2z,g7	
+Magnus von Wright	"	X0011	bim	sv	1p,2z,g7	
+Karl Collan	"	X0012	bim	sv	1p,2z,g7	
+Karl Emanuel Jansson	"	X0013	bim	sv	1p,2z,g7	
+Jenny Lind	"	X0014	bim	sv	1p,2z,g7	
+Till en skådespelerska	"	X0015	bim	sv	1p,2z,g7	
+Flickan från Miletos	"	X0016	bim	sv	1p,2z,g7	
+Cendrillon	"	X0017	bim	sv	1p,2z,g7	
+Till Fredrik Pacius	"	X0018	bim	sv	1p,2z,g7	
+Var lugn för vår tid!	"	X0019	bim	sv	1p,2z,g7	
 Vinterqväll	"	X0020	bm	sv	1p,2z,8d,oy	
 Midsommarnatt	"	X0021	bm	sv	1p,2z,8d,oy	
 Utsäde	"	X0022	bm	sv	1p,2z,8d,oy	
@@ -53019,210 +53019,210 @@ Universitetets Promotionsfest 1860	"	X0855	bm	sv	7,9,1o,3v
 Missvexterna i Finland	"	X0857	bm	sv	7,9,1o,3v	
 Fattigvård och laga försvar	"	X0858	bm	sv	7,9,1o,3v	
 Prestmötet i Åbo 1859	"	X0859	bm	sv	7,9,1o,3v	
-Till Tit. Henrik om Theatern	"	X0860	bm	sv	7,9,1n,53	
-1840, detta år så rikt på minnen […]	"	X0861	bm	sv	7,9,1n,53,5b	
-Om Pianoforte-Musik	"	X0862	bm	sv	7,9,1n,53	
-Helsingfors i Maj. (Till Tit. Henrik)	"	X0863	bm	sv	7,9,1n,53	
-Knoppar. 1	"	X0864	bm	sv	7,9,1n,53,h5	
-Knoppar. 2	"	X0865	bm	sv	7,9,1n,53,h5	
-Madame Fink-Lohrs Concert	"	X0866	bm	sv	7,9,1n,53	
-Knoppar. 3	"	X0867	bm	sv	7,9,1n,53,h5	
-Knoppar. 4	"	X0868	bm	sv	7,9,1n,53,h5	
-Helsingfors i Juni (Till Tit. Henrik)	"	X0869	bm	sv	7,9,1n,53	
-Knoppar. 6	"	X0870	bm	sv	7,9,1n,53,h5	
-Suomi, 4:de häftet […]	"	X0871	bm	sv	7,9,1n,53,5b	
-»Litteraturens varg i veum»	"	X0872	bm	sv	7,9,1n,53	
-Den inhemska Finska litteraturen […]	"	X0873	bm	sv	7,9,1n,53,5b	
-Till en Vän.	"	X0874	bm	sv	7,9,1n,53	
-»Tidningarne äro onda»	"	X0875	bm	sv	7,9,1n,53	
-Tal vid Kejs. Alex. Universitetets […]	"	X0876	bm	sv	7,9,1n,53,5b	
-Den Finska Periodiska Pressen 1842	"	X0877	bm	sv	7,9,1n,53	
-Qvinnans Skapelse	"	X0878	bm	sv	7,9,1n,53,5b	
+Till Tit. Henrik om Theatern	"	X0860	bim	sv	7,9,1n,53	
+1840, detta år så rikt på minnen […]	"	X0861	bim	sv	7,9,1n,53,5b	
+Om Pianoforte-Musik	"	X0862	bim	sv	7,9,1n,53	
+Helsingfors i Maj. (Till Tit. Henrik)	"	X0863	bim	sv	7,9,1n,53	
+Knoppar. 1	"	X0864	bim	sv	7,9,1n,53,h5	
+Knoppar. 2	"	X0865	bim	sv	7,9,1n,53,h5	
+Madame Fink-Lohrs Concert	"	X0866	bim	sv	7,9,1n,53	
+Knoppar. 3	"	X0867	bim	sv	7,9,1n,53,h5	
+Knoppar. 4	"	X0868	bim	sv	7,9,1n,53,h5	
+Helsingfors i Juni (Till Tit. Henrik)	"	X0869	bim	sv	7,9,1n,53	
+Knoppar. 6	"	X0870	bim	sv	7,9,1n,53,h5	
+Suomi, 4:de häftet […]	"	X0871	bim	sv	7,9,1n,53,5b	
+»Litteraturens varg i veum»	"	X0872	bim	sv	7,9,1n,53	
+Den inhemska Finska litteraturen […]	"	X0873	bim	sv	7,9,1n,53,5b	
+Till en Vän.	"	X0874	bim	sv	7,9,1n,53	
+»Tidningarne äro onda»	"	X0875	bim	sv	7,9,1n,53	
+Tal vid Kejs. Alex. Universitetets […]	"	X0876	bim	sv	7,9,1n,53,5b	
+Den Finska Periodiska Pressen 1842	"	X0877	bim	sv	7,9,1n,53	
+Qvinnans Skapelse	"	X0878	bim	sv	7,9,1n,53,5b	
 Det Höstliga Helsingfors. (Till Lieutenant Leopold i Grusien)	"	X0879	bm	sv	7,9,14,53	
-Musiken i våra dagar	"	X0880	bm	sv	7,9,1n,53	
-Den Finska Periodiska Pressen 1843	"	X0881	bm	sv	7,9,1n,53	
-Inrikes. Suomi VI	"	X0882	bm	sv	7,9,1n,64,5b	
-Inländsk. Pietismen [...] af Carl Fromman	"	X0883	bm	sv	7,9,1n,64,5b	
-Knoppar. 1	"	X0884	bm	sv	7,9,1n,64,h5	
-Knoppar. 2	"	X0885	bm	sv	7,9,1n,64,h5	
-Inländsk. Alexanders Universitetets i Finland Matrikel	"	X0886	bm	sv	7,9,1n,64,5b	
-Suomi 1843	"	X0887	bm	sv	7,9,1n,64,5b	
-Grekisk Fornkunskap	"	X0888	bm	sv	7,9,1n,64,5b	
-Knoppar. 3	"	X0889	bm	sv	7,9,1n,64,h5	
-Grunddragen af jordbeskrifningen	"	X0890	bm	sv	7,9,1n,64,5b	
-Den Gamles Minnen	"	X0891	bm	sv	7,9,1n,64,5b	
-Knoppar. 4	"	X0892	bm	sv	7,9,1n,64,h5	
-Finska Läkare-Sällskapets Handlingar […]	"	X0894	bm	sv	7,9,1n,64,5b	
-Den Finska Periodiska Pressen 1843	"	X0895	bm	sv	7,9,1n,64	
-Knoppar. 5	"	X0896	bm	sv	7,9,1n,64,h5	
-Tidnings Revue	"	X0897	bm	sv	7,9,1n,46	
-Publicistik, Knoppar: 1. Fredrika Bremers Dagbok	"	X0898	bm	sv	7,9,1n,46,h5	
-Urkunder upplysande Finlands öden [...]	"	X0899	bm	sv	7,9,1n,46,5b	
-En Förklaring	"	X0900	bm	sv	7,9,1n,46	
-Publicistik, Knoppar: 2. Torparen och hans Omgifning	"	X0901	bm	sv	7,9,1n,46,h5	
-Publicistik, Knoppar: 4. Kung Fjalar	"	X0902	bm	sv	7,9,1n,46,h5	
-Latinsk Språklära […] af Joh. Edv. Öhman	"	X0903	bm	sv	7,9,1n,46,5b	
+Musiken i våra dagar	"	X0880	bim	sv	7,9,1n,53	
+Den Finska Periodiska Pressen 1843	"	X0881	bim	sv	7,9,1n,53	
+Inrikes. Suomi VI	"	X0882	bim	sv	7,9,1n,64,5b	
+Inländsk. Pietismen [...] af Carl Fromman	"	X0883	bim	sv	7,9,1n,64,5b	
+Knoppar. 1	"	X0884	bim	sv	7,9,1n,64,h5	
+Knoppar. 2	"	X0885	bim	sv	7,9,1n,64,h5	
+Inländsk. Alexanders Universitetets i Finland Matrikel	"	X0886	bim	sv	7,9,1n,64,5b	
+Suomi 1843	"	X0887	bim	sv	7,9,1n,64,5b	
+Grekisk Fornkunskap	"	X0888	bim	sv	7,9,1n,64,5b	
+Knoppar. 3	"	X0889	bim	sv	7,9,1n,64,h5	
+Grunddragen af jordbeskrifningen	"	X0890	bim	sv	7,9,1n,64,5b	
+Den Gamles Minnen	"	X0891	bim	sv	7,9,1n,64,5b	
+Knoppar. 4	"	X0892	bim	sv	7,9,1n,64,h5	
+Finska Läkare-Sällskapets Handlingar […]	"	X0894	bim	sv	7,9,1n,64,5b	
+Den Finska Periodiska Pressen 1843	"	X0895	bim	sv	7,9,1n,64	
+Knoppar. 5	"	X0896	bim	sv	7,9,1n,64,h5	
+Tidnings Revue	"	X0897	bim	sv	7,9,1n,46	
+Publicistik, Knoppar: 1. Fredrika Bremers Dagbok	"	X0898	bim	sv	7,9,1n,46,h5	
+Urkunder upplysande Finlands öden [...]	"	X0899	bim	sv	7,9,1n,46,5b	
+En Förklaring	"	X0900	bim	sv	7,9,1n,46	
+Publicistik, Knoppar: 2. Torparen och hans Omgifning	"	X0901	bim	sv	7,9,1n,46,h5	
+Publicistik, Knoppar: 4. Kung Fjalar	"	X0902	bim	sv	7,9,1n,46,h5	
+Latinsk Språklära […] af Joh. Edv. Öhman	"	X0903	bim	sv	7,9,1n,46,5b	
 Från Helsingfors. 10	"	X0904	bm	sv	7,9,14,46,kz	
-Publicistik, Knoppar: 5. Hundrade Minnen från Österbotten	"	X0905	bm	sv	7,9,1n,46,h5	
-»Till Finlands Ära»	"	X0906	bm	sv	7,9,1n,4e,5b	
-Svensk Literatur	"	X0907	bm	sv	7,9,1n,4e	
-Fröken Römer och Pianot	"	X0908	bm	sv	7,9,1n,4e	
-Ljus och skugga. Vandringsbilder af F. Cygnæus	"	X0909	bm	sv	7,9,1n,4e,5b	
-Vår-Literatur I	"	X0910	bm	sv	7,9,1n,4e	
-Vår-Literatur II	"	X0911	bm	sv	7,9,1n,4e	
-Sturzenbechers Sex Föreläsningar	"	X0912	bm	sv	7,9,1n,4e,5b	
-Fredrika Bremers »I Dalarna»	"	X0913	bm	sv	7,9,1n,4e,5b	
-Konturteckningar af –s–n	"	X0914	bm	sv	7,9,1n,4e,5b	
-Landets Tidningar år 1845	"	X0915	bm	sv	7,9,1n,4e	
-C. J. L. Almqvist. Monografi	"	X0916	bm	sv	7,9,1n,4y	
-La Finlande [...] par Léouzon Le Duc	"	X0917	bm	sv	7,9,1n,4y	
-Lambertska Arfvet och Smaragdbruden af Almqvist	"	X0918	bm	sv	7,9,1n,4y	
-Genremålningar af Onkel Adam [...] Får gå! [...] Ett namn	"	X0919	bm	sv	7,9,1n,4y,5b	
-Almqvist och Fahlcrantz	"	X0920	bm	sv	7,9,1n,4y,5b	
-Jul-Literatur	"	X0921	bm	sv	7,9,1n,4y	
-Finlands Tidningar 1846	"	X0922	bm	sv	7,9,1n,4y	
-Necken. Thalia. Ljus och Skugga	"	X0923	bm	sv	7,9,1n,5p,5b	
-En Prestgård i N-d, af en finsk medborgarinna	"	X0924	bm	sv	7,9,1n,5p,5b	
-E. Tegnérs samlade Skrifter	"	X0925	bm	sv	7,9,1n,5p,5b	
-Pojken, Småsaker på vers af J. G. Leistenius	"	X0926	bm	sv	7,9,1n,5p,5b	
-Herr Z. Cajanders Skriftställeri	"	X0927	bm	sv	7,9,1n,5p	
-Handledning af Unge Prester […] Några Ord till Mödrar […] P. U. F. Sadelin	"	X0928	bm	sv	7,9,1n,5p,5b	
-Skön Literatur i Finland	"	X0929	bm	sv	7,9,1n,5p	
-Theater. Skärgårdsflickan […] af J. A. von Essen	"	X0930	bm	sv	7,9,1n,5p	
-Blanche och hans roman Vålnaden	"	X0931	bm	sv	7,9,1n,5p,5b	
-Tidningarna 1847	"	X0932	bm	sv	7,9,1n,5p	
-Ynglingen, Småsaker på vers af J. G. Leistenius	"	X0933	bm	sv	7,9,1n,5p,5b	
-Det Svenska Skriftställeriet i Finland	"	X0934	bm	sv	7,9,1n,54	
-Aura I	"	X0935	bm	sv	7,9,1n,54,5b	
-Theater. »I det gröna» […] af F. Berndtson	"	X0936	bm	sv	7,9,1n,54	
-Aslögs Saga, af H–n	"	X0937	bm	sv	7,9,1n,54,5b	
-Beskrifning om Runö i Liffland	"	X0938	bm	sv	7,9,1n,54,5b	
-Nordstjernan för 1848	"	X0939	bm	sv	7,9,1n,54,5b	
-Johan Jacob Nervander, tecknad af Fredrik Cygnæus	"	X0940	bm	sv	7,9,1n,54,5b	
-Den nya upplagan af Kalevala	"	X0941	bm	sv	7,9,1n,54	
-Jungfrutornet af Fru Carlén	"	X0942	bm	sv	7,9,1n,54,5b	
-Så slutades min lek […] af Wendela	"	X0943	bm	sv	7,9,1n,54,5b	
-Läsebibliothek i Finland. Trollets Son af Kjellman Göranson	"	X0944	bm	sv	7,9,1n,54,5b	
-Tidningsprenumerationen år 1848	"	X0945	bm	sv	7,9,1n,54	
-Literaturbladet fortsättes 1849	"	X0946	bm	sv	7,9,1n,54	
-Herr Palms Lånebibliothek	"	X0947	bm	sv	7,9,1n,54	
-Theater. Sommarnatten, Skådespel af N. H. Pinello	"	X0948	bm	sv	7,9,1n,6s	
-Necken, poetisk kalender för 1849	"	X0949	bm	sv	7,9,1n,6s,5b	
-Läsebibliothek i Finland	"	X0950	bm	sv	7,9,1n,6s,5b	
-Aura III, En Nylands Dragon; IV, Hildegard [...]	"	X0951	bm	sv	7,9,1n,6s,5b	
-Revy af Tidningarna	"	X0952	bm	sv	7,9,1n,6s	
-Strid och Seger, novell af en Finne [...]	"	X0953	bm	sv	7,9,1n,6s,5b	
-Nya Imperial Törnrosen	"	X0954	bm	sv	7,9,1n,6s,5b	
-Svenska Psalmböckerna	"	X0955	bm	sv	7,9,1n,6s	
-Anjalaförbundet […] af Maunu Malmanen	"	X0956	bm	sv	7,9,1n,6s,5b	
-Tidningsprenumerationen 1849	"	X0957	bm	sv	7,9,1n,6s	
-Utländska Tidningar	"	X0958	bm	sv	7,9,1n,6s	
-Dikter af Heinrich Heine […]	"	X0959	bm	sv	7,9,1n,6s,5b	
-Aura IX. Granriskojan	"	X0960	bm	sv	7,9,1n,65,5b	
-Revy af Tidningarna	"	X0961	bm	sv	7,9,1n,65	
-Handlingar till upplysning af Finlands häfder	"	X0962	bm	sv	7,9,1n,65,5b	
-De Inhemska Pjeserna	"	X0963	bm	sv	7,9,1n,65	
-Theater. Den Bergtagna eller Systrarna på Kinnekulle	"	X0964	bm	sv	7,9,1n,65	
-Theater. Ännu engång om »Den Bergtagna»	"	X0965	bm	sv	7,9,1n,65	
-Bidrag till Nordens Sjukdomshistoria	"	X0966	bm	sv	7,9,1n,65,5b	
-Svenska Psalmböckerna	"	X0967	bm	sv	7,9,1n,65	
-Slutanmärkning angående novellen Hertiginnan af Finland	"	X0968	bm	sv	7,9,1n,65	
-Nordens Literaturhistoria af L. Leouzon Leduc	"	X0969	bm	sv	7,9,1n,65	
-Tidningarna i Finland år 1850	"	X0970	bm	sv	7,9,1n,65	
-Revy af Tidningarna	"	X0971	bm	sv	7,9,1n,65	
-Musikaliskt Lånebibliothek i Helsingfors	"	X0972	bm	sv	7,9,1n,65	
-Revy af Theatern	"	X0973	bm	sv	7,9,1n,65	
-Hr Leduc om Finland	"	X0974	bm	sv	7,9,1n,5s	
-Om Julen och Julstjernan i Helsingfors	"	X0975	bm	sv	7,9,1n,5s	
-Angående Svenska Akademien	"	X0976	bm	sv	7,9,1n,5s	
-Helsingfors Tidningars okände vän	"	X0977	bm	sv	7,9,1n,5s	
-Hindren för en inhemsk theaterrepertoire. II	"	X0978	bm	sv	7,9,1n,5s	
-Musik i Landsorterna	"	X0979	bm	sv	7,9,1n,5s	
-Frågor angående Konstföreningen	"	X0980	bm	sv	7,9,1n,5s	
-Theater. Skådespelet »Efter femtio år»	"	X0981	bm	sv	7,9,1n,5s	
-Revy af Theatern	"	X0982	bm	sv	7,9,1n,5s	
-Theater. Skådespelet »Ur lifvets strid»	"	X0983	bm	sv	7,9,1n,5s	
-Kullervo	"	X0984	bm	sv	7,9,1n,5s	
-Exposition af inhemska målares arbeten	"	X0985	bm	sv	7,9,1n,5s	
-Helsingfors Theaterhus	"	X0986	bm	sv	7,9,1n,5s	
-Revy af Theatern	"	X0987	bm	sv	7,9,1n,5s	
-Musiken i Finland och Kung Carls Jagt	"	X0988	bm	sv	7,9,1n,68	
-Ny Theater af sten	"	X0989	bm	sv	7,9,1n,68	
-Tidningarnas nyheter	"	X0990	bm	sv	7,9,1n,68	
-Mathias Alexander Castrén	"	X0991	bm	sv	7,9,1n,68	
-Revy af Theatern	"	X0992	bm	sv	7,9,1n,68	
-Finland, anteckningar […] af Furst Emanuel Galitzin	"	X0993	bm	sv	7,9,1n,68	
-Beskrifning öfver finska kriget till lands och sjöss [...]	"	X0994	bm	sv	7,9,1n,68,5b	
-Nordiska resor och forskningar af M. A. Castrén	"	X0995	bm	sv	7,9,1n,68,5b	
-Den läsande allmänheten i Finland	"	X0996	bm	sv	7,9,1n,68	
-Konstens publik i Finland	"	X0997	bm	sv	7,9,1n,68	
-Historien och Fäderneslandet	"	X0998	bm	sv	7,9,1n,71	
-Folkvisan i Helsingfors	"	X0999	bm	sv	7,9,1n,71	
-Hvad skall man tro om tidningarna?	"	X1000	bm	sv	7,9,1n,71	
-Fru Lenngrens efterträdarinna	"	X1001	bm	sv	7,9,1n,71	
-Tidningarna	"	X1002	bm	sv	7,9,1n,71	
-Historiska noter till skådespelet »Regina von Emmeritz»	"	X1003	bm	sv	7,9,1n,71	
-Sångarens dröm	"	X1004	bm	sv	7,9,1n,71	
-Erik XIV	"	X1005	bm	sv	7,9,1n,71	
-Landsortstheatern och Hr Roos	"	X1006	bm	sv	7,9,1n,71	
-Eos, Tidskrift för Barn	"	X1007	bm	sv	7,9,1n,71	
-Om »Lina» i »Vintergrön»	"	X1008	bm	sv	7,9,1n,4h,tw	
-Publicistik, Bref från Betty: 2. Om Insjövågen	"	X1009	bm	sv	7,9,1n,4h,tw	
-Theater och Theaterkritik	"	X1010	bm	sv	7,9,1n,4h	
-Nya Theaterhuset i Helsingfors	"	X1011	bm	sv	7,9,1n,4h	
-Om »Smärre Berättelser af Runeberg.»	"	X1012	bm	sv	7,9,1n,4h,tw	
-Bref från Gabriel. (Om Pacii Konsert.)	"	X1013	bm	sv	7,9,1n,4h,tw	
-Två taflor, på Konstföreningens exposition	"	X1014	bm	sv	7,9,1n,4h	
-Finska Efämerider af Sven Gabriel Elmgren	"	X1015	bm	sv	7,9,1n,4h	
+Publicistik, Knoppar: 5. Hundrade Minnen från Österbotten	"	X0905	bim	sv	7,9,1n,46,h5	
+»Till Finlands Ära»	"	X0906	bim	sv	7,9,1n,4e,5b	
+Svensk Literatur	"	X0907	bim	sv	7,9,1n,4e	
+Fröken Römer och Pianot	"	X0908	bim	sv	7,9,1n,4e	
+Ljus och skugga. Vandringsbilder af F. Cygnæus	"	X0909	bim	sv	7,9,1n,4e,5b	
+Vår-Literatur I	"	X0910	bim	sv	7,9,1n,4e	
+Vår-Literatur II	"	X0911	bim	sv	7,9,1n,4e	
+Sturzenbechers Sex Föreläsningar	"	X0912	bim	sv	7,9,1n,4e,5b	
+Fredrika Bremers »I Dalarna»	"	X0913	bim	sv	7,9,1n,4e,5b	
+Konturteckningar af –s–n	"	X0914	bim	sv	7,9,1n,4e,5b	
+Landets Tidningar år 1845	"	X0915	bim	sv	7,9,1n,4e	
+C. J. L. Almqvist. Monografi	"	X0916	bim	sv	7,9,1n,4y	
+La Finlande [...] par Léouzon Le Duc	"	X0917	bim	sv	7,9,1n,4y	
+Lambertska Arfvet och Smaragdbruden af Almqvist	"	X0918	bim	sv	7,9,1n,4y	
+Genremålningar af Onkel Adam [...] Får gå! [...] Ett namn	"	X0919	bim	sv	7,9,1n,4y,5b	
+Almqvist och Fahlcrantz	"	X0920	bim	sv	7,9,1n,4y,5b	
+Jul-Literatur	"	X0921	bim	sv	7,9,1n,4y	
+Finlands Tidningar 1846	"	X0922	bim	sv	7,9,1n,4y	
+Necken. Thalia. Ljus och Skugga	"	X0923	bim	sv	7,9,1n,5p,5b	
+En Prestgård i N-d, af en finsk medborgarinna	"	X0924	bim	sv	7,9,1n,5p,5b	
+E. Tegnérs samlade Skrifter	"	X0925	bim	sv	7,9,1n,5p,5b	
+Pojken, Småsaker på vers af J. G. Leistenius	"	X0926	bim	sv	7,9,1n,5p,5b	
+Herr Z. Cajanders Skriftställeri	"	X0927	bim	sv	7,9,1n,5p	
+Handledning af Unge Prester […] Några Ord till Mödrar […] P. U. F. Sadelin	"	X0928	bim	sv	7,9,1n,5p,5b	
+Skön Literatur i Finland	"	X0929	bim	sv	7,9,1n,5p	
+Theater. Skärgårdsflickan […] af J. A. von Essen	"	X0930	bim	sv	7,9,1n,5p	
+Blanche och hans roman Vålnaden	"	X0931	bim	sv	7,9,1n,5p,5b	
+Tidningarna 1847	"	X0932	bim	sv	7,9,1n,5p	
+Ynglingen, Småsaker på vers af J. G. Leistenius	"	X0933	bim	sv	7,9,1n,5p,5b	
+Det Svenska Skriftställeriet i Finland	"	X0934	bim	sv	7,9,1n,54	
+Aura I	"	X0935	bim	sv	7,9,1n,54,5b	
+Theater. »I det gröna» […] af F. Berndtson	"	X0936	bim	sv	7,9,1n,54	
+Aslögs Saga, af H–n	"	X0937	bim	sv	7,9,1n,54,5b	
+Beskrifning om Runö i Liffland	"	X0938	bim	sv	7,9,1n,54,5b	
+Nordstjernan för 1848	"	X0939	bim	sv	7,9,1n,54,5b	
+Johan Jacob Nervander, tecknad af Fredrik Cygnæus	"	X0940	bim	sv	7,9,1n,54,5b	
+Den nya upplagan af Kalevala	"	X0941	bim	sv	7,9,1n,54	
+Jungfrutornet af Fru Carlén	"	X0942	bim	sv	7,9,1n,54,5b	
+Så slutades min lek […] af Wendela	"	X0943	bim	sv	7,9,1n,54,5b	
+Läsebibliothek i Finland. Trollets Son af Kjellman Göranson	"	X0944	bim	sv	7,9,1n,54,5b	
+Tidningsprenumerationen år 1848	"	X0945	bim	sv	7,9,1n,54	
+Literaturbladet fortsättes 1849	"	X0946	bim	sv	7,9,1n,54	
+Herr Palms Lånebibliothek	"	X0947	bim	sv	7,9,1n,54	
+Theater. Sommarnatten, Skådespel af N. H. Pinello	"	X0948	bim	sv	7,9,1n,6s	
+Necken, poetisk kalender för 1849	"	X0949	bim	sv	7,9,1n,6s,5b	
+Läsebibliothek i Finland	"	X0950	bim	sv	7,9,1n,6s,5b	
+Aura III, En Nylands Dragon; IV, Hildegard [...]	"	X0951	bim	sv	7,9,1n,6s,5b	
+Revy af Tidningarna	"	X0952	bim	sv	7,9,1n,6s	
+Strid och Seger, novell af en Finne [...]	"	X0953	bim	sv	7,9,1n,6s,5b	
+Nya Imperial Törnrosen	"	X0954	bim	sv	7,9,1n,6s,5b	
+Svenska Psalmböckerna	"	X0955	bim	sv	7,9,1n,6s	
+Anjalaförbundet […] af Maunu Malmanen	"	X0956	bim	sv	7,9,1n,6s,5b	
+Tidningsprenumerationen 1849	"	X0957	bim	sv	7,9,1n,6s	
+Utländska Tidningar	"	X0958	bim	sv	7,9,1n,6s	
+Dikter af Heinrich Heine […]	"	X0959	bim	sv	7,9,1n,6s,5b	
+Aura IX. Granriskojan	"	X0960	bim	sv	7,9,1n,65,5b	
+Revy af Tidningarna	"	X0961	bim	sv	7,9,1n,65	
+Handlingar till upplysning af Finlands häfder	"	X0962	bim	sv	7,9,1n,65,5b	
+De Inhemska Pjeserna	"	X0963	bim	sv	7,9,1n,65	
+Theater. Den Bergtagna eller Systrarna på Kinnekulle	"	X0964	bim	sv	7,9,1n,65	
+Theater. Ännu engång om »Den Bergtagna»	"	X0965	bim	sv	7,9,1n,65	
+Bidrag till Nordens Sjukdomshistoria	"	X0966	bim	sv	7,9,1n,65,5b	
+Svenska Psalmböckerna	"	X0967	bim	sv	7,9,1n,65	
+Slutanmärkning angående novellen Hertiginnan af Finland	"	X0968	bim	sv	7,9,1n,65	
+Nordens Literaturhistoria af L. Leouzon Leduc	"	X0969	bim	sv	7,9,1n,65	
+Tidningarna i Finland år 1850	"	X0970	bim	sv	7,9,1n,65	
+Revy af Tidningarna	"	X0971	bim	sv	7,9,1n,65	
+Musikaliskt Lånebibliothek i Helsingfors	"	X0972	bim	sv	7,9,1n,65	
+Revy af Theatern	"	X0973	bim	sv	7,9,1n,65	
+Hr Leduc om Finland	"	X0974	bim	sv	7,9,1n,5s	
+Om Julen och Julstjernan i Helsingfors	"	X0975	bim	sv	7,9,1n,5s	
+Angående Svenska Akademien	"	X0976	bim	sv	7,9,1n,5s	
+Helsingfors Tidningars okände vän	"	X0977	bim	sv	7,9,1n,5s	
+Hindren för en inhemsk theaterrepertoire. II	"	X0978	bim	sv	7,9,1n,5s	
+Musik i Landsorterna	"	X0979	bim	sv	7,9,1n,5s	
+Frågor angående Konstföreningen	"	X0980	bim	sv	7,9,1n,5s	
+Theater. Skådespelet »Efter femtio år»	"	X0981	bim	sv	7,9,1n,5s	
+Revy af Theatern	"	X0982	bim	sv	7,9,1n,5s	
+Theater. Skådespelet »Ur lifvets strid»	"	X0983	bim	sv	7,9,1n,5s	
+Kullervo	"	X0984	bim	sv	7,9,1n,5s	
+Exposition af inhemska målares arbeten	"	X0985	bim	sv	7,9,1n,5s	
+Helsingfors Theaterhus	"	X0986	bim	sv	7,9,1n,5s	
+Revy af Theatern	"	X0987	bim	sv	7,9,1n,5s	
+Musiken i Finland och Kung Carls Jagt	"	X0988	bim	sv	7,9,1n,68	
+Ny Theater af sten	"	X0989	bim	sv	7,9,1n,68	
+Tidningarnas nyheter	"	X0990	bim	sv	7,9,1n,68	
+Mathias Alexander Castrén	"	X0991	bim	sv	7,9,1n,68	
+Revy af Theatern	"	X0992	bim	sv	7,9,1n,68	
+Finland, anteckningar […] af Furst Emanuel Galitzin	"	X0993	bim	sv	7,9,1n,68	
+Beskrifning öfver finska kriget till lands och sjöss [...]	"	X0994	bim	sv	7,9,1n,68,5b	
+Nordiska resor och forskningar af M. A. Castrén	"	X0995	bim	sv	7,9,1n,68,5b	
+Den läsande allmänheten i Finland	"	X0996	bim	sv	7,9,1n,68	
+Konstens publik i Finland	"	X0997	bim	sv	7,9,1n,68	
+Historien och Fäderneslandet	"	X0998	bim	sv	7,9,1n,71	
+Folkvisan i Helsingfors	"	X0999	bim	sv	7,9,1n,71	
+Hvad skall man tro om tidningarna?	"	X1000	bim	sv	7,9,1n,71	
+Fru Lenngrens efterträdarinna	"	X1001	bim	sv	7,9,1n,71	
+Tidningarna	"	X1002	bim	sv	7,9,1n,71	
+Historiska noter till skådespelet »Regina von Emmeritz»	"	X1003	bim	sv	7,9,1n,71	
+Sångarens dröm	"	X1004	bim	sv	7,9,1n,71	
+Erik XIV	"	X1005	bim	sv	7,9,1n,71	
+Landsortstheatern och Hr Roos	"	X1006	bim	sv	7,9,1n,71	
+Eos, Tidskrift för Barn	"	X1007	bim	sv	7,9,1n,71	
+Om »Lina» i »Vintergrön»	"	X1008	bim	sv	7,9,1n,4h,tw	
+Publicistik, Bref från Betty: 2. Om Insjövågen	"	X1009	bim	sv	7,9,1n,4h,tw	
+Theater och Theaterkritik	"	X1010	bim	sv	7,9,1n,4h	
+Nya Theaterhuset i Helsingfors	"	X1011	bim	sv	7,9,1n,4h	
+Om »Smärre Berättelser af Runeberg.»	"	X1012	bim	sv	7,9,1n,4h,tw	
+Bref från Gabriel. (Om Pacii Konsert.)	"	X1013	bim	sv	7,9,1n,4h,tw	
+Två taflor, på Konstföreningens exposition	"	X1014	bim	sv	7,9,1n,4h	
+Finska Efämerider af Sven Gabriel Elmgren	"	X1015	bim	sv	7,9,1n,4h	
 Festen för Sjöekipagerne	"	X1016	bm	sv	7,9,9n,4h	
-Publicistik, 1854: Första grunderna i geografin af S. Baranovskij	"	X1017	bm	sv	7,9,1n,4h	
-Nya Altartaflor	"	X1018	bm	sv	7,9,1n,4h	
-Otawa	"	X1019	bm	sv	7,9,1n,4h	
-Hertig Johans Ungdomsdrömmar	"	X1020	bm	sv	7,9,1n,4h	
-Musik. Ny aria ur »Kung Carls Jagt»	"	X1021	bm	sv	7,9,1n,4h	
-Om finska folkvisorna	"	X1022	bm	sv	7,9,1n,4h,tw	
-Finlands Kyrkohistoria af G. F. Helsingius. Första delen	"	X1023	bm	sv	7,9,1n,dc	
-Bref från Gabriel. (Om Ferdinand v. Wrights taflor)	"	X1024	bm	sv	7,9,1n,dc	
-Pehr Daniel Amadeus Atterbom	"	X1025	bm	sv	7,9,1n,dc	
-Kritiken här i landet	"	X1026	bm	sv	7,9,1n,6t	
-Bref från Gabriel. (Om »Riddar Olof och elfvorna»)	"	X1027	bm	sv	7,9,1n,6t	
-Bref från Gabriel. (Om finska visor och taflor)	"	X1028	bm	sv	7,9,1n,6t	
-Hiawatha, poem af Henry Wadsworth Longfellow	"	X1029	bm	sv	7,9,1n,6t	
-Tidningar i Finland 1856	"	X1030	bm	sv	7,9,1n,6t	
-Bref från Stefano till Gubetta (Angående theatern och »Terzerola»)	"	X1031	bm	sv	7,9,1n,3n	
-Svar till Stefano från Gubetta	"	X1032	bm	sv	7,9,1n,3n	
-Revy af Theatern	"	X1033	bm	sv	7,9,1n,3n	
-Konstföreningens exposition	"	X1034	bm	sv	7,9,1n,3n	
-Tidskrift för Finska Kyrkan	"	X1035	bm	sv	7,9,1n,3n	
-Literatur. Förteckning öfver i tryck utgifne skrifter på Finska, [...]	"	X1036	bm	sv	7,9,1n,3n	
-Om theatern hos ett »ungt folk»	"	X1037	bm	sv	7,9,1n,3n	
-Literärt lif och konstlif i Helsingfors	"	X1038	bm	sv	7,9,1n,3n	
-Den personliga ansvarigheten	"	X1039	bm	sv	7,9,1n,3n	
-Tidningar i Finland år 1857	"	X1040	bm	sv	7,9,1n,3n	
-Konstföreningens Exposition	"	X1041	bm	sv	7,9,1n,4i	
-Nordiska taflor	"	X1042	bm	sv	7,9,1n,4i	
-Theater. Syrsan, romantiskt skådespel i 4 akter	"	X1043	bm	sv	7,9,1n,4i	
-Theater. Hakon Jarl, sorgespel i 5 akter af Oehlenschläger	"	X1044	bm	sv	7,9,1n,4i	
-Boklådorna före julen	"	X1045	bm	sv	7,9,1n,4i	
-Tidningar i Finland 1858	"	X1046	bm	sv	7,9,1n,3x	
-Revy af Theatern	"	X1047	bm	sv	7,9,1n,3x	
-Festen för Pacius	"	X1048	bm	sv	7,9,1n,3x	
-H. G. Porthans skrifter i urval	"	X1049	bm	sv	7,9,1n,3x,5b	
-Schillersfesten i Helsingfors	"	X1050	bm	sv	7,9,1n,3x	
-Juridisk Handbok för medborgerlig bildning	"	X1051	bm	sv	7,9,1n,3x,5b	
-Underdånig Supplik från Gamla Theaterhuset till Prins Hamlet [...]	"	X1052	bm	sv	7,9,1n,3x	
-Tidningar i Finland 1859	"	X1054	bm	sv	7,9,1n,3x	
-Theatern skall bilda och icke förvilda	"	X1055	bm	sv	7,9,1n,3v	
-Konstfrågor	"	X1056/ch1	bm	sv	7,9,1n,3v	
-Suometar och theatern	"	X1058	bm	sv	7,9,1n,3v	
-Promotionsliteratur	"	X1061	bm	sv	7,9,1n,3v	
-Marcus Larson	"	X1063	bm	sv	7,9,1n,3v	
-Werner Holmberg	"	X1065	bm	sv	7,9,1n,3v	
-Replik om Nya Theatern	"	X1066	bm	sv	7,9,1n,3v	
-Lemminkäinen och Kyllikki	"	X1067	bm	sv	7,9,1n,3v	
-Nya Theatern i Helsingfors	"	X1068	bm	sv	7,9,1n,3v	
-Fänrik Ståls Sägner andra delen	"	X1069	bm	sv	7,9,1n,3v	
-Till Helsingfors Tidningars Läsare	"	X1070	bm	sv	7,9,1n,3v	
+Publicistik, 1854: Första grunderna i geografin af S. Baranovskij	"	X1017	bim	sv	7,9,1n,4h	
+Nya Altartaflor	"	X1018	bim	sv	7,9,1n,4h	
+Otawa	"	X1019	bim	sv	7,9,1n,4h	
+Hertig Johans Ungdomsdrömmar	"	X1020	bim	sv	7,9,1n,4h	
+Musik. Ny aria ur »Kung Carls Jagt»	"	X1021	bim	sv	7,9,1n,4h	
+Om finska folkvisorna	"	X1022	bim	sv	7,9,1n,4h,tw	
+Finlands Kyrkohistoria af G. F. Helsingius. Första delen	"	X1023	bim	sv	7,9,1n,dc	
+Bref från Gabriel. (Om Ferdinand v. Wrights taflor)	"	X1024	bim	sv	7,9,1n,dc	
+Pehr Daniel Amadeus Atterbom	"	X1025	bim	sv	7,9,1n,dc	
+Kritiken här i landet	"	X1026	bim	sv	7,9,1n,6t	
+Bref från Gabriel. (Om »Riddar Olof och elfvorna»)	"	X1027	bim	sv	7,9,1n,6t	
+Bref från Gabriel. (Om finska visor och taflor)	"	X1028	bim	sv	7,9,1n,6t	
+Hiawatha, poem af Henry Wadsworth Longfellow	"	X1029	bim	sv	7,9,1n,6t	
+Tidningar i Finland 1856	"	X1030	bim	sv	7,9,1n,6t	
+Bref från Stefano till Gubetta (Angående theatern och »Terzerola»)	"	X1031	bim	sv	7,9,1n,3n	
+Svar till Stefano från Gubetta	"	X1032	bim	sv	7,9,1n,3n	
+Revy af Theatern	"	X1033	bim	sv	7,9,1n,3n	
+Konstföreningens exposition	"	X1034	bim	sv	7,9,1n,3n	
+Tidskrift för Finska Kyrkan	"	X1035	bim	sv	7,9,1n,3n	
+Literatur. Förteckning öfver i tryck utgifne skrifter på Finska, [...]	"	X1036	bim	sv	7,9,1n,3n	
+Om theatern hos ett »ungt folk»	"	X1037	bim	sv	7,9,1n,3n	
+Literärt lif och konstlif i Helsingfors	"	X1038	bim	sv	7,9,1n,3n	
+Den personliga ansvarigheten	"	X1039	bim	sv	7,9,1n,3n	
+Tidningar i Finland år 1857	"	X1040	bim	sv	7,9,1n,3n	
+Konstföreningens Exposition	"	X1041	bim	sv	7,9,1n,4i	
+Nordiska taflor	"	X1042	bim	sv	7,9,1n,4i	
+Theater. Syrsan, romantiskt skådespel i 4 akter	"	X1043	bim	sv	7,9,1n,4i	
+Theater. Hakon Jarl, sorgespel i 5 akter af Oehlenschläger	"	X1044	bim	sv	7,9,1n,4i	
+Boklådorna före julen	"	X1045	bim	sv	7,9,1n,4i	
+Tidningar i Finland 1858	"	X1046	bim	sv	7,9,1n,3x	
+Revy af Theatern	"	X1047	bim	sv	7,9,1n,3x	
+Festen för Pacius	"	X1048	bim	sv	7,9,1n,3x	
+H. G. Porthans skrifter i urval	"	X1049	bim	sv	7,9,1n,3x,5b	
+Schillersfesten i Helsingfors	"	X1050	bim	sv	7,9,1n,3x	
+Juridisk Handbok för medborgerlig bildning	"	X1051	bim	sv	7,9,1n,3x,5b	
+Underdånig Supplik från Gamla Theaterhuset till Prins Hamlet [...]	"	X1052	bim	sv	7,9,1n,3x	
+Tidningar i Finland 1859	"	X1054	bim	sv	7,9,1n,3x	
+Theatern skall bilda och icke förvilda	"	X1055	bim	sv	7,9,1n,3v	
+Konstfrågor	"	X1056/ch1	bim	sv	7,9,1n,3v	
+Suometar och theatern	"	X1058	bim	sv	7,9,1n,3v	
+Promotionsliteratur	"	X1061	bim	sv	7,9,1n,3v	
+Marcus Larson	"	X1063	bim	sv	7,9,1n,3v	
+Werner Holmberg	"	X1065	bim	sv	7,9,1n,3v	
+Replik om Nya Theatern	"	X1066	bim	sv	7,9,1n,3v	
+Lemminkäinen och Kyllikki	"	X1067	bim	sv	7,9,1n,3v	
+Nya Theatern i Helsingfors	"	X1068	bim	sv	7,9,1n,3v	
+Fänrik Ståls Sägner andra delen	"	X1069	bim	sv	7,9,1n,3v	
+Till Helsingfors Tidningars Läsare	"	X1070	bim	sv	7,9,1n,3v	
 Correspondance från Helsingfors. 1	"	X1071	bm	sv	7,9,14,64,nv	
 Correspondance från Helsingfors. 2	"	X1072	bm	sv	7,9,14,64,nv	
 Correspondance från Helsingfors. 3	"	X1073	bm	sv	7,9,14,64,nv	
@@ -53515,9 +53515,9 @@ Ur 1856 Års Krönika	"	X1397	bm	sv	7,9,ay,3n
 Utsigterna till krig	"	X1399	bm	sv	7,9,ay,3x	
 1855 års krönika	"	X1400/ch1	bm	sv	7,9,ay,6t	
 Två bofvar och två flickor	"	X1731	bm	sv	7,9,9n,4e	
-Till resp. Prenumeranter på Finland framställdt i teckingar	"	X1732	bm	sv	7,9,1n,5s	
-Finlands Tidningar år 1852	"	X1733	bm	sv	7,9,1n,68	
-Finska Tidningarnes Prenumeranter 1853	"	X1734	bm	sv	7,9,1n,71	
+Till resp. Prenumeranter på Finland framställdt i teckingar	"	X1732	bim	sv	7,9,1n,5s	
+Finlands Tidningar år 1852	"	X1733	bim	sv	7,9,1n,68	
+Finska Tidningarnes Prenumeranter 1853	"	X1734	bim	sv	7,9,1n,71	
 Veckorna: 28 Dec.	"	X1735	bm	sv	7,9,14,4i	
 Flygande noter	"	X1736/ch1	bm	sv	7,9,1o,3x	
 Ur lifvet på landsbygden	"	X1737	bm	sv	7,9,9n,3x	
@@ -55709,21 +55709,21 @@ Eino Kaila till G.H. von Wright 20/4 1958		X11670	a	sv	39,tq
 Eino Kaila till G.H. von Wright 13/6 1958		X11671	a	sv	39,tq	
 Eino Kaila: Festtal vid Helsingfors universitets 300-årsjubileum 5/9 1940	Georg Henrik von Wright	X22693	a	sv	39,16g	
 Om Wittgenstein: 1. Ludwig Wittgenstein. En biografisk skiss	"	O225/text/21793	a	sv	8h,261	
-Om Wittgenstein: 2. Filosofin är mitt liv	"	X21794	a	sv	8h,ty	
-Om Wittgenstein: 3. Doktorand i Cambridge	"	X21795	a	sv	8h,ty	
-Om Wittgenstein: 4. Wittgenstein skakar min själ	"	X21796	a	sv	8h,ty	
-Om Wittgenstein: 5. Mitt livs svåraste beslut	"	X21797	a	sv	8h,ty	
-Om Wittgenstein: 6. Arvet efter Wittgenstein	"	X21798	a	sv	8h,ty	
+Om Wittgenstein: 2. Filosofin är mitt liv	"	X21794	ad	sv	8h,ty	
+Om Wittgenstein: 3. Doktorand i Cambridge	"	X21795	ad	sv	8h,ty	
+Om Wittgenstein: 4. Wittgenstein skakar min själ	"	X21796	ad	sv	8h,ty	
+Om Wittgenstein: 5. Mitt livs svåraste beslut	"	X21797	ad	sv	8h,ty	
+Om Wittgenstein: 6. Arvet efter Wittgenstein	"	X21798	ad	sv	8h,ty	
 Om Wittgenstein: 7. Huvudpunkterna i Wittgensteins kunskapslära och andra tentamensuppsatser	"	X21799	ad	sv	8h,ez,ti	
 Om Wittgenstein: 9. Den nya filosofiens födelse	"	X21800	ad	sv	8h,ez,ti	
 Om Wittgenstein: 10. Filosofibegreppet i stöpsleven	"	X21801	ad	sv	8h,ez,ti	
 Om Wittgenstein: 11. Filosofien och vetenskaperna	"	X21802	ad	sv	8h,ez,ti	
-Om Wittgenstein: 12. Modern filosofi	"	X21803	ad	sv	8h,ez,rv	
-Om Wittgenstein: 13. Tre tidningsartiklar om Wittgenstein	"	X21804	ad	sv	8h,ez,rv	
-Om Wittgenstein: 14. Två kritiker: Brouwer och Wittgenstein	"	X21805	ad	sv	8h,ez,rv	
-Om Wittgenstein: 15. Tractatus logico-philosophicus	"	X21806	ad	sv	8h,ez,rv	
-Om Wittgenstein: 16. Den senare Wittgenstein	"	X21807	ad	sv	8h,ez,rv	
-Om Wittgenstein: 17. Den filosofiska situationen	"	X21808	ad	sv	8h,ez,rv	
+Om Wittgenstein: 12. Modern filosofi	"	X21803	abd	sv	8h,ez,rv	
+Om Wittgenstein: 13. Tre tidningsartiklar om Wittgenstein	"	X21804	abd	sv	8h,ez,rv	
+Om Wittgenstein: 14. Två kritiker: Brouwer och Wittgenstein	"	X21805	abd	sv	8h,ez,rv	
+Om Wittgenstein: 15. Tractatus logico-philosophicus	"	X21806	abd	sv	8h,ez,rv	
+Om Wittgenstein: 16. Den senare Wittgenstein	"	X21807	abd	sv	8h,ez,rv	
+Om Wittgenstein: 17. Den filosofiska situationen	"	X21808	abd	sv	8h,ez,rv	
 Om Wittgenstein: 23. Wittgenstein og tradisjonen	"	X21809	ad	sv	8h,ez,rw	
 Om Wittgenstein: 18. Wittgenstein i relation till sin samtid	"	X21810	ad	sv	8h,ez,rw	
 Om Wittgenstein: 19. Wittgenstein och det tjugonde århundradet	"	X21811	ad	sv	8h,ez,rw	
@@ -61426,9 +61426,9 @@ escargot / d’où		F7.html	f	fr	7d,1c
 fenêtre, porte et façade		F8.html	f	fr	7d,1c	
 la voix de jean-luc		F9.html	f	fr	7d,1c	
 initiative		E20.html	f	fr	7d	
-« il n’y a pas à choisir entre innovation et accès aux médicaments »		F1.html	f	fr	7d,146	
-la vie ou la bourse		F2.html	f	fr	7d,146	
-« paradigme du monopole »		F3.html	f	fr	7d,146	
+« il n’y a pas à choisir entre innovation et accès aux médicaments »		F1.html	fk	fr	7d,146	
+la vie ou la bourse		F2.html	fk	fr	7d,146	
+« paradigme du monopole »		F3.html	fk	fr	7d,146	
 cliniciens de l’origine		F4.html	f	fr	7d,yx	
 terra incognita		F5.html	f	fr	7d,yx	
 au service des PMA		F6.html	f	fr	7d,yx	
@@ -63272,14 +63272,14 @@ contretemps		E1.html	f	fr	84
 dans des camps hors d’Europe: exilons les réfugiés		E2.html	f	fr	6y,4r	
 La terre et les vaches ne mentent pas		D15.html	f	fr	6y,4r	
 Not in my backyard - keeping refugees in camps outside Europe		E6.html	f	fr	6y,4r	
-introduction		E7.html	f	fr	85,vm	
-Portopalo		E8.html	f	fr	85,vm	
-au square - le Collectif de soutien aux exilés du 10ème arrdt de Paris		E9.html	f	fr	85,vm	
+introduction		E7.html	fk	fr	85,vm	
+Portopalo		E8.html	fk	fr	85,vm	
+au square - le Collectif de soutien aux exilés du 10ème arrdt de Paris		E9.html	fk	fr	85,vm	
 des salariés d’associations soutiennent les grévistes de France Terre d’Asile (FTDA)		D2.html	f	fr	7a,4r	
-le kiosque		E0.html	f	fr	85,vm	
+le kiosque		E0.html	fk	fr	85,vm	
 rue des Pyrénées		E1.html	f	fr	85,1fw	
 La Sonore: une caisse de résonance		E2.html	f	fr	85,1fw	
-quel asile en France ? (un guide)		E3.html	f	fr	85,vm	
+quel asile en France ? (un guide)		E3.html	fk	fr	85,vm	
 De l’autre côté du placard		E4.html	f	fr	7d,2ku	
 Introduction		E6.html	f	fr	6y,v3	
 Stalingrad		E7.html	f	fr	6y,v3	
@@ -63562,15 +63562,15 @@ un menu pour séduire		E1.html	f	fr	60,4s
 l’école, comme si on y était		E2.html	f	fr	60,4s	
 toutauto dans le métro		E3.html	f	fr	60,4s	
 devenirs massacrés		E4.html	f	fr	60,4s	
-avant-propos		E5.html	f	fr	60,na	
-maladie privée, santé publique		E6.html	f	fr	60,na	
-la santé: enjeu scientifique ou politique ?		E7.html	f	fr	60,na	
-« cette maladie, elle va avec ma vie, pas contre elle »		E8.html	f	fr	60,na	
-« Je voulais être informé pour pouvoir dialoguer avec le corps médical »		E9.html	f	fr	60,na	
-Hygiénisme et libéralisme		D10.html	f	fr	60,na	
-l’Europe de la santé rentable		E1.html	f	fr	60,na	
-littérature et maladie		E2.html	f	fr	60,na	
-« Je suis devenu grand quand je suis tombé malade »		E3.html	f	fr	60,na	
+avant-propos		E5.html	fk	fr	60,na	
+maladie privée, santé publique		E6.html	fk	fr	60,na	
+la santé: enjeu scientifique ou politique ?		E7.html	fk	fr	60,na	
+« cette maladie, elle va avec ma vie, pas contre elle »		E8.html	fk	fr	60,na	
+« Je voulais être informé pour pouvoir dialoguer avec le corps médical »		E9.html	fk	fr	60,na	
+Hygiénisme et libéralisme		D10.html	fk	fr	60,na	
+l’Europe de la santé rentable		E1.html	fk	fr	60,na	
+littérature et maladie		E2.html	fk	fr	60,na	
+« Je suis devenu grand quand je suis tombé malade »		E3.html	fk	fr	60,na	
 avant-propos		E4.html	f	fr	60,tg	
 ici et ailleurs: histoires de départs		E5.html	f	fr	60,tg	
 les réfugiés économiques: anatomie d’une chimère		E6.html	f	fr	60,tg	
@@ -63686,12 +63686,12 @@ une volonté de savoir ?		E8.html	f	fr	6x,14h
 cultures du corps		E9.html	f	fr	6x,14h	
 « nitrate won’t wait »		D2.html	f	fr	8i,4a	
 un cheval		E0.html	f	fr	61	
-droits d’auteur		E1.html	f	fr	61,t8	
-l’art de la crise		E2.html	f	fr	61,t8	
-l’épreuve de droit		E3.html	f	fr	61,t8	
-enquête d’auteurs		E4.html	f	fr	61,t8	
-beaumarchais de l’art		E5.html	f	fr	61,t8	
-l’auteur m’a tuer		E6.html	f	fr	61,t8	
+droits d’auteur		E1.html	fk	fr	61,t8	
+l’art de la crise		E2.html	fk	fr	61,t8	
+l’épreuve de droit		E3.html	fk	fr	61,t8	
+enquête d’auteurs		E4.html	fk	fr	61,t8	
+beaumarchais de l’art		E5.html	fk	fr	61,t8	
+l’auteur m’a tuer		E6.html	fk	fr	61,t8	
 l’avortement sous expertise		E7.html	f	fr	61,4r	
 quand l’emploi prime		E8.html	f	fr	61,4r	
 Pour une pornographie féministe		E9.html	f	fr	61,4r	
@@ -63765,10 +63765,10 @@ avant-propos		D9.html	f	fr	8i,14v
 ma plume est à vous		E0.html	f	fr	6p,ra	
 raisons graphiques		E1.html	f	fr	6p,ra	
 acide de batterie		E2.html	f	fr	6p,ra	
-musiques en mode mineur		E3.html	f	fr	7v,zc	
-akiyo la ola ou kale kon sa ?		E4.html	f	fr	7v,zc	
-troubadours des temps modernes		E5.html	f	fr	7v,zc	
-mais qui est donc Félix Castan ?		E6.html	f	fr	7v,zc	
+musiques en mode mineur		E3.html	fi	fr	7v,zc	
+akiyo la ola ou kale kon sa ?		E4.html	fi	fr	7v,zc	
+troubadours des temps modernes		E5.html	fi	fr	7v,zc	
+mais qui est donc Félix Castan ?		E6.html	fi	fr	7v,zc	
 J’écris encore une fois Vikash Dhorasoo		E7.html	f	fr	6r,u	
 Vikash Dhorasoo		E8.html	f	fr	7d,1c	
 Les ambiguités de l’expertise		E9.html	f	fr	7v,w1	
@@ -63839,15 +63839,15 @@ un coup de fouet		E3.html	f	fr	5g,4s
 un menu pour rester fidèle		E4.html	f	fr	5g,4s	
 temps suspendu		E5.html	f	fr	5g,4s	
 le geste de Durruti		E6.html	f	fr	5g,4s	
-avant-propos		E7.html	f	fr	5m,pp	
-chapitre I: les armoires volantes		E8.html	f	fr	5m,pp	
-chapitre II: fils et filles de bundistes		E9.html	f	fr	5m,pp	
+avant-propos		E7.html	bf	fr	5m,pp	
+chapitre I: les armoires volantes		E8.html	bf	fr	5m,pp	
+chapitre II: fils et filles de bundistes		E9.html	bf	fr	5m,pp	
 big brother is watching himself		D7.html	f	fr	5m,mj	
-chapitre III: Yiddish, Yiddishkeit		E0.html	f	fr	5m,pp	
-chapitre IV: « on ne tire pas sur l’ambulance qui passe. »		E1.html	f	fr	5m,pp	
-Viva ou le souvenir d’enfance		E2.html	f	fr	5m,pp	
-transmettre		E3.html	f	fr	5m,pp	
-pour une langue bègue		E4.html	f	fr	5m,pp	
+chapitre III: Yiddish, Yiddishkeit		E0.html	bf	fr	5m,pp	
+chapitre IV: « on ne tire pas sur l’ambulance qui passe. »		E1.html	bf	fr	5m,pp	
+Viva ou le souvenir d’enfance		E2.html	bf	fr	5m,pp	
+transmettre		E3.html	bf	fr	5m,pp	
+pour une langue bègue		E4.html	bf	fr	5m,pp	
 pratiques critiques		E5.html	f	fr	5m,17h	
 Documenta X: activités esthétiques, processus critique et globalisation		E6.html	f	fr	5m,17h	
 éditorial		E7.html	f	fr	5m	
@@ -73644,18 +73644,18 @@ Zeitschleife Kreuzberg. Gentrification im langen Schatten der »Behutsamen Stadt
 Sehnsuchtsbilder. West-Berlin in neuen Fotobänden	Hanno Hochmuth	:7	d	de	2t,jr	
 BlackBox Kalter Krieg. Ein Werkstattbesuch am Checkpoint Charlie	Jula Danylow	910	d	de	1v,jr	
 Die gemütliche Durchhalte-Gemeinschaft. West-Berlin in Serien des deutschen Fernsehens	Knut Hickethier	:2	d	de	1v,jr	
-Fotografie in Diktaturen. Politik und Alltag der Bilder	Annette Vowinckel, Michael Wildt	55/5219	d	de	2o6,j1	
-Die Ordnung des Festes /Die Ordnung des Bildes. Fotografische Blicke auf Festumzüge in Schwaben…	Linda Conze	922	d	de	1g,j1	
-Adapting Russian Constructivism and Socialist Realism. The Japanese Overseas Photo Magazine FRONT…	Andrea Germer	:4	d	en	1g,j1	
-Traumbilder. Grete Sterns Avantgardefotografie im Argentinien Peróns (1946–1955)	Katharina Schembs	:6	d	de	1g,j1	
-Vorbilder, Spiegelbilder und Feindbilder. Der Umgang mit Fotografien im ungarischen Magazin »Képes…	Eszter Kiss	:8	d	de	1g,j1	
-Analoge Fotografie im digitalen Zeitalter. Eine Herausforderung für Bildarchive und…	Elke Bauer	931	d	de	2a,j1	
-Wie können Bildbestände bewertet werden? Auswahl-, Erhaltungs- und Vermittlungsstrategien im Rahmen…	Michel Pfeiffer	:3	d	de	2a,j1	
-Kommerz-Geschichte. Historische Pressefotografie zwischen Profit und Politik	Mirco Melone	:5	d	de	2a,j1	
-Fotografische Nachlässe. Sammlungs- und Aktivierungsstrategien am Beispiel des Archivs der…	Jens Bove, Karolin Schmahl	:8	d	de	2a,j1	
-Gesichter eines Despoten. Stalin in unveröffentlichten Fotografien	Jörg Baberowski	940	d	de	2t,j1	
-»Geschmackerziehend und stilbildend«. Modefotografie im Nationalsozialismus am Beispiel der…	Marion Wittfeld	:2	d	de	2t,j1	
-A Socialist Family of Man. Rita Maahs' and Karl-Eduard von Schnitzler's Exhibition Vom Glück des…	Sarah Goodrum	:5	d	de	1v,j1	
+Fotografie in Diktaturen. Politik und Alltag der Bilder	Annette Vowinckel, Michael Wildt	55/5219	di	de	2o6,j1	
+Die Ordnung des Festes /Die Ordnung des Bildes. Fotografische Blicke auf Festumzüge in Schwaben…	Linda Conze	922	di	de	1g,j1	
+Adapting Russian Constructivism and Socialist Realism. The Japanese Overseas Photo Magazine FRONT…	Andrea Germer	:4	di	en	1g,j1	
+Traumbilder. Grete Sterns Avantgardefotografie im Argentinien Peróns (1946–1955)	Katharina Schembs	:6	di	de	1g,j1	
+Vorbilder, Spiegelbilder und Feindbilder. Der Umgang mit Fotografien im ungarischen Magazin »Képes…	Eszter Kiss	:8	di	de	1g,j1	
+Analoge Fotografie im digitalen Zeitalter. Eine Herausforderung für Bildarchive und…	Elke Bauer	931	di	de	2a,j1	
+Wie können Bildbestände bewertet werden? Auswahl-, Erhaltungs- und Vermittlungsstrategien im Rahmen…	Michel Pfeiffer	:3	di	de	2a,j1	
+Kommerz-Geschichte. Historische Pressefotografie zwischen Profit und Politik	Mirco Melone	:5	di	de	2a,j1	
+Fotografische Nachlässe. Sammlungs- und Aktivierungsstrategien am Beispiel des Archivs der…	Jens Bove, Karolin Schmahl	:8	di	de	2a,j1	
+Gesichter eines Despoten. Stalin in unveröffentlichten Fotografien	Jörg Baberowski	940	di	de	2t,j1	
+»Geschmackerziehend und stilbildend«. Modefotografie im Nationalsozialismus am Beispiel der…	Marion Wittfeld	:2	di	de	2t,j1	
+A Socialist Family of Man. Rita Maahs' and Karl-Eduard von Schnitzler's Exhibition Vom Glück des…	Sarah Goodrum	:5	di	de	1v,j1	
 Apartheid und westeuropäische Reaktionen. Eine Einführung	Knud Andresen, Detlef Siegfried	56/5350	d	de	2o7,gt	
 Zukunft durch Apartheid? Verwoerds Rassenideologie, Südafrikas Außenpolitik und der Westen	Christoph Marx	:3	d	de	1g,gt	
 Moralische Ökonomie. Bundesdeutsche Automobilunternehmen und Apartheid	Knud Andresen	:4	d	de	1g,gt	
