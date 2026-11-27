@@ -156,7 +156,8 @@ Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöi
 Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun · oma · tusinasää (MOTS)* (käyttäjän päätös). Nimi on
 interpunktein: napissa välilyöntien kanssa, paneelin otsikossa ilman (käyttäjän päätös). Napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
 (aforismi) on *MINUN·OMA·TUSINASÄÄ (MOTS)* ja sen alla *≈ sinun oma ”tusina-mää” (SOTM)* (käyttäjän päätös); kapealla ruudulla
-`fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä).
+`fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä). Logo on paneelissa samankokoinen kuin etusivulla, jossa
+sen koko tulee rivivälistä (käyttäjän päätös); aforismin paikka sekä avainnäkymän avain ja nimi mitoitetaan logosta.
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -193,11 +194,11 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   (`kierra`: JS-animaatio, koska kärjet kulkevat kaarta). Kaikki kierrot lähtevät ja pysähtyvät pehmeästi samalla käyrällä,
   ja kesto on 1,4 s × √(kulma / 180°) (käyttäjän päätös: vastakkainen 1,4 s on sopiva, naapuriin ei saa lähteä ärhäkästi). Kärkikuviot (`KUVIOT`) ovat pystyakselin suhteen symmetrisiä.
   Uusi salko ilmestyy paaluta-paikalle ja kiertyy alas.
-  Muun kuin valitun salon napautus ei kierrä heti (käyttäjän päätös): hiutale kirkastuu, nimi piiloutuu ja hiutaleen kohdalle
-  kiteen kehää ulommalle samankeskiselle kehälle, hiutaleen ulkopuolelle, tulee lyhyt kaarinuoli kiertosuuntaan (ei tekstiä,
-  ei suoraan hiutaleesta lähtevä; käyttäjän päätös). Nuolen tai saman hiutaleen toisen napautuksen jälkeen salko kiertyy
-  maailman keskukseksi (sama kytkin, koska käyttäjä napauttaa hiutaletta; käyttäjän päätös); kiteen tyhjän kohdan napautus
-  peruu. Muokattavaksi salko sulatetaan keskuksena: valitun salon napautus sulattaa kuten ennen.
+  Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös): se sulattaa salon heti muokattavaksi (muuten matka
+  muokkaukseen olisi pitkä ja mahdollisuudet vaikeita hahmottaa) ja tuo lisäksi hiutaleen kohdalle kiteen kehää ulommalle
+  samankeskiselle kehälle, kauas hiutaleen ulkopuolelle, lyhyen kaarinuolen kiertosuuntaan (ei suoraan hiutaleesta lähtevä).
+  Nimi piiloutuu. Nuolen napautus kiertää salon maailman keskukseksi muokkauksen pysyessä auki; saman hiutaleen uusi
+  napautus tai kiteen tyhjän kohdan napautus peruu molemmat. Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
@@ -243,16 +244,17 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
 Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
-  hampaina; kahvan ulkokulmien pyöristys 1,5 px isossa avaimessa, käyttäjän päätös; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
+  hampaina; kahvan ulkokulmien ja varren alapään pyöristys 1,5 px isossa avaimessa, käyttäjän päätös; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
   sulkee näkymän. Siirtymän käyrä on `SIIRTYMA`-vakiossa (käyttäjän säätämä: 310 ms, koko suhteellisesti, väri ja muun
   näkymän häivytys samassa tahdissa). Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
   Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
-  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä puolilihavana versaalina, väljästi harvennettuna
-  (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja tavoitekorkeus kehän sisäpuolen korkeus; ei rivity,
-  joten palstaan mahtuakseen se jää pienemmäksi (käyttäjän päätös); se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
+  Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä versaalina (paino 400:n ja 600:n väliltä),
+  väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
+  korkuiset; saa jatkua palstan ohi ruudun reunaan asti, ja vasta kun sekään ei riitä (kapea ruutu), koko pienenee, koska
+  nimi ei rivity (käyttäjän päätös); se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
