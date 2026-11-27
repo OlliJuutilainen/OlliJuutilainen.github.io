@@ -199,7 +199,8 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
-  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
+  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kehykset ja nappi tulevat esiin ja häipyvät
+  pehmeästi. Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
   alla se kirkastuu maltillisesti (peittävyys 1, sama sävy), eikä mikään muu muutu. Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
   kohdan napautus tai Esc peruu kehykset; Esc peruu myös sulatuksen kuten Peru (ei ensipaalutuksessa). Reunan salon
@@ -208,7 +209,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   tulee esiin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt (otsake pysyy). Reunan paikkanimet eivät katoa
   (käyttäjän päätös: kaikkien samanaikainen ilmestyminen oli hassu); kierron aikana nimi häipyy vain alakärjen lähellä,
   jossa se kulkisi Salkoni-kuvan yli. Valitun salon napautus sulattaa kuten ennen.
-- **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen (väli 26 px) ennen jakoviivaa ja
+- **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen (väli 30 px) ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
   säteen sukua, ei lovettu navigaattorinuoli; käyttäjän päätös).
@@ -256,15 +257,16 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   hampaina; kahvan ulkokulmien ja varren alapään pyöristys 1,5 px isossa avaimessa, käyttäjän päätös; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
-  sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja vasta sitten avain lähtee liikkeelle (käyttäjän päätös).
-  Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms (käyttäjän päätös);
-  koko kasvaa suhteellisesti, väri ja muun näkymän häivytys samassa tahdissa. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
+  sulkee näkymän. Avatessa ensin paalupaikka häipyy (0,2 s), ja avain lähtee liikkeelle vasta 0,16 s:n tauon jälkeen
+  (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
+  (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKOSUTKAUTUS
+  vasta liikkeen loppupuolella. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
   Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
   Avoimessa näkymässä avaimen oikealla puolella *SALKOSUTKAUTUS* pystynä versaalina (paino 400:n ja 600:n väliltä),
   väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
   korkuiset; saa jatkua palstan ohi ruudun reunaan asti, ja vasta kun sekään ei riitä (kapea ruutu), koko pienenee, koska
-  nimi ei rivity (käyttäjän päätös); se häivyttyy esiin lomakkeen tahdissa. Arvo vain, kun laitteella on paneeli;
+  nimi ei rivity (käyttäjän päätös); se häivyttyy esiin avaimen liikkeen loppupuolella. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
