@@ -37,12 +37,12 @@
     font-weight: 380 700; font-style: italic; font-display: swap; }
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
-    --ruoste: #8c5426; --okra: #b07a16;
+    --ruoste: #8c5426; --okra: #b07a16; --ruoste-haalea: #b89474;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
   }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
-    --ruoste: #b8794a; --okra: #d4a443;
+    --ruoste: #b8794a; --okra: #d4a443; --ruoste-haalea: #764e31;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -113,10 +113,11 @@
     border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   .s-haku input:focus { outline: none; border-color: var(--harmaa); }
   .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
-  /* Rivinimet ja salmiakki tasattuina oikealle (käyttäjän päätös): musteen oikea reuna samassa x:ssä, korien alusta .29 em.
-     Napin kulma ylittää laatikon .13 em, joten haku (kulmaton) on sen verran oikeammalla ja salmiakki samoin. Mitattu kuvasta. */
+  /* Rivinimien tekstit ja salmiakki tasattuina oikealle musteen mukaan (käyttäjän päätös; kulmat eivät kuulu tasaukseen, vaan
+     riippuvat tekstin jälkeen). Napissa tekstin perässä on kulma (.42 em väli ja .36 em laatikko); kulmaton haku on sen verran
+     vasemmalla ja vielä .08 em, koska u:n muste ulottuu lähemmäs laatikon reunaa kuin i:n. Mitattu kuvasta. */
   .krivi .ots { font-style: italic; color: var(--harmaa); justify-self: end; margin-right: .42em; }
-  .krivi span.ots { margin-right: .28em; }
+  .krivi span.ots { margin-right: 1.28em; }
   .krivi button.ots { display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
     font-size: inherit; text-align: left; }
   /* Kulma kuten osumaryhmissä: oikealle, auki alas. */
@@ -131,15 +132,17 @@
   button.kori[data-tila="pois"] { color: var(--harmaa); text-decoration: line-through; }
   button.kori.nolla { color: var(--viiva); }
   /* Supersalmiakki kieli-rivin alla (käyttäjän päätös: pelkkä salmiakki): rivinimien sarakkeessa niiden tavoin oikealle tasattuna
-     ja samankokoisena kuin listassa. Toimii kuten kori: mukaan (2 px:n alleviivaus musteella), pois (harmaa ja yliviivattu),
-     ennalleen; himmeä, kun näkyvissä ei ole yhtään sertifioitua. Mitat pikseleinä kuten listan merkissä (viewBoxin yksikkö
+     ja samankokoisena kuin listassa. Toimii kuten kori, mutta lepotilassa haalea ruoste (--ruoste-haalea: 60 % ruostetta, 40 %
+     paperia; käyttäjän päätös), mukaan täysi ruoste ja 2 px:n alleviivaus musteella, pois harmaa ja yliviivattu; himmeä, kun
+     näkyvissä ei ole yhtään sertifioitua. Mitat pikseleinä kuten listan merkissä (viewBoxin yksikkö
      19,5 / 11,2 px): muste y 6,0–22,0 napin yläreunasta; vaakaan svg, viiva ja yliviivaus on sidottu napin oikeaan reunaan. */
-  .krivi button.salmiakki { position: relative; display: block; justify-self: end; margin-right: .42em; width: 37px; height: 28px;
-    min-height: 0; padding: 0; border: 0; color: var(--ruoste); }
-  .krivi button.salmiakki svg { position: absolute; right: calc(-3.5px - .13em); top: 4.25px; width: 19.5px; height: 19.5px; overflow: visible; fill: currentColor; }
+  .krivi button.salmiakki { position: relative; display: block; justify-self: end; margin-right: 1.28em; width: 37px; height: 28px;
+    min-height: 0; padding: 0; border: 0; font-size: inherit; color: var(--ruoste-haalea); }
+  .krivi button.salmiakki svg { position: absolute; right: -2.92px; top: 4.25px; width: 19.5px; height: 19.5px; overflow: visible; fill: currentColor; }
   .krivi button.salmiakki .r { fill: none; stroke: currentColor; stroke-width: 1.05; stroke-linejoin: miter; }
-  .krivi button.salmiakki::after { content: ''; position: absolute; right: calc(.68px - .13em); width: 11.14px; top: 25px; height: 2px; }
-  .krivi button.salmiakki::before { content: ''; position: absolute; right: calc(-1.75px - .13em); width: 16px; top: 13.25px; height: 1.5px; }
+  .krivi button.salmiakki::after { content: ''; position: absolute; right: 1.26px; width: 11.14px; top: 25px; height: 2px; }
+  .krivi button.salmiakki::before { content: ''; position: absolute; right: -1.17px; width: 16px; top: 13.25px; height: 1.5px; }
+  .krivi button.salmiakki[data-tila="mukaan"] { color: var(--ruoste); }
   .krivi button.salmiakki[data-tila="mukaan"]::after { background: var(--muste); }
   .krivi button.salmiakki[data-tila="pois"] { color: var(--harmaa); }
   .krivi button.salmiakki[data-tila="pois"]::before { background: var(--harmaa); }

@@ -7,7 +7,7 @@
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
 // Haku-rivi: tekijä mukaan tai pois, asiasana. Supersalmiakki kieli-rivin alla kuten kori (mukaan, pois, ennalleen; myös
-// otsikko-osumat; rivinimet ja salmiakki oikealle tasattuina; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
+// otsikko-osumat; rivinimien tekstit ja salmiakki oikealle tasattuina; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -81,18 +81,26 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const superNimet = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super')).map(x => x.querySelector('a').textContent.trim()));
   const superFilo = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super') && x.dataset.aihe.split(',').includes('filosofia')).length);
   const sm = () => page.$eval('button.salmiakki', b => b.getAttribute('aria-pressed') + ' ' + (b.getAttribute('data-tila') || '') + ' ' + b.classList.contains('nolla'));
+  // Väri: lepotilassa haalea ruoste, mukaan täysi ruoste, pois harmaa (käyttäjän päätös).
+  const smVari = () => page.$eval('button.salmiakki', b => { const v = n => { const e = document.createElement('i'); e.style.color = 'var(' + n + ')'; document.body.appendChild(e);
+    const c = getComputedStyle(e).color; e.remove(); return c; }; const c = getComputedStyle(b).color;
+    return c === v('--ruoste-haalea') ? 'haalea' : c === v('--ruoste') ? 'ruoste' : c === v('--harmaa') ? 'harmaa' : c === v('--viiva') ? 'viiva' : c; });
+  t('supersalmiakki lepotilassa haalea ruoste', await smVari() === 'haalea', await smVari());
   t('supersalmiakki: oma rivi kieli-rivin alla, ei tekstiä, selitteessä ei nappia', await page.evaluate(() => {
     const b = document.querySelector('button.salmiakki'), r = b && b.closest('.krivi');
     return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 1 &&
       b.textContent.trim() === '' && !!b.querySelector('svg') && !document.querySelector('.selite button'); }));
-  // Rivinimet ja salmiakki tasattuina oikealle: musteen oikea reuna kuvasta (rivin alue, korien vasemmalla puolella).
+  // Rivinimien tekstit ja salmiakki tasattuina oikealle: musteen oikea reuna kuvasta (rivin alue, korien vasemmalla puolella),
+  // kulmat piilotettuina, koska ne riippuvat tekstin jälkeen eivätkä kuulu tasaukseen.
   const musteReunat = async () => {
     const a = await page.evaluate(() => { const s = document.getElementById('suodatus').getBoundingClientRect();
       return { x: s.left, y: s.top + scrollY, w: document.querySelector('#suodatus .krivi .kk').getBoundingClientRect().left - s.left - 1,
         rivit: [...document.querySelectorAll('#suodatus .krivi')].map(k => { const r = k.firstElementChild.getBoundingClientRect(); return [r.top - s.top - 3, r.bottom - s.top + 3]; }),
         tausta: getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number) }; });
     const h = a.rivit[a.rivit.length - 1][1];
+    const piilo = await page.addStyleTag({ content: '.krivi button.ots::after { visibility: hidden !important; }' });
     const kuva = (await page.screenshot({ clip: { x: a.x, y: a.y, width: a.w, height: h }, fullPage: true })).toString('base64');
+    await piilo.evaluate(x => x.remove());
     return page.evaluate(async ({ kuva, a, h }) => {
       const img = new Image(); img.src = 'data:image/png;base64,' + kuva; await img.decode();
       const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
@@ -104,16 +112,22 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
     }, { kuva, a, h });
   };
   const reunat = await musteReunat();
-  t('rivinimet ja salmiakki: musteen oikeat reunat tasan (enintään 0,5 px)', reunat.length === 5 && Math.max(...reunat) - Math.min(...reunat) <= .5, reunat.join(' '));
+  t('rivinimien tekstit ja salmiakki: musteen oikeat reunat tasan (enintään 0,5 px)', reunat.length === 5 && Math.max(...reunat) - Math.min(...reunat) <= .5, reunat.join(' '));
+  t('korit alkavat kaikilla riveillä samasta x:stä (haku-rivin otsikko kulmien oikealla)', await page.evaluate(() => {
+    const x = [...document.querySelectorAll('#suodatus .krivi .kk')].map(k => k.getBoundingClientRect().left);
+    const kulma = Math.max(...[...document.querySelectorAll('#suodatus .krivi button.ots')].map(b => b.getBoundingClientRect().right));
+    return x.length === 4 && x.every(v => v === x[0]) && kulma + 2 < x[0]; }));
   await page.click('button.salmiakki');
   t('supersalmiakki mukaan: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 && await sm() === 'true mukaan false',
     (await nimet()).join(' | ') + ' / ' + await sm());
+  t('supersalmiakki mukaan: täysi ruoste', await smVari() === 'ruoste', await smVari());
   t('supersalmiakki: tilarivi ja tyhjennä', await page.textContent('#s-nakyy') === 'sivustoja näkyvissä ' + superNimet.length + ' / ' + kaikki && await page.isVisible('#s-tyhjenna'));
   t('supersalmiakki: korin luku seuraa', Number(await page.textContent('button.kori[data-f="aihe"][data-v="filosofia"] .n')) === superFilo);
   await nappi('aihe', 'filosofia');
   t('supersalmiakki × filosofia', await nak() === superFilo, String(await nak()));
   await nappi('aihe', 'filosofia'); await nappi('aihe', 'filosofia');
   await page.click('button.salmiakki');
+  t('supersalmiakki pois: harmaa', await smVari() === 'harmaa', await smVari());
   t('supersalmiakki pois: ei sertifioituja', await nak() === kaikki - superNimet.length && !(await nimet()).some(x => superNimet.includes(x)) && await sm() === 'mixed pois false', await sm());
   await page.click('button.salmiakki');
   t('supersalmiakki: kolmas napautus palauttaa', await nak() === kaikki && await sm() === 'false  false');
