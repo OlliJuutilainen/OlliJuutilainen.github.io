@@ -1470,22 +1470,15 @@ async function tallennaHeti(){
 const nakyma = $('avainNakyma'), avainNappi = $('avainNappi'), kentta = $('lause');
 let vahvistus = null, kaynnissa = false;
 function avainTila(text, kind){ const el = $('avainTila'); el.textContent = text || ''; el.className = 'avainTila' + (kind ? ' ' + kind : ''); }
-/* Avaimen siirtymä nurkan ja näkymän välillä (käyttäjän päätös, säädetty säätöpaneelissa): 310 ms; kiihdytys 82 %
-   ajasta tasaisella kiihtyvyydellä (nopeus kasvaa lineaarisesti), lyhyt tasainen vauhti ja jarrutus 15 % muodolla 2,6
-   (nopeus ∝ jäljellä olevan jarrutusajan 2,6. potenssi). Koko kasvaa suhteellisesti (geometrisesti), väri vaihtuu
+/* Avaimen siirtymä nurkan ja näkymän välillä (käyttäjän päätös): sama kultaisen leikkauksen käyrä kuin kiteen kierrossa
+   (KIERTO: nopeus kasvaa rauhallisesti huippuunsa 61,8 %:n kohdalla ja laskee siitä liukuvana jarrutuksena) ja 420 ms,
+   joten huippunopeus on noin 30 % pienempi kuin aiemmalla 310 ms:n käyrällä. Koko kasvaa suhteellisesti (geometrisesti), väri vaihtuu
    samassa tahdissa ja muu näkymä häivyttyy esiin samalla käyrällä. Ruudut lasketaan itse Web Animations -animaatioksi
    (FLIP: mitataan ennen ja jälkeen), koska käyrä ei ole cubic-bezier. Avaimen värille ei saa lisätä CSS-transitiota:
    kaskadissa transitio voittaa animaation, ja väri lakkaisi seuraamasta liikettä. aria-expanded vaihdetaan muutos-kutsussa
    ennen loppumittausta, koska se vaikuttaa väriin: muuten sulku päättyisi avoimen tilan väriin ja hyppäisi lopuksi
    lepoväriin. Vähennetyllä liikkeellä vain paikka vaihtuu. */
-const SIIRTYMA = { kesto: 310, kiih: .82, kiihM: 1, jarr: .15, jarrM: 2.6 };
-const siirtymaKayra = (({ kiih: a, kiihM: k, jarr: d, jarrM: m }) => {
-  const A = a / (k + 1), C = 1 - a - d, D = d / (m + 1), v = 1 / (A + C + D);
-  return t => t <= 0 ? 0 : t >= 1 ? 1
-    : t < a ? v * a / (k + 1) * Math.pow(t / a, k + 1)
-    : t <= 1 - d ? v * (A + t - a)
-    : v * (A + C + D * (1 - Math.pow((1 - t) / d, m + 1)));
-})(SIIRTYMA);
+const SIIRTYMA = { kesto: 420 }, siirtymaKayra = KIERTO;
 const avainKoti = document.querySelector('.top');
 let avainAnimaatiot = [];
 const rgbOsat = c => (c.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
@@ -1513,17 +1506,30 @@ function siirraAvain(kohde, muutos, esiin){
   avainAnimaatiot.push(svg.animate(liike, ajoitus), avainNappi.animate(vari, ajoitus),
     ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)));
 }
+/* Avatessa ensin paalupaikka häipyy (AVAUS_HAIVYTYS ms), ja vasta sitten avain lähtee liikkeelle (käyttäjän päätös).
+   Häivytyksen aikana uusi napautus ei tee mitään. */
+const AVAUS_HAIVYTYS = 200;
+let avausHaivytys = null;
 function avaaNakyma(){
-  siirraAvain($('avainPaikka'), () => {
-    document.querySelector('main').classList.add('avainAuki');
-    nakyma.hidden = false;
-    avainNappi.setAttribute('aria-expanded', 'true');
-  }, [$('avainLomake'), $('avainNimi')]);
-  kentta.value = state.lause || '';
-  $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
-  avainTila(''); vahvistus = null;
-  paivitaSutkauta();
-  kentta.focus({ preventScroll: true });
+  if (avausHaivytys) return;
+  const pois = [...document.querySelectorAll('main > :not(#avainNakyma):not(.foot)')].filter(el => el.getClientRects().length);
+  const jatka = () => {
+    siirraAvain($('avainPaikka'), () => {
+      document.querySelector('main').classList.add('avainAuki');
+      nakyma.hidden = false;
+      avainNappi.setAttribute('aria-expanded', 'true');
+      (avausHaivytys || []).forEach(a => a.cancel());   // piilossa nyt; sulkiessa näkymä palaa täysin näkyvänä
+      avausHaivytys = null;
+    }, [$('avainLomake'), $('avainNimi')]);
+    kentta.value = state.lause || '';
+    $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
+    avainTila(''); vahvistus = null;
+    paivitaSutkauta();
+    kentta.focus({ preventScroll: true });
+  };
+  if (!pois.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return jatka();
+  avausHaivytys = pois.map(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: AVAUS_HAIVYTYS, easing: 'ease-in', fill: 'forwards' }));
+  avausHaivytys[0].finished.then(jatka, () => {});
 }
 function suljeNakyma(){
   siirraAvain(avainKoti, () => {
