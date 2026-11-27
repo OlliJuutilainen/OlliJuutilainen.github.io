@@ -149,6 +149,12 @@
   .krivi button.salmiakki[data-tila="pois"] { color: var(--harmaa); }
   .krivi button.salmiakki[data-tila="pois"]::before { background: var(--harmaa); }
   .krivi button.salmiakki.nolla { color: var(--viiva); }
+  /* Supersalmiakin rajaus (käyttäjän päätös): valittuna korien sarakkeessa hyvin himmeä versaalikursiivi, pois-tilassa
+     yliviivattuna kuten salmiakki, lepotilassa piilossa. Keskitetty salmiakin riville. */
+  .krivi .sm-rajaus { display: none; align-self: center; font-size: .88em; line-height: 1.25; letter-spacing: .12em;
+    text-transform: uppercase; font-style: italic; color: var(--viiva); color: color-mix(in srgb, var(--harmaa) 40%, var(--viiva)); }
+  .krivi button.salmiakki[data-tila] + .sm-rajaus { display: block; }
+  .krivi button.salmiakki[data-tila="pois"] + .sm-rajaus { text-decoration: line-through; }
   .s-tila { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; color: var(--harmaa); margin: 4px 0 0; }
   .s-tila button { border: 0; padding: 3px 0; min-height: 26px; font-size: inherit; color: var(--ruoste); text-decoration: underline;
     text-decoration-color: var(--viiva); text-underline-offset: 3px; }
@@ -610,7 +616,8 @@
     }).join('') +
     // Supersalmiakki: pelkkä salmiakki, kuten kori (tila.salmiakki: mukaan, pois tai ei mitään).
     '<div class="krivi"><button type="button" class="salmiakki" aria-pressed="false" aria-label="supersalmiakki" title="Supersalmiakki: Luinin sertifioima">' +
-      '<svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></button></div>' +
+      '<svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></button>' +
+      '<span class="sm-rajaus">vain sivut, jotka ruosteinen salmiakki vahvistaa laadukkaasti latoutuviksi</span></div>' +
     '<div class="s-tila"><span id="s-nakyy"></span><button type="button" id="s-tyhjenna" hidden>tyhjennä</button></div>';
   el.hidden = false;
   /* Hakukieli (käyttäjän päätös: perus-boolean): välilyönti tai AND = kaikkien pitää osua, OR = jonkin pitää osua, NOT = ei
