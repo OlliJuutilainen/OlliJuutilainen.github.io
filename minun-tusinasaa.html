@@ -128,6 +128,8 @@
   .btn{ font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer; border:1px solid var(--brand); background:var(--brand); color:var(--bg) }
   .btn:disabled{ opacity:.45; cursor:default }
   .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
+  /* Etusivun päänapit lihavoituina, MOTS kursiivilla (käyttäjän päätös). */
+  #aloita, #omaan{ font-weight:700 }
   .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
   .link{ background:none; border:0; padding:0; color:inherit; cursor:pointer; text-decoration:underline; text-underline-offset:3px }
   .note{ color:var(--muted); font-size:14px }
@@ -190,7 +192,7 @@
   .slot{ position:absolute; transform:translate(-50%, -50%); display:grid; justify-items:center; gap:3px;
     background:none; border:0; padding:6px; cursor:pointer; color:var(--muted);
     transition:left .7s cubic-bezier(.3,.7,.2,1), top .7s cubic-bezier(.3,.7,.2,1), color .3s }
-  .slot svg{ width:26px; height:26px; overflow:visible; transition:transform .3s }
+  .slot svg{ width:20px; height:20px; overflow:visible; transition:transform .3s }
   .slot .nm{ font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
   .slot.on{ color:var(--text) }
   .slot.on svg{ transform:scale(1.25) }
@@ -219,7 +221,8 @@
   .clear .link{ color:var(--muted) }
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
-  .clearNote{ display:block; font-size:11.5px; margin:4px 0 0 }
+  /* Paluuohje versaalilla (käyttäjän päätös). */
+  .clearNote{ display:block; font-size:11.5px; margin:4px 0 0; text-transform:uppercase; letter-spacing:.06em }
   .full{ text-align:center; font-size:13px; color:var(--muted); margin:4px 0 0 }
   /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
   details.app{ margin:48px 0 0; font-size:13px; line-height:1.5; color:var(--muted); max-width:46ch }
@@ -303,7 +306,7 @@
   <div class="top">
     <a class="logoBox" id="logo" href="minun-tusinasaa.html" aria-label="TUSINASÄÄ 12, etusivu"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></a>
     <p class="toptext" id="toptext" hidden><span class="seg"><span class="nimi">TUSINASÄÄ 12</span> on&nbsp;henkilökohtainen sääsalkosi.</span> <span class="seg">Se välittää säästä (i)&nbsp;olennaisen ja (ii)&nbsp;nopeasti. Näin aikaa jää myös taivaalle katsomiseen.</span></p>
-    <p class="quote" id="quote"><span><span class="q1"><b>Minun oma tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
+    <p class="quote" id="quote"><span><span class="q1"><b>Minun·oma·tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
     <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M16.9 5.6L14.45 1.36L9.55 1.36L7.1 5.6L9.55 9.84L14.45 9.84ZM12 9.84V27.44"/></svg></button>
   </div>
 
@@ -343,7 +346,7 @@
       <p class="credit" id="credit">Sääsalko imee ravintonsa <a href="https://www.ilmatieteenlaitos.fi/avoin-data" rel="noopener">Ilmatieteen laitoksen</a> ja Norjan meteorologisen instituutin (mm. <a href="https://www.yr.no/" rel="noopener">yr.no</a>) avoimesta datasta.</p>
       <p class="second" id="etuPaalutus"><span class="nimi">TUSINASÄÄ 12</span> on ilmainen, ja saat sen käyttöösi pystyttämällä oman salon.</p>
       <button class="btn big" type="button" id="aloita">Aloita paalutus</button>
-      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun oma tusinasää (MOTS)</button></p>
+      <p class="toOwn" id="toOwn" hidden><button class="btn big" type="button" id="omaan">Minun·oma·tusinasää (<i>MOTS</i>)</button></p>
     </section>
     <div id="paneeli">
     <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
@@ -442,12 +445,13 @@ const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${
    lukua, ja kehän sisällä salkojen hiutale. Kehä ja säteet otetaan logon poluista (android/scripts/tusinasaa-kuvake.js:
    kehä kaksi osapolkua, sitten 12 sädettä alkaen klo 12:sta, viimeisenä luku), joten salko seuraa logon muutoksia.
    Varsi on kehän paksuinen kuten avaimessa ja alkaa alimman säteen loven pohjalta; hiutaleen kärjet ovat kehästä yhtä
-   kaukana kuin logon luku. Mitat logon yksiköissä (32). */
+   kaukana kuin logon luku. Mitat logon yksiköissä (32). Leveys 56 px: selvästi kiteen salkojen hiutaleita suurempi
+   (käyttäjän päätös). */
 const salkoKuva = (() => {
   const osat = luokka => $('logo').querySelector('.' + luokka).getAttribute('d').split(/(?=M)/);
   const luvut = o => o.match(/-?[\d.]+/g).map(Number);
   const t = osat('tumma'), ulko = luvut(t[0])[1], sisa = luvut(t[1])[1], lovi = luvut(t[8])[5];
-  const paksuus = (sisa - ulko) * Math.sqrt(3) / 2, PITUUS = 26, LEVEYS = 28, H = 32 + PITUUS;
+  const paksuus = (sisa - ulko) * Math.sqrt(3) / 2, PITUUS = 26, LEVEYS = 56, H = 32 + PITUUS;
   const varsi = `M${f2(16 - paksuus / 2)} ${lovi}H${f2(16 + paksuus / 2)}V${H}H${f2(16 - paksuus / 2)}Z`;
   const polku = luokka => `<path class="${luokka}" fill="currentColor" d="${osat(luokka).slice(0, 14).join('') + varsi}"/>`;
   const k = f2((16 - sisa - .94) / 11.6 * 24);
@@ -728,15 +732,15 @@ function renderPanel(){
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;
   $('appPaneeli').hidden = first || !creds;
-  /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; jätä vain unohtaa paneelin tältä laitteelta. */
+  /* Pura kaataa salot palvelusta kaikilta linkin haltijoilta; poistuminen vain unohtaa paneelin tältä laitteelta. */
   $('clear').innerHTML = state.confirmClear
     ? `Kaadetaanko kaikki salot? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
     : state.confirmLeave
-    ? `Jätetäänkö paalupaikka? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">JÄTÄ</button> · <button class="link" type="button" id="clearNo">peru</button>` +
+    ? `Poistutaanko paalupaikalta? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">POISTU</button> · <button class="link" type="button" id="clearNo">peru</button>` +
       `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
-    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]` +
-      (creds ? ` [<button class="link" type="button" id="leaveAsk">jätä paalupaikka</button>]` : '') + `</span>`;
+    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura tämä paalupaikka</button>]` +
+      (creds ? ` [<button class="link" type="button" id="leaveAsk">poistu paalupaikalta</button>]` : '') + `</span>`;
   syncPick();
   renderMelt();
   paivitaLogo();
@@ -791,7 +795,7 @@ async function jataPaalupaikka(){
   fromProfile({ pylvaat: [] });
   kentta.value = ''; vahvistus = null; avainTila('');
   renderPanel();
-  setTila('Paalupaikka on jätetty. Salot ovat edelleen pystyssä.');
+  setTila('Olet poistunut paalupaikalta. Salot ovat edelleen pystyssä.');
 }
 document.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () => {
   if (state.lampo === o.dataset.lampo) return;
