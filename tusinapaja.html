@@ -141,6 +141,9 @@
     padding:8px 10px; border:1px solid var(--color-border); border-radius:4px; background:var(--color-bg);
     color:var(--color-soft); font-size:13px; line-height:1.4; letter-spacing:.2px; font-style:normal;
     box-shadow:0 2px 10px rgba(0,0,0,.35) }
+  /* Ensin silmäyksellä, mitä hiutale tarkoittaa (moni ei tiedä), sitten varoitus (käyttäjän päätös). */
+  .maaHuomautus .selitys{ display:block; margin-bottom:5px; color:var(--color-text) }
+  .maaHuomautus .selitys .maaJaassa{ width:.9em; height:.9em; margin:0 .35em 0 0; vertical-align:-.15em }
   .cell{ color:var(--color-text) }
   .cell.soft{ color:var(--color-soft) }
   .desc{ color:var(--color-soft) }
@@ -986,12 +989,15 @@ const GROUND_WARN_SVG = '<svg class="maaVaroitus" viewBox="0 0 24 24" aria-hidde
 const MAARUUTU_VAROITUS_KM = 5;
 function maaruutuNote(){
   const km = String(MAARUUTU?.km ?? '').replace('.', ',');
-  return `Salon kohdalla sääennusteen ruudussa on vettä, joten maan lämpötila on luettu lähimmästä kuivan maan ruudusta ${km} km:n päästä. Hiutale voi siksi olla epäluotettava.`;
+  /* Käyttäjälle merkki on jäisen maan merkki, ei hiutale (käyttäjän päätös). */
+  const selitys = FEELS_LIKE ? 'Jäisen maan merkki: TK 0 tai yli, maa jäässä.' : 'Jäisen maan merkki: ilma plussalla, maa jäässä.';
+  return `<span class="selitys">${GROUND_FLAKE_SVG.replace(/<title>.*?<\/title>/, '').replace(' role="img" aria-label="maa jäässä"', ' aria-hidden="true"')}${selitys}</span>` +
+    `Epävarma: maan lämpötila on luettu ${km}&nbsp;km:n päästä, koska ennusteessa salon kohta on osin vettä.`;
 }
 function groundFlakeHtml(){
   if (!(MAARUUTU?.km > MAARUUTU_VAROITUS_KM)) return GROUND_FLAKE_SVG;
   const flake = GROUND_FLAKE_SVG.replace('<title>maa jäässä</title>', '').replace(' role="img" aria-label="maa jäässä"', ' aria-hidden="true"');
-  return `<span class="maaEpavarma" role="button" tabindex="0" aria-label="maa jäässä, huomautus">${flake}${GROUND_WARN_SVG}</span>`;
+  return `<span class="maaEpavarma" role="button" tabindex="0" aria-label="jäisen maan merkki, huomautus">${flake}${GROUND_WARN_SVG}</span>`;
 }
 /* Huomautus kaikille riveille yhteinen: osoitus näyttää (hiirellä), napautus kiinnittää tai sulkee,
    napautus muualle tai Esc sulkee. */
@@ -1003,7 +1009,7 @@ function showGroundNote(anchor, pinned){
     groundNoteEl.setAttribute('role', 'note');
     document.body.appendChild(groundNoteEl);
   }
-  groundNoteEl.textContent = maaruutuNote();
+  groundNoteEl.innerHTML = maaruutuNote();
   groundNoteEl.hidden = false;
   groundNoteFor = anchor;
   groundNotePinned = pinned;

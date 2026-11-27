@@ -69,8 +69,9 @@ Maa jäässä plussalla (käyttäjän päätös):
   hakua ei talleteta. **Jos muutat renkaita tai suuntien järjestystä, vaihda tiivisteen etuliite `maaruutu-1`**,
   muuten talletetut numerot osoittavat vääriin pisteisiin.
 - **Kaukainen maaruutu** (yli 5 km; käyttäjän päätös): hiutaleen oikeaan yläkulmaan pieni varoituskolmio
-  (`groundFlakeHtml`). Osoitus hiirellä tai napautus näyttää huomautuksen epäluotettavuudesta; napautus kiinnittää,
-  napautus muualle tai Esc sulkee. Kolmio ei kasvata leveyttä (marginaalit kumoavat sen), koska kaksinumeroinen
+  (`groundFlakeHtml`). Osoitus hiirellä tai napautus näyttää huomautuksen: ensin silmäyksellä mitä merkki tarkoittaa,
+  sitten epävarmuus ja etäisyys (`maaruutuNote`). Käyttäjälle näkyvässä tekstissä merkki on **jäisen maan merkki**,
+  ei hiutale, eikä huomautusta pidennetä (käyttäjän päätös). Napautus kiinnittää, napautus muualle tai Esc sulkee. Kolmio ei kasvata leveyttä (marginaalit kumoavat sen), koska kaksinumeroinen
   lukema, hiutale ja kolmio eivät muuten mahdu sarakkeeseen. Merkki toistuu jokaisella hiutalerivillä; tapa
   keventää sitä on avoinna (tusina-rata).
 - Käänteistä sulamerkkiä (lukema miinuksella, maa sula) ei tehdä (käyttäjän päätös).
