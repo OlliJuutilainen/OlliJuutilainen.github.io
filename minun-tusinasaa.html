@@ -227,7 +227,7 @@
      vaakatason ylittäessään ja vaihtaa puolta näkymättömänä (asetaKulma). Paikka liikkuu kiteen kehää pitkin (kierra),
      joten left/top ilman CSS-siirtymää. */
   .slot{ position:absolute; transform:translate(-50%, -16px); display:grid; justify-items:center; gap:3px;
-    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted); transition:color .3s }
+    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted); transition:color .3s, opacity .35s }
   .slot svg{ width:20px; height:20px; overflow:visible; transition:transform .3s }
   .slot .nm{ position:absolute; left:50%; top:calc(100% - 3px); transform:translateX(-50%);
     font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
@@ -244,7 +244,13 @@
      salko kaikkinensa yhtä väriä, sivun kirkkainta (--brand, tummassa valkoinen; käyttäjän päätös): kuva, hiutale (.slot.on),
      otsake ja nimi. */
   .stage .salko{ position:absolute; left:50%; transform:translateX(-50%); color:var(--brand); overflow:visible; pointer-events:none }
-  .now{ text-align:center; margin:2px 0 0; font-size:15px }
+  .now{ text-align:center; margin:2px 0 0; font-size:15px; transition:opacity .35s }
+  /* Reunan salon sulaessa keskussalko häipyy hetkeksi ja muokkaus nousee alimpien nimien alle (asetaSulaPaikka; käyttäjän
+     päätös). Otsakerivi jää näkymättömänä paikalleen, ja kiteen alamarginaali liukuu. */
+  .stage{ transition:margin-bottom .45s }
+  .stage .salko{ transition:opacity .35s }
+  .stage.reunaSulaa .salko, .stage.reunaSulaa .slot.on, .now.reunaSulaa{ opacity:0; visibility:hidden; transition:opacity .35s, visibility 0s .35s }
+  .stage.reunaSulaa .arm.on{ visibility:hidden }
   .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--brand); margin:0 0 3px }
   .now b{ color:var(--brand) }
   .now b{ transition:opacity .4s }
@@ -285,8 +291,8 @@
   /* Muun kuin valitun salon ensimmäinen napautus ei kierrä eikä sulata (käyttäjän päätös): hiutaleen ympärille tulee haalea
      katkoviivakuusikulmio ja sen ulkopuolelle samanlaisen kuusikulmion sisään kiertonappi, logon tyylinen aurinko, jonka
      joka toinen säde osoittaa kuusikulmion kulmaan (piirraKierto; käyttäjän päätös). Katkoviiva on symmetrinen (pathLength 60;
-     kulmissa taittuva viiva). Levossa katkoviiva on hyvin himmeä; hiiren alla se vaalenee, eikä mikään muu muutu
-     (käyttäjän päätös); hiutaleen kehys on erillinen elementti, joten :has. Nimi on samalla puolella, joten se piiloon. */
+     kulmissa taittuva viiva). Levossa katkoviiva on hyvin himmeä; hiiren alla se kirkastuu maltillisesti (peittävyys
+     ,5 → 1 samalla --mutedilla), eikä mikään muu muutu (käyttäjän päätös); hiutaleen kehys on erillinen elementti, joten :has. Nimi on samalla puolella, joten se piiloon. */
   .kierto, .kehys{ position:absolute; width:30px; height:30px; margin:-15px 0 0 -15px }
   .kierto{ padding:0; border:0; background:none; color:var(--text); cursor:pointer }
   .kehys{ pointer-events:none }
@@ -295,7 +301,7 @@
     stroke-dashoffset:.625; transition:stroke .15s, stroke-opacity .15s }
   .kierto .reuna, .kehys .reuna{ stroke-width:.45; stroke-opacity:.5 }
   @media (hover:hover){
-    .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ stroke:var(--text); stroke-opacity:1 }
+    .kierto:hover .reuna, #stage:has(.slot.kysytty:hover) .kehys .reuna{ stroke-opacity:1 }
   }
   .kierto:focus-visible{ outline:none }
   .kierto:focus-visible .reuna{ stroke:var(--text) }
@@ -868,7 +874,6 @@ function renderPanel(){
   let salkoEl = stage.querySelector('.salko');
   if (!salkoEl){ $('arms').insertAdjacentHTML('afterend', salkoKuva.html); salkoEl = stage.querySelector('.salko'); }
   salkoEl.style.top = `calc(${50 + SADE}% - ${f2(salkoKuva.keski)}px)`;
-  stage.style.marginBottom = `calc(${f2(salkoKuva.korkeus - salkoKuva.keski + 6)}px - ${(50 - SADE) / 100} * min(100%, 380px))`;
   stage.style.setProperty('--valittu', f2(salkoKuva.hiutale / 20));
   salkoEl.style.visibility = first ? 'hidden' : '';
 
@@ -911,7 +916,7 @@ function renderPanel(){
     el._kohde = b;
     return [el, a, b];
   });
-  $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
+  $('arms').innerHTML = jarjestys.map(id => `<line class="arm${id === 'vapaa' ? ' free' : ''}${id === state.active ? ' on' : ''}" data-id="${id}" x1="50" y1="50" x2="50" y2="50"/>`).join('') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
   liikkeet.forEach(([el, a]) => asetaKulma(el, a));
   /* Kiertonapin jälkeen uuden keskuksen nimi tulee näkyviin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt;
@@ -941,9 +946,29 @@ function renderPanel(){
   piirraKierto();
   syncPick();
   renderMelt();
+  asetaSulaPaikka();
   paivitaLogo();
   pinoaValinnat();
 }
+
+/* Kiteen alamarginaali on Salkoni-kuvan alaosan ja 6 px:n verran. Reunan salon sulaessa (ei ensipaalutuksessa eikä valitun
+   sulaessa) keskussalko häipyy (Salkoni-kuva, valitun hiutale ja sakara, otsakerivi), ja marginaali pienenee niin, että
+   muokkaus alkaa 18 px alimman reunahiutaleen, sen nimen tai kiteen keskikuusikulmion alapuolelta (käyttäjän päätös). Negatiivinen marginaali
+   sulautuu otsakerivin 2 px:n ylämarginaaliin. */
+function asetaSulaPaikka(){
+  const W = stage.clientWidth, reuna = !!W && !!state.melting && state.melting !== state.active && state.slots.length > 0;
+  stage.classList.toggle('reunaSulaa', reuna); $('now').classList.toggle('reunaSulaa', reuna);
+  if (!reuna){ stage.style.marginBottom = `calc(${f2(salkoKuva.korkeus - salkoKuva.keski + 6)}px - ${(50 - SADE) / 100} * min(100%, 380px))`; return; }
+  let ala = (50 + 2.6) / 100 * W;   // kiteen keskikuusikulmio, jos alapuoliskossa ei ole reunahiutaleita
+  stage.querySelectorAll('.slot').forEach(el => {
+    if (el.dataset.id === state.active) return;
+    const s = Math.sin(rad(el._kohde ?? el._kulma));
+    ala = Math.max(ala, (50 - SADE * s) / 100 * W + (s < 0 ? 28 : 10));   // nimi alapuoliskossa hiutaleen alla
+  });
+  const rako = ala + 18 - W - ($('melt').offsetTop - $('now').offsetTop);   // kiteen alareunasta otsakerivin yläreunaan
+  stage.style.marginBottom = f2(rako < 2 ? rako - 2 : rako) + 'px';
+}
+addEventListener('resize', asetaSulaPaikka);
 
 /* Valintarivi (a) … (b) …; yksi vaihtoehto ilman kirjainta. */
 const valinnat = (id, luokat, lista) => `<span class="valinnat ${luokat}" id="${id}">` + lista.map(([bid, teksti], i) =>
@@ -1302,7 +1327,7 @@ function naytaSivu(s, uusi){
   $('etuPaalutus').hidden = palaava;
   $('aloita').hidden = palaava;
   $('toOwn').hidden = !palaava;
-  if (etu) alignCredit(); else { pinoaValinnat(); piirraKierto(); }   // piilossa piirretty valintarivi mitataan vasta näkyvänä
+  if (etu) alignCredit(); else { pinoaValinnat(); piirraKierto(); asetaSulaPaikka(); }   // piilossa piirretty valintarivi mitataan vasta näkyvänä
   if (uusi){ history.pushState({ sivu }, '', location.href); window.scrollTo(0, 0); }
   paivitaLogo();
 }

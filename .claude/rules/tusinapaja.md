@@ -199,9 +199,11 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
   kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
-  alla se vaalenee, eikä mikään muu muutu. Nimi piiloutuu.
+  alla se kirkastuu maltillisesti (peittävyys 1, sama sävy), eikä mikään muu muutu. Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
-  kohdan napautus tai Esc peruu kehykset; Esc peruu myös sulatuksen kuten Peru (ei ensipaalutuksessa). Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi katoaa heti ja uusi
+  kohdan napautus tai Esc peruu kehykset; Esc peruu myös sulatuksen kuten Peru (ei ensipaalutuksessa). Reunan salon
+  sulaessa keskussalko (Salkoni-kuva, valitun hiutale ja sakara, otsakerivi) häipyy hetkeksi ja muokkaus nousee alimpien
+  nimien alle (`asetaSulaPaikka`; käyttäjän päätös); valitun sulaessa ei. Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi katoaa heti ja uusi
   tulee esiin häivyttäen 0,25 s sen jälkeen, kun pyörä on pysähtynyt (otsake pysyy). Reunan paikkanimet eivät katoa
   (käyttäjän päätös: kaikkien samanaikainen ilmestyminen oli hassu); kierron aikana nimi häipyy vain alakärjen lähellä,
   jossa se kulkisi Salkoni-kuvan yli. Valitun salon napautus sulattaa kuten ennen.
