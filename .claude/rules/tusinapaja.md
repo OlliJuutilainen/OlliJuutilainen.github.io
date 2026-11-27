@@ -199,12 +199,13 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
-  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kuusikulmion ulkopuolella ohut, pieni, hennosti
-  kaareutuva suuntanuoli napin ympäri hiutaleesta poispäin, kärki sinne, minne salko kiertäisi (`suuntaNuoli`, sama `kierros`
-  kuin kierrossa; käyttäjän päätös). Kärki taipuu kaaren mukana, ei ole suora kolmio (käyttäjän päätös: nuolen pitää kaartua tasaisesti).
-  Napin tai nuolen osoitus hiirellä näyttää viiveellä vihjeen *KIEPAUTA KESKIÖÖN* kuten avaimen vihje (käyttäjän päätös); nuoli
+  kuusikulmion kulmaa, keskellä pieni täytetty kuusikulmio (käyttäjän päätös). Kuusikulmion ulkopuolella ohut, pieni
+  yksikulmainen suuntanuoli, joka mukailee kuusikulmion ulospäin osoittavaa kulmaa loivennettuna: taite pienenee samassa suhteessa
+  kuin etäisyys napin keskeltä kasvaa, joten kaksinkertaisella etäisyydellä (26 px) sisäkulma on 150° (kaksitoistakulmion kulma). Kärki
+  sinne, minne salko kiertäisi (`suuntaNuoli`, sama `kierros` kuin kierrossa; käyttäjän päätökset).
+  Napin tai nuolen osoitus hiirellä näyttää viiveellä vihjeen *KESKUKSEEN* kuten avaimen vihje (käyttäjän päätös); nuoli
   on osa nappia, joten sen napautus kiertää. Vihjeen paikka valitaan osoitettaessa (`sijoitaVihje`) niin, ettei se peitä tekstiä,
-  hiutaleita, Salkoni-kuvaa eikä nappia; kapealla ruudulla se on kahdella rivillä. Kehykset ja nappi tulevat esiin ja häipyvät
+  hiutaleita, Salkoni-kuvaa eikä nappia. Kehykset ja nappi tulevat esiin ja häipyvät
   pehmeästi. Katkoviiva 0,45 px, levossa hyvin himmeä (peittävyys ,5); hiiren
   alla se kirkastuu maltillisesti (peittävyys 1, sama sävy), eikä mikään muu muutu. Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
