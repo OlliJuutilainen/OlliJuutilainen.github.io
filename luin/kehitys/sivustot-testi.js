@@ -69,6 +69,15 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const eiEn = await nak(); t('englanti pois (pääkieli) jättää muut', eiEn > 30 && eiEn < kaikki, String(eiEn));
   t('Perseus jää (pääkieli kreikka)', (await nimet()).includes('Perseus Digital Library'));
   await page.click('#s-tyhjenna');
+  // Kaunokirjallinen: pääkorina vain kaunokirjallisuuden sivustoilla; pois jättää sivustot, joilla laji on toisena.
+  await nappi('laji', 'kaunokirjallinen');
+  const kauno = await nimet();
+  t('kaunokirjallinen mukaan', kauno.includes('Standard Ebooks') && kauno.includes('Project Gutenberg') && !kauno.includes('Stanford Encyclopedia of Philosophy'), kauno.length + '');
+  await nappi('laji', 'kaunokirjallinen');
+  const eiKauno = await nimet();
+  t('kaunokirjallinen pois karsii pääkorin, Gutenberg jää', !eiKauno.includes('Standard Ebooks') && !eiKauno.includes('Folger Shakespeare') &&
+    eiKauno.includes('Project Gutenberg') && eiKauno.includes('Stanford Encyclopedia of Philosophy'), eiKauno.length + '');
+  await page.click('#s-tyhjenna');
   await page.fill('#s-haku', 'nagarjuna'); await page.waitForTimeout(50);
   t('haku nagarjuna (tarkkeeton) löytää GRETILin', (await nimet()).join('|').includes('GRETIL'), (await nimet()).join(' | '));
   await page.fill('#s-haku', 'liettua'); await page.waitForTimeout(50);
@@ -209,8 +218,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   // Fennomaanit (26.11.2026): piirin sivustot ja sivustot, joilla on piirin tekstejä (Runebergin teokset Gutenbergissa,
   // Wikisourcessa, Projekt Runebergissa ja Litteraturbankenissa).
   const fenno = await nimet();
-  t('fennomaanit: Snellman, SLS ja neljä sivustoa, joilla on piirin tekstejä', ['J. V. Snellmanin kootut teokset', 'SLS:n digitaaliset editiot', 'Project Gutenberg',
-    'Wikisource', 'Projekt Runeberg', 'Litteraturbanken'].every(n => fenno.includes(n)) && fenno.length === 6, fenno.join(' | '));
+  t('fennomaanit: Snellman, SLS, Avoin Kalevala ja neljä sivustoa, joilla on piirin tekstejä', ['J. V. Snellmanin kootut teokset', 'SLS:n digitaaliset editiot',
+    'Avoin Kalevala', 'Project Gutenberg', 'Wikisource', 'Projekt Runeberg', 'Litteraturbanken'].every(n => fenno.includes(n)) && fenno.length === 7, fenno.join(' | '));
   o = await osumat('runeberg');
   t('runeberg + fennomaanit: Gutenberg, SLS, Wikisource, Projekt Runeberg ja Litteraturbanken', ['Project Gutenberg', 'SLS:n digitaaliset editiot', 'Wikisource',
     'Projekt Runeberg', 'Litteraturbanken'].every(n => o.some(x => x.s === n)) && o.every(x => x.s !== 'Det Kgl. Biblioteks tekstportal'), [...new Set(o.map(x => x.s))].join(' | '));

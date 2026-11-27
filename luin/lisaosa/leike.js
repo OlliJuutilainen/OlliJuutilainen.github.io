@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026) sekä Avoin Kalevala. */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -10811,6 +10811,322 @@
       naytto: CTS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : syy ? ' (vain alkuteksti: ' + syy + ')' : '') + (vajaa ? ' (' + CTS_KOHTIA + ' ensimmäistä kohtaa)' : '') };
   }
 
+  /* Avoin Kalevala (Suomalaisen Kirjallisuuden Seuran kansalliseepoksen digitaalinen, kriittinen editio; kalevala.finlit.fi ohjautuu
+     osoitteeseen editiot.finlit.fi/exist/apps/kalevala/). TEI Publisher -sovellus: sivu on verkkokomponenttien kehys
+     (pb-document path=runot/runo_01.xml), ja teksti tulee selaimen pyytämistä paloista. Saman sovelluksen rajapinta
+     /api/document/<polku> antaa koko asiakirjan TEI-XML:nä, joten leike luetaan siitä (psXml(): sama välimuisti ja aikaraja).
+     Runo (div type=runo): otsikkokappale (emph Ensimäinen Runo.), säkeistöt lg/l ja vuoden 1849 sivut pb (pois: Kalevalan
+     kanoninen viittaus on runo ja säe). Painetun laitoksen säenumero joka kymmenennen säkeen alussa (10. Hampahilleni) yläindeksiksi
+     säkeen alkuun (kohdat: yläindeksit); koko Kalevalassa numerossa on runo (1.10 = runon 1 säe 10; md.js:n kohta on pisteellinen).
+     Lönnrotin sisällys (teiHeader msItem n=2: Runo alotteleikse vv. 1–102 …) on runon ensimmäinen kappale.
+     Merkinnät label viittaavat asiakirjan muissa div-osissa oleviin huomautuksiin, ja ne ovat alaviitteitä: sananselitys
+     (popup n=1 → div popups note n=1, sana jää tekstiin), kommentaari (folkloristiikka comment-c1 → note c1, kulttuurihistoria
+     comment-ch1 → ch1, kirjallisuus clitt1 → litt1) ja painetun Kalevalan ja käsikirjoituksen ero (difference n=diff1 → note diff1);
+     tyyppinimessä on lähteessä kirjoitusvirheitä, joten huomautus haetaan tunnuksesta. Pelkkä merkki (*, ←, →, +, numero) jää pois
+     tekstistä. Lönnrotin omat alaviitteet ovat sivun lopun taulukossa (table type=footnotes: 3: 1. s. o. lähteä. = säkeen 3
+     ensimmäinen sana): alaviitteeksi sanan perään (Lönnrot: s. o. lähteä.), säkeestä ilman sanaa säkeen loppuun ja säeväliltä
+     (29—258. Raudan syntysanat.) sen ensimmäisen säkeen loppuun paikka mukana; alaviitteen käsikirjoitusero hakasulkeisiin perään.
+     Säkeet lasketaan juoksevasti, koska Lönnrotin viite on laskettu säe (painetussa numeroinnissa on muutama poikkeama).
+     Huomautuksen ab kappaleiksi (lb lb on kappaleraja), kursiivi ja alleviivaus kursiiviksi, käsikirjoituksen poisto ~~yliviivaukseksi~~
+     (kirjeYliviivaus()), lisäys ⸂…⸃:ksi kuten HKB:ssä, epävarma lukutapa [?]:llä, aukko …:ksi, SKVR-viite (ref type=skvr
+     target=skvr01101280) linkiksi skvr.fi/poem/<tunnus>. Runon sivulta leikataan runo, ja otsikko on TEI-otsakkeen nimi (Kalevalan
+     ensimmäinen runo), jolle siirtyvät otsikkokappaleen alaviitteet (johdantokommentaari, proosaparafraasi). Runoluettelosta
+     (runot.html) kootaan koko Kalevala runoittain (enintään AK_RUNOT), ja runon otsikko on ##. Muut asiakirjat (esipuheet,
+     artikkelit, liitteet) samalla muuntimella: div head → ##, p, lg; artikkeli (div type=artikkeli) on tieteellinen, muut Lönnrotin
+     Kalevalan osia (teos Kalevala). Kaukosen säeviitteet ovat omia asiakirjojaan: säkeen alun viite säkeen loppuun, ja niiden
+     sananselitykset ovat toisessa asiakirjassa, joten ne jäävät tekstiksi. Ei mainoksia eikä lahjoituspyyntöä. */
+  const AK_NIMI = 'Avoin Kalevala';
+  const AK_RUNOT = 50;
+  // Lähdeosion osasto kansiosta (sivun oma murupolku on ohjesivun polku).
+  const AK_OSASTO = { runot: 'Runot', esipuheet: 'Esipuheet', artikkelit: 'Artikkelit', liitteet: 'Liitteet', nimiolehdet: 'Nimiölehdet' };
+  const AK_MERKKI = /^\s*(?:[*←→↑↓+]|\d{1,3}[a-z]?)\s*$/;
+  function akRunko(X, o) {
+    const ln = n => n.localName, xid = n => n.getAttribute('xml:id') || n.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'id') || '';
+    const lapset = n => [...n.childNodes];
+    const body = X && X.getElementsByTagNameNS('*', 'body')[0];
+    if (!body) return null;
+    // Huomautukset tunnuksittain: div, jonka elementit ovat vain head ja note, on huomautusosa.
+    const huomOsa = d => ln(d) === 'div' && [...d.children].length > 0 && [...d.children].every(c => /^(head|note)$/.test(ln(c)));
+    const huom = new Map();
+    [...body.getElementsByTagNameNS('*', 'div')].filter(huomOsa).forEach(d => [...d.children].forEach(n => {
+      if (ln(n) !== 'note') return;
+      if (xid(n) && !huom.has('id:' + xid(n))) huom.set('id:' + xid(n), n);
+      if (n.getAttribute('n') && !huom.has('n:' + n.getAttribute('n'))) huom.set('n:' + n.getAttribute('n'), n);
+    }));
+    const etsi = lab => {
+      const i = xid(lab), n = lab.getAttribute('n');
+      if (i) for (const k of [i, i.replace(/^[a-z]+-/i, ''), i.replace(/^c(?=litt)/, '')]) if (huom.has('id:' + k)) return huom.get('id:' + k);
+      return n && huom.get('n:' + n) || null;
+    };
+    // Huomautus Markdowniksi: ab ja lb lb kappaleiksi.
+    const huomInline = n => {
+      if (n.nodeType === 3) return [document.createTextNode(n.nodeValue.replace(/\s+/g, ' '))];
+      if (n.nodeType !== 1) return [];
+      const t = ln(n), sis = () => lapset(n).flatMap(huomInline);
+      if (t === 'hi') {
+        const r = n.getAttribute('rend') || '';
+        const e = document.createElement(/super/i.test(r) ? 'sup' : /ital|under/i.test(r) ? 'em' : 'span');
+        e.append(...sis()); return [e];
+      }
+      if (t === 'span' && /^(folk|ch|litt)$/.test(n.getAttribute('rend') || '')) { const e = document.createElement('em'); e.append(...sis()); return [e]; }
+      if (t === 'del') { const e = document.createElement('del'); e.append(...sis()); return [e]; }
+      if (t === 'add') return [document.createTextNode('⸂'), ...sis(), document.createTextNode('⸃')];
+      if (t === 'unclear') { const s = sis(); return s.length && rivi(s.map(x => x.textContent).join('')) ? [...s, document.createTextNode('[?]')] : [document.createTextNode('[?]')]; }
+      if (t === 'gap') return [document.createTextNode('…')];
+      if (t === 'ref') {
+        const kohde = n.getAttribute('target') || '', ty = n.getAttribute('type') || '';
+        const u = ty === 'skvr' && /^skvr\d+$/.test(kohde) ? 'https://skvr.fi/poem/' + kohde : /^https?:\/\//.test(kohde) ? kohde : '';
+        if (!u) return sis();
+        const a = document.createElement('a'); a.href = u; a.append(...sis()); return [a];
+      }
+      return sis();
+    };
+    const huomTeksti = note => {
+      const v = document.createElement('div');
+      let p = null;
+      const uusi = () => { p = document.createElement('p'); v.appendChild(p); return p; };
+      const kay = (solmut) => {
+        for (let i = 0; i < solmut.length; i++) {
+          const c = solmut[i];
+          if (c.nodeType === 1 && /^(ab|p|l)$/.test(ln(c))) { uusi(); kay(lapset(c)); p = null; continue; }
+          if (c.nodeType === 1 && ln(c) === 'lb') {
+            let j = i + 1;
+            while (j < solmut.length && solmut[j].nodeType === 3 && !rivi(solmut[j].nodeValue)) j++;
+            if (j < solmut.length && solmut[j].nodeType === 1 && ln(solmut[j]) === 'lb') { uusi(); i = j; } else (p || uusi()).appendChild(document.createElement('br'));
+            continue;
+          }
+          if (c.nodeType === 3 && !rivi(c.nodeValue) && !p) continue;
+          (p || uusi()).append(...huomInline(c));
+        }
+      };
+      kay(lapset(note));
+      kirjeYliviivaus(v);
+      v.querySelectorAll('p').forEach(x => {
+        while (x.firstChild && (x.firstChild.nodeName === 'BR' || x.firstChild.nodeType === 3 && !rivi(x.firstChild.nodeValue))) x.firstChild.remove();
+        while (x.lastChild && (x.lastChild.nodeName === 'BR' || x.lastChild.nodeType === 3 && !rivi(x.lastChild.nodeValue))) x.lastChild.remove();
+        if (!rivi(x.textContent)) x.remove();
+      });
+      return muunna(v.innerHTML, 'inlined').trim();
+    };
+    // Alaviitteet: sama huomautus samalla tunnuksella (sananselitys voi toistua).
+    const tunnukset = new Map();
+    const viite = (note, etuteksti = '') => {
+      if (!etuteksti && tunnukset.has(note)) return tunnukset.get(note);
+      const t = huomTeksti(note);
+      if (!t) return '';
+      const tunnus = o.etu + (++o.laskuri.n);
+      o.maar.push(maaritelma(tunnus, etuteksti + t));
+      if (!etuteksti) tunnukset.set(note, tunnus);
+      return tunnus;
+    };
+    const paikka = tunnus => { const s = document.createElement('span'); s.dataset.v = tunnus; return s; };
+    // Tekstin merkinnät: label → sana ja alaviite.
+    const inline = n => {
+      if (n.nodeType === 3) return [document.createTextNode(n.nodeValue.replace(/\s+/g, ' '))];
+      if (n.nodeType !== 1) return [];
+      const t = ln(n), sis = () => lapset(n).flatMap(inline);
+      if (t === 'label') {
+        const note = etsi(n), merkki = AK_MERKKI.test(n.textContent);
+        const tun = note ? viite(note) : '';
+        return [...(merkki ? [] : sis()), ...(tun ? [paikka(tun)] : [])];
+      }
+      if (t === 'emph' || t === 'hi' && /ital|under/i.test(n.getAttribute('rend') || '')) { const e = document.createElement('em'); e.append(...sis()); return [e]; }
+      if (t === 'lb') return [document.createTextNode(' ')];
+      if (/^(pb|note|figure|graphic|fw)$/.test(t)) return [];
+      if (t === 'gap') return [document.createTextNode('…')];
+      if (t === 'ref') return huomInline(n);
+      return sis();
+    };
+    const el = document.createElement('div');
+    const rivit = [], lonnrot = [];
+    let saeN = 0, otsikkoMerkit = '', runoja = 0, kohtia = 0;
+    const saeNro = /^\s*(\d{1,4})(?:\.\s*|\s+)/;
+    const sae = l => {
+      const s = document.createElement('span');
+      s.append(...lapset(l).flatMap(inline));
+      saeN++;
+      // Säenumero ensimmäisestä tekstistä (merkkien jälkeen): 10. Hampahilleni, → 390., 540 Teräksillä.
+      const w = document.createTreeWalker(s, NodeFilter.SHOW_TEXT);
+      for (let x = w.nextNode(); x; x = w.nextNode()) {
+        if (!rivi(x.nodeValue)) continue;
+        const m = saeNro.exec(x.nodeValue);
+        if (m && Math.abs(+m[1] - saeN) <= 5) {
+          x.nodeValue = x.nodeValue.slice(m[0].length);
+          const sup = document.createElement('sup'); sup.textContent = (o.runo ? o.runo + '.' : '') + m[1];
+          s.insertBefore(document.createTextNode(' '), s.firstChild); s.insertBefore(sup, s.firstChild); kohtia++;
+        }
+        break;
+      }
+      // Säkeen alun pelkkä merkki (Kaukosen säeviite, ero →) säkeen loppuun: alaviite kuuluu koko säkeeseen.
+      const alku = [];
+      for (let c = s.firstChild; c && (c.nodeType === 3 && !rivi(c.nodeValue) || c.nodeType === 1 && c.dataset && c.dataset.v); c = c.nextSibling) if (c.nodeType === 1) alku.push(c);
+      if (alku.length && rivi(s.textContent)) {
+        let v = s.lastChild;
+        while (v && v.nodeType === 3 && !rivi(v.nodeValue)) { const e = v.previousSibling; v.remove(); v = e; }
+        if (v && v.nodeType === 3) v.nodeValue = v.nodeValue.replace(/\s+$/, '');
+        s.append(...alku);
+      }
+      rivit[saeN] = s;
+      return s;
+    };
+    // Lönnrotin alaviitteet: { rivi, sanat, teksti, lisa }.
+    const alaviitteet = t => {
+      [...t.getElementsByTagNameNS('*', 'l')].forEach(l => {
+        const teksti = rivi(l.textContent);
+        if (!teksti) return;
+        const erot = [...l.getElementsByTagNameNS('*', 'label')].map(etsi).filter(Boolean).map(huomTeksti).filter(Boolean)
+          .map(x => ' [' + x.replace(/\s*\n+\s*/g, ' ') + ']').join('');
+        lonnrot.push({ teksti, erot, perus: saeN });
+      });
+    };
+    const kohdista = () => {
+      lonnrot.forEach(f => {
+        let m = /^(\d+)\s*([,–—-]\s*\d+(?:\s*,\s*\d+)*)?\s*([:.])\s*(.*)$/.exec(f.teksti);
+        const lisa = t => 'Lönnrot: ' + t + f.erot;
+        if (!m || !rivit[+m[1]]) {
+          // Paikaton viite edellisen säkeen perään.
+          const r = rivit[f.perus];
+          if (r) { const tun = o.etu + (++o.laskuri.n); o.maar.push(maaritelma(tun, lisa(f.teksti))); r.appendChild(paikka(tun)); }
+          return;
+        }
+        const r = rivit[+m[1]];
+        // Säeväli tai useampi säe: koko viite ensimmäisen säkeen loppuun.
+        if (m[2]) { const tun = o.etu + (++o.laskuri.n); o.maar.push(maaritelma(tun, lisa(f.teksti))); r.appendChild(paikka(tun)); return; }
+        const osat = m[4].split(/;\s*(?=\d+(?:\s*,\s*\d+)*\.\s)/);
+        osat.forEach(osa => {
+          const s = /^(\d+(?:\s*,\s*\d+)*)\.\s+(.*)$/.exec(osa);
+          const tun = o.etu + (++o.laskuri.n);
+          if (!s) { o.maar.push(maaritelma(tun, lisa(osa))); r.appendChild(paikka(tun)); return; }
+          o.maar.push(maaritelma(tun, lisa(s[2])));
+          const nro = Math.max(...s[1].split(',').map(Number));
+          // Sanan loppuun: sanat lasketaan tekstistä ilman säenumeroa (yläindeksi) ja merkkejä.
+          const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, { acceptNode: x => x.parentNode.nodeName === 'SUP' ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+          let i = 0, tehty = false;
+          for (let x = w.nextNode(); x && !tehty; x = w.nextNode()) {
+            const re = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
+            let q;
+            while ((q = re.exec(x.nodeValue))) if (++i === nro) {
+              x.splitText(q.index + q[0].length);
+              x.parentNode.insertBefore(paikka(tun), x.nextSibling);
+              tehty = true; break;
+            }
+          }
+          if (!tehty) r.appendChild(paikka(tun));
+        });
+      });
+    };
+    const kpl = () => document.createElement('p');
+    const lohko = (n, taso) => {
+      if (n.nodeType !== 1) return;
+      const t = ln(n);
+      if (t === 'div') {
+        if (huomOsa(n)) return;
+        const runo = n.getAttribute('type') === 'runo';
+        if (runo) runoja++;
+        let eka = true;
+        for (const c of n.children) {
+          // Runon otsikkokappale (Ensimäinen Runo.): koko Kalevalassa ##, yhdessä runossa otsikon merkit.
+          if (runo && eka && ln(c) === 'p' && c.getElementsByTagNameNS('*', 'emph').length) {
+            eka = false;
+            const s = document.createElement('span'); s.append(...lapset(c).flatMap(inline));
+            if (o.koko) {
+              const h = document.createElement('h2');
+              h.append(rivi(s.textContent).replace(/\.$/, ''), ...s.querySelectorAll('span[data-v]'));
+              el.appendChild(h);
+            } else s.querySelectorAll('span[data-v]').forEach(v => { otsikkoMerkit += 'XLUINVIITE' + v.dataset.v + 'X'; });
+            if (o.sisallys) { const p = kpl(); p.append(...o.sisallys); el.appendChild(p); }
+            continue;
+          }
+          if (!/^(pb|fw|milestone)$/.test(ln(c))) eka = false;
+          lohko(c, taso + 1);
+        }
+        return;
+      }
+      if (t === 'head') { const h = document.createElement(taso <= 2 ? 'h2' : 'h3'); h.append(...lapset(n).flatMap(inline)); if (rivi(h.textContent)) el.appendChild(h); return; }
+      if (t === 'lg') {
+        const p = kpl();
+        [...n.children].filter(c => ln(c) === 'l').forEach((l, i) => { if (i) p.appendChild(document.createElement('br')); p.appendChild(sae(l)); });
+        if (rivi(p.textContent)) el.appendChild(p);
+        return;
+      }
+      if (t === 'l') { const p = kpl(); p.appendChild(sae(n)); el.appendChild(p); return; }
+      if (t === 'table') {
+        if (n.getAttribute('type') === 'footnotes') { alaviitteet(n); return; }
+        const tb = document.createElement('table');
+        [...n.getElementsByTagNameNS('*', 'row')].forEach(r => { const tr = tb.insertRow(); [...r.children].forEach(c => { const td = tr.insertCell(); td.append(...lapset(c).flatMap(inline)); }); });
+        el.appendChild(tb);
+        return;
+      }
+      if (t === 'list') {
+        const ul = document.createElement('ul');
+        [...n.children].filter(c => ln(c) === 'item').forEach(c => { const li = document.createElement('li'); li.append(...lapset(c).flatMap(inline)); ul.appendChild(li); });
+        el.appendChild(ul);
+        return;
+      }
+      if (t === 'p' || t === 'ab') {
+        const p = kpl(); p.append(...lapset(n).flatMap(inline));
+        if (rivi(p.textContent) || p.querySelector('span[data-v]')) el.appendChild(p);
+        return;
+      }
+      if (/^(pb|fw|figure|graphic|milestone)$/.test(t)) return;
+      [...n.children].forEach(c => lohko(c, taso));
+    };
+    // Lönnrotin sisällys otsakkeesta.
+    const mi = [...X.getElementsByTagNameNS('*', 'msItem')].find(m => m.getAttribute('n') === '2' || m.getAttribute('class') === 'transcription');
+    const sp = mi && [...mi.children].find(c => ln(c) === 'p');
+    o.sisallys = sp && rivi(sp.textContent) ? lapset(sp).flatMap(inline) : null;
+    [...body.children].forEach(c => lohko(c, 1));
+    kohdista();
+    el.querySelectorAll('span[data-v]').forEach(s => s.replaceWith(merkki(s.dataset.v)));
+    el.querySelectorAll('span').forEach(s => s.replaceWith(...s.childNodes));
+    el.normalize();
+    const nimi = a => rivi((X.getElementsByTagNameNS('*', a)[0] || {}).textContent);
+    const tsm = X.getElementsByTagNameNS('*', 'titleStmt')[0];
+    const tekijat = tsm ? [...tsm.children].filter(c => ln(c) === 'author').map(c => rivi([...c.childNodes].map(x => x.textContent).join(' '))).filter(Boolean) : [];
+    const vastuu = [...new Set([...X.getElementsByTagNameNS('*', 'respStmt')].filter(r => !/^coding$/.test(r.getAttribute('key') || '') && !/koodaus/i.test(r.textContent))
+      .flatMap(r => [...r.children].filter(c => ln(c) === 'name').map(c => rivi(c.textContent))).filter(Boolean))];
+    return { el, otsikkoMerkit, runoja, kohtia, otsikko: tsm ? rivi(([...tsm.children].find(c => ln(c) === 'title') || {}).textContent) : '',
+      tekijat, vastuu, kustantaja: nimi('distributor'), artikkeli: [...body.getElementsByTagNameNS('*', 'div')].some(d => d.getAttribute('type') === 'artikkeli') };
+  }
+  async function avoinKalevala() {
+    if (!/^(editiot|kalevala)\.finlit\.fi$/i.test(location.hostname)) return null;
+    const pp = document.querySelector('pb-page[app-root]');
+    const juuri = (pp && pp.getAttribute('app-root')) || (/^\/exist\/apps\/kalevala(?=\/)/.exec(location.pathname) || [])[0];
+    if (!juuri || !/\/kalevala$/.test(juuri)) return null;
+    const api = p => location.origin + juuri + '/api/document/' + encodeURIComponent(p);
+    const maar = [], laskuri = { n: 0 };
+    const pd = document.querySelector('pb-document[path]');
+    if (/\/runot\.html$/.test(location.pathname)) {
+      // Koko Kalevala runoluettelosta (ilman Kaukosen säeviitteitä).
+      const polut = [...new Set([...document.querySelectorAll('a[href*="/runot/runo_"]')].map(a => (/\/(runot\/runo_\d+\.xml)$/.exec(a.pathname) || [])[1]).filter(Boolean))]
+        .slice(0, AK_RUNOT);
+      if (polut.length < 2) return null;
+      const el = document.createElement('div');
+      let vastuu = [], kohtia = 0;
+      for (const p of polut) {
+        const X = await psXml(api(p));
+        const R = X && akRunko(X, { etu: 'k' + (/(\d+)\.xml$/.exec(p)[1] | 0) + 'v', laskuri, maar, koko: true, runo: String(/(\d+)\.xml$/.exec(p)[1] | 0) });
+        if (!R || !R.runoja) return null;
+        el.append(...R.el.childNodes); kohtia += R.kohtia; vastuu = vastuu.concat(R.vastuu);
+      }
+      if (kkSanoja(el) < 100) return null;
+      return { html: irrota([el]).innerHTML, otsikko: 'Kalevala', tekija: 'Elias Lönnrot', tyyppi: 'kaunokirjallinen', julkaistu: '1849',
+        toimittaja: kkLuettelo([...new Set(vastuu)]), sivusto: AK_NIMI, kustantaja: 'Suomalaisen Kirjallisuuden Seura', paikka: 'Helsinki',
+        kohdat: kohtia ? 'yläindeksit' : '', lahde: osoite, polku: 'Runot', maar, naytto: AK_NIMI + ' (koko Kalevala, ' + polut.length + ' runoa)' };
+    }
+    const polku = pd ? pd.getAttribute('path') : (new RegExp('^' + juuri.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&') + '/(.+\\.xml)$').exec(decodeURIComponent(location.pathname)) || [])[1];
+    if (!polku) return null;
+    const X = await psXml(api(polku));
+    const R = X && akRunko(X, { etu: 'ak', laskuri, maar, koko: false, runo: '' });
+    if (!R || kkSanoja(R.el) < 30) return null;
+    const runo = R.runoja > 0;
+    return { html: irrota([R.el]).innerHTML, otsikko: R.otsikko || rivi(document.title), otsikkoMerkit: R.otsikkoMerkit,
+      tekija: kkLuettelo(R.tekijat), tyyppi: R.artikkeli ? 'tieteellinen' : 'kaunokirjallinen', teos: R.artikkeli ? '' : 'Kalevala',
+      julkaistu: runo ? '1849' : '', toimittaja: runo ? kkLuettelo(R.vastuu) : '', sivusto: AK_NIMI,
+      kustantaja: R.kustantaja || 'Suomalaisen Kirjallisuuden Seura', paikka: 'Helsinki', kohdat: R.kohtia ? 'yläindeksit' : '',
+      lahde: osoite, polku: AK_OSASTO[polku.split('/')[0]] || '', maar, naytto: AK_NIMI };
+  }
+
   /* CELT (Corpus of Electronic Texts, University College Cork; celt.ucc.ie/document/<tunnus>/, ohjautuu osoitteesta
      research.ucc.ie/celt/document/<tunnus>): 1 300 asiakirjaa iiriksi, latinaksi ja englanniksi (Berkeley, Swift, annaalit, sagat).
      Sivu on TEI:stä tehty HTML yhtenä sivuna: .content-wrap__inner > #front (omistuskirje, esipuhe, käsikirjoitusluettelo) ja
@@ -14811,7 +15127,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, avoinKalevala, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

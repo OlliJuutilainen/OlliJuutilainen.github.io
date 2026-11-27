@@ -197,6 +197,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sivua, muuten avoimen sivun osa; faksimilin koneluku käyttää `rbLohkot()`ia sanojen paikoista mitatuin reunoin. Pesukone hakee
   runeberg.orgia 2 s välein (Crawl-delay), joten ensimmäinen ajo täyttää välimuistin ja vasta toinen kokoaa teokset; testit
   `--sarja pr` ja `--sarja lb`. Kumpikin on md.js:n `KANTAJA`.
+  Avoin Kalevala (`avoinKalevala()`, opas 7.5) on TEI Publisher -sovellus: leike lukee asiakirjan rajapinnasta
+  (`/api/document/<polku>`, polku sivun `pb-document`ista), ei sivua. Huomautus haetaan merkinnän tunnuksesta, ei tyypistä
+  (lähteen tyyppinimissä on kirjoitusvirheitä). Lönnrotin alaviitteet (`table type=footnotes`, *3: 1.*) kohdistetaan juoksevasta
+  säelaskusta, koska painetussa numeroinnissa on poikkeamia. Runoluettelosta koko Kalevala (4,2 Mt, noin 18 000 alaviitettä:
+  raskain sovitteen leike). Testi `--sarja kal`.
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
@@ -272,6 +277,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR`, `NOT` ja sulut, operaattorit vain isoin kirjaimin; lainausmerkeissä kokonainen sana tai fraasi kuten lukimen haussa.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
+- **Laji *kaunokirjallinen*** on pääkorina vain sivustoilla, joiden tekstit ovat enimmäkseen kaunokirjallisuutta (Standard Ebooks,
+  Folger, Faded Page, Folktexts, Gutenberg-DE, Litteraturbanken, Avoin Kalevala, Журнальный зал); kaikkiruokaisilla ja sekakirjastoilla
+  (Gutenberg, Wikisource, Projekt Runeberg, Perseus …) se on toisena, jotta pois-valinta ei karsi niitä.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
   *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
   *kaikkiruokainen*), *luonnontieteet* (ei *tiede*: luonnontieteet, matematiikka ja tekniikka; suomen laaja *tiede* kattaisi myös
