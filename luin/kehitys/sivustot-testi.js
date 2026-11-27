@@ -6,8 +6,8 @@
 // näkyvät vain valitut korit); ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
-// Haku-rivi: tekijä mukaan tai pois, asiasana. Supersalmiakki: selitteen merkki ja nimi kytkimenä (vain sertifioidut, myös
-// otsikko-osumat; merkki samassa paikassa kuin ilman skriptiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
+// Haku-rivi: tekijä mukaan tai pois, asiasana. Supersalmiakki kieli-rivin alla kuten kori (mukaan, pois, ennalleen; myös
+// otsikko-osumat; listan salmiakkien sarakkeessa; himmeä ilman sertifioituja; selite pelkkää tekstiä). Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -34,7 +34,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const kaikki = await page.$$eval('ul.sivustot li', l => l.length);
   t('alussa kaikki näkyvissä', await nak() === kaikki, String(kaikki));
   const m = await page.evaluate(() => { const r = document.getElementById('suodatus').getBoundingClientRect(); return { korkeus: Math.round(r.height), vaaka: document.documentElement.scrollWidth - innerWidth }; });
-  t('360 px: supistettu suodatus matala, ei vaakavieritystä', m.korkeus < 200 && !m.vaaka, JSON.stringify(m));
+  // Raja: haku, neljä riviä, supersalmiakin rivi (30 px) ja tilarivi.
+  t('360 px: supistettu suodatus matala, ei vaakavieritystä', m.korkeus < 235 && !m.vaaka, JSON.stringify(m));
   const nakyvatKorit = f => page.$$eval('button.kori[data-f="' + f + '"]', l => l.filter(b => b.getClientRects().length).length);
   t('aihe, laji ja kieli supistettuina, haku auki', !(await auki('aihe')) && !(await auki('laji')) && !(await auki('kieli')) &&
     await nakyvatKorit('aihe') + await nakyvatKorit('laji') + await nakyvatKorit('kieli') === 0 && await nakyvatKorit('kentta') === 3);
@@ -76,23 +77,33 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('haku kant', (await nimet()).length >= 2, (await nimet()).join(' | '));
   await page.click('#s-tyhjenna');
   t('hakukenttä tyhjenee', await page.inputValue('#s-haku') === '' && await nak() === kaikki);
-  // Supersalmiakki: selitteen merkki ja nimi ovat kytkin. Kaksi tilaa; korit ja tyhjennä kuten muutkin rajaukset.
+  // Supersalmiakki: pelkkä salmiakki kieli-rivin alla, toimii kuten kori.
   const superNimet = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super')).map(x => x.querySelector('a').textContent.trim()));
   const superFilo = await page.$$eval('ul.sivustot li', l => l.filter(x => x.querySelector('.super') && x.dataset.aihe.split(',').includes('filosofia')).length);
-  t('supersalmiakki: kytkin selitteessä, nimi näkyvä nimi', await page.$eval('.selite button.sinetti', b => b.getAttribute('aria-pressed') === 'false' &&
-    b.textContent.replace(/\u00ad/g, '') === 'RUOSTEINEN SALMIAKKI' && !!b.querySelector('svg')));
-  await page.click('button.sinetti');
-  t('supersalmiakki: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 &&
-    await page.$eval('button.sinetti', b => b.getAttribute('aria-pressed')) === 'true', (await nimet()).join(' | '));
+  const sm = () => page.$eval('button.salmiakki', b => b.getAttribute('aria-pressed') + ' ' + (b.getAttribute('data-tila') || '') + ' ' + b.classList.contains('nolla'));
+  t('supersalmiakki: oma rivi kieli-rivin alla, ei tekstiä, selitteessä ei nappia', await page.evaluate(() => {
+    const b = document.querySelector('button.salmiakki'), r = b && b.closest('.krivi');
+    return !!r && r.previousElementSibling.querySelector('button.ots[aria-controls="kk-kieli"]') !== null && r.children.length === 1 &&
+      b.textContent.trim() === '' && !!b.querySelector('svg') && !document.querySelector('.selite button'); }));
+  t('supersalmiakki: listan salmiakkien sarakkeessa ja samankokoisena', await page.evaluate(() => {
+    const a = document.querySelector('button.salmiakki svg').getBoundingClientRect(), l = document.querySelector('ul.sivustot li .super svg').getBoundingClientRect();
+    return a.x === l.x && a.width === l.width; }));
+  await page.click('button.salmiakki');
+  t('supersalmiakki mukaan: vain sertifioidut', JSON.stringify(await nimet()) === JSON.stringify(superNimet) && superNimet.length >= 6 && await sm() === 'true mukaan false',
+    (await nimet()).join(' | ') + ' / ' + await sm());
   t('supersalmiakki: tilarivi ja tyhjennä', await page.textContent('#s-nakyy') === 'sivustoja näkyvissä ' + superNimet.length + ' / ' + kaikki && await page.isVisible('#s-tyhjenna'));
   t('supersalmiakki: korin luku seuraa', Number(await page.textContent('button.kori[data-f="aihe"][data-v="filosofia"] .n')) === superFilo);
   await nappi('aihe', 'filosofia');
   t('supersalmiakki × filosofia', await nak() === superFilo, String(await nak()));
   await nappi('aihe', 'filosofia'); await nappi('aihe', 'filosofia');
-  await page.click('button.sinetti');
-  t('supersalmiakki: toinen napautus palauttaa kaikki', await nak() === kaikki && await page.$eval('button.sinetti', b => b.getAttribute('aria-pressed')) === 'false');
-  await page.click('button.sinetti'); await page.click('#s-tyhjenna');
-  t('tyhjennä nollaa supersalmiakin', await nak() === kaikki && await page.$eval('button.sinetti', b => b.getAttribute('aria-pressed')) === 'false');
+  await page.click('button.salmiakki');
+  t('supersalmiakki pois: ei sertifioituja', await nak() === kaikki - superNimet.length && !(await nimet()).some(x => superNimet.includes(x)) && await sm() === 'mixed pois false', await sm());
+  await page.click('button.salmiakki');
+  t('supersalmiakki: kolmas napautus palauttaa', await nak() === kaikki && await sm() === 'false  false');
+  await nappi('kieli', 'saksa');
+  t('supersalmiakki himmeä, kun sertifioituja ei näy', await sm() === 'false  true');
+  await page.click('button.salmiakki'); await page.click('#s-tyhjenna');
+  t('tyhjennä nollaa supersalmiakin', await nak() === kaikki && await sm() === 'false  false');
   // Otsikkohaku. osumat() avaa kaikki ryhmät ja palauttaa niiden näkyvät osumat (s = ryhmän sivusto, t = tekijä tai asiasana).
   const odota = async () => { await page.waitForTimeout(300);
     await page.waitForFunction(() => !/ladataan|latautu/.test(document.getElementById('o-tila').textContent), null, { timeout: 30000 }); };
@@ -119,7 +130,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('kant + suomi: vain suomenkielisiä sivustoja', kantFiN > 0 && kantFiN < kantKaikki && kantFi.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg/.test(x.s)), kantFi.map(x => x.s + ' ' + x.n).join(' | '));
   t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === kantFiN);
   await page.click('#s-tyhjenna');
-  await page.fill('#s-haku', 'kant'); await page.click('button.sinetti'); await odota();
+  await page.fill('#s-haku', 'kant'); await page.click('button.salmiakki'); await odota();
   const kantSuper = await ryhmat();
   t('kant + supersalmiakki: vain sertifioitujen osumat', kantSuper.length > 1 && kantSuper.every(x => superNimet.includes(x.s)) &&
     kantSuper.reduce((n, r) => n + r.n, 0) < kantKaikki, kantSuper.map(x => x.s + ' ' + x.n).join(' | '));
@@ -220,12 +231,6 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const p2 = await (await b.newContext({ javaScriptEnabled: false, viewport: { width: 360, height: 800 } })).newPage();
   await p2.goto(U + 'luin/sivustot.html');
   t('ilman skriptiä lista näkyy, suodatus piilossa', await p2.$$eval('#sivustot li', l => l.length) === kaikki && !(await p2.isVisible('#suodatus')));
-  // Kytkin ei siirrä selitteen merkkiä eikä rivitä selitettä toisin kuin ilman skriptiä.
-  const selite = q => q.evaluate(() => { const s = document.querySelector('.selite'), m = s.querySelector('svg').getBoundingClientRect();
-    return [m.x, m.y, m.width, m.height, s.getBoundingClientRect().height].map(v => v.toFixed(2)).join(' '); });
-  await page.evaluate(() => scrollTo(0, 0));
-  const sJs = await selite(page), sIlman = await selite(p2);
-  t('supersalmiakki: merkki ja selite kuten ilman skriptiä', sJs === sIlman && !(await p2.$('button.sinetti')), sJs + ' / ' + sIlman);
   console.log(viat ? viat + ' vikaa.' : 'Kaikki kunnossa.');
   process.exitCode = viat ? 1 : 0;
   await b.close(); palvelin.close();
