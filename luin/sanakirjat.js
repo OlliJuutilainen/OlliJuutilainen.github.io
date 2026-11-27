@@ -2,7 +2,7 @@
    sanskritsanakirjat (Monier-Williams) sekä sanakirjavalikon lähteet ja termipankin perusmuoto (termipankki itse on moottorissa,
    sanaselitys.js). Vain luin/sanaselitys.html käyttää tätä; lukimen selitysikkuna on pelkkä Wiktionary. Kaikki haut ovat selaimesta suoraan (CORS sallittu, mitattu), vain haun lähetyksestä.
    Jokainen lähde arvaa perusmuodon itse, joten sivu toimii ilman Wiktionaryakin: Logeion jäsentää muodon (Morpheus), DPD
-   tuntee taivutusmuodot, Köln löytää diakriitittä kirjoitetun, ja Wörterbuchnetzin ja termipankin ehdokkaat tulevat
+   tuntee taivutusmuodot, DPD ja Köln löytävät diakriitittä kirjoitetun, ja Wörterbuchnetzin ja termipankin ehdokkaat tulevat
    päätesäännöistä (perusmuodot()), jotka lähde itse todentaa: vain olemassa oleva hakusana kelpaa. Kun Wiktionary on päällä,
    sivu antaa sen perusmuodot lisäehdokkaiksi (sanat[]). Lataus ?v=<SHA-1:n alku> kuten md.js (md-testi.js tarkistaa). */
 (function () {
@@ -289,24 +289,52 @@
 
   /* ---------- Digital Pāḷi Dictionary ----------
      search_json tuntee taivutusmuodot (dhammassa → dhamma). Vastaus on raskas (yleisellä sanalla noin 350 kt pakattuna, koska
-     mukana ovat sivun paneelit), siksi lähde on oletuksena pois. Näytetään vain tiivistelmä. */
+     mukana ovat sivun paneelit), siksi lähde on oletuksena pois. Näytetään vain tiivistelmä. Diakriitittä kirjoitettu
+     (paticcasamuppada) ei löydy, mutta tyhjän tiivistelmän dpd_html luettelee lähimmät (*No results found. The closest matches
+     are: paṭiccasamuppāda, paṭiccasamuppanna, …*); niistä kelpaa vain diakriittejä lukuun ottamatta sama kuten Kölnissä. */
   var DPD_API = 'https://www.dpdict.net/search_json?lazy=1&q=';
+  function dpdHaku(w) { return muisti('dpd|' + w, function () { return haeJson(DPD_API + encodeURIComponent(w)); }); }
+  function dpdKohdat(j) {
+    return kappaleet(String((j && j.summary_html) || ''), function (juuri) {
+      [].forEach.call(juuri.querySelectorAll('a'), function (a) {
+        if (/►/.test(a.textContent)) a.remove();
+        else { var i2 = document.createElement('i'); i2.textContent = a.textContent.trim(); a.replaceWith(i2); }
+      });
+    });
+  }
+  function dpdLahimmat(j, w) {
+    var t = new DOMParser().parseFromString(String((j && j.dpd_html) || ''), 'text/html').body.textContent;
+    var m = /closest matches are:([\s\S]*)$/i.exec(t);
+    return m ? uniq(m[1].split(',').map(function (x) { return x.trim().normalize('NFC'); })).filter(function (x) {
+      return x !== w && taita(x) === taita(w);
+    }) : [];
+  }
+  function dpdTulos(sana, kohdat, haettu) {
+    var html = '<div class="sx-ots"><span class="sx-o">' + esc(sana) + '</span></div>' +
+      (haettu ? '<div class="sx-muoto">(”' + esc(haettu) + '” · sama toisin kirjoitettuna)</div>' : '') + kappaleHtml(kohdat, 8) +
+      (kohdat.length > 8 ? '<p class="sx-p sx-pieni">… ja ' + (kohdat.length - 8) + ' muuta</p>' : '');
+    return { avain: 'dpd|' + sana + '|' + (haettu || ''), sana: sana, html: html, linkki: 'https://www.dpdict.net/?q=' + encodeURIComponent(sana),
+      otsikko: 'Avaa Digital Pāḷi Dictionary' };
+  }
   function dpdHae(sanat) {
     var i = 0;
     function seur() {
       if (i >= sanat.length) return Promise.resolve(null);
-      var w = sanat[i++];
-      return muisti('dpd|' + w, function () { return haeJson(DPD_API + encodeURIComponent(w)); }).then(function (j) {
-        var kohdat = kappaleet(String((j && j.summary_html) || ''), function (juuri) {
-          [].forEach.call(juuri.querySelectorAll('a'), function (a) {
-            if (/►/.test(a.textContent)) a.remove();
-            else { var i2 = document.createElement('i'); i2.textContent = a.textContent.trim(); a.replaceWith(i2); }
+      var w = sanat[i++].normalize('NFC');
+      return dpdHaku(w).then(function (j) {
+        var kohdat = dpdKohdat(j);
+        if (kohdat.length) return dpdTulos(w, kohdat, null);
+        var ehd = dpdLahimmat(j, w), k = 0;
+        // DPD:n järjestyksessä ensimmäinen, jolla on tiivistelmä.
+        function lahin() {
+          if (k >= ehd.length) return seur();
+          var e = ehd[k++];
+          return dpdHaku(e).then(function (j2) {
+            var k2 = dpdKohdat(j2);
+            return k2.length ? dpdTulos(e, k2, sanat.some(function (s) { return s.normalize('NFC') === e; }) ? '' : w) : lahin();
           });
-        });
-        if (!kohdat.length) return seur();
-        var html = '<div class="sx-ots"><span class="sx-o">' + esc(w) + '</span></div>' + kappaleHtml(kohdat, 8) +
-          (kohdat.length > 8 ? '<p class="sx-p sx-pieni">… ja ' + (kohdat.length - 8) + ' muuta</p>' : '');
-        return { avain: 'dpd|' + w, sana: w, html: html, linkki: 'https://www.dpdict.net/?q=' + encodeURIComponent(w), otsikko: 'Avaa Digital Pāḷi Dictionary' };
+        }
+        return lahin();
       });
     }
     return seur();

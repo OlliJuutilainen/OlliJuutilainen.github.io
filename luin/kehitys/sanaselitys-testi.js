@@ -163,7 +163,11 @@ const WB_PITUUS = { B01071: 141, B02041: 99999, B01517: 2724 };
 const WB_ART = { B01071: [['Der', 'recte'], [' ', 'recte'], ['Begriff', 'recte'], [', im fig&#x00fc;rlichen Verstande ', 'recte'], ['ohne Plural', 'italics'], ['.', 'recte']] };
 // DPD: tiivistelmä taivutusmuodolle; Köln: tasan sama ei löydy, simple-search antaa diakriittiset ehdokkaat.
 const DPD = { dhammassa: '<p class="summary"> <a class="summary-link" href="#dhamma_1_01"> dhamma 1.01 </a> masc. <b>nature; character</b> <a class="summary-link" href="#dhamma_1_01">►</a> </p>' +
-  '<p class="summary"> <a class="summary-link" href="#dhamma_1_03"> dhamma 1.03 </a> masc. <b>teaching; discourse; doctrine</b> <a class="summary-link" href="#dhamma_1_03">►</a> </p>' };
+  '<p class="summary"> <a class="summary-link" href="#dhamma_1_03"> dhamma 1.03 </a> masc. <b>teaching; discourse; doctrine</b> <a class="summary-link" href="#dhamma_1_03">►</a> </p>',
+  'paṭiccasamuppāda': '<p class="summary"> <a class="summary-link" href="#paticcasamuppada_1"> paṭiccasamuppāda </a> masc. <b>arising together from a cause</b> <a class="summary-link" href="#paticcasamuppada_1">►</a> </p>',
+  'paṭiccasamuppanna': '<p class="summary"> <a class="summary-link" href="#x"> paṭiccasamuppanna </a> pp. <b>dependently arisen</b> </p>' };
+// DPD:n tyhjä tiivistelmä: lähimmät dpd_html:ssä (muoto kuten oikeassa vastauksessa 27.11.2026). Ensimmäinen ehdokas on lähisana, joka ei kelpaa.
+const DPD_LAHIN = { paticcasamuppada: ['paṭiccasamuppanna', 'paṭiccasamuppāda', 'adhiccasamuppanna'], patity: ['patita', 'pity', 'pati'] };
 const KO_RIVI = "<table class='display'><tr><td class='display' valign=\"top\"> <span style='font-weight:bold'>(H1) <span class='hrefdata'><span style='color:rgb(160,160,160);'> [Printed book page <a href='//x/servepdf.php?page=255'>255</a>,2]</span></span></span><br> " +
   "<span class='sdata_italic_iast'><i>karuṇa</i></span> mf(<i>ā</i>)n. mournful, miserable, <span title='Mahābhārata (Title)'>MBh.</span> <span class='lnum'> [<span title='Cologne record ID'>ID=44557</span>]</span></td></tr>" +
   "<tr><td class='display'> <span style='font-weight:bold'>(H1B) <span class='hrefdata'>[Printed book page 255,3]</span></span><br> <i>karuṇā</i> f. compassion, pity <span class='lnum'> [<span>ID=44560</span>]</span></td></tr></table>";
@@ -185,7 +189,12 @@ function muutVastaus(u) {
     m = /^\/dictionaries\/([^/]+)\/articles\/([^/]+)\/lemid$/.exec(u.pathname);
     if (m) return j((WB_ART[m[2]] || []).map(([word, typeset]) => ({ word, typeset, elementtype: 'sense' })));
   }
-  if (u.hostname === 'www.dpdict.net') return j({ summary_html: DPD[q('q')] || '', dpd_html: '', license: {} });
+  if (u.hostname === 'www.dpdict.net') {
+    // Oikea DPD löytää kirjainkoosta riippumatta (Paṭiccasamuppāda), muttei diakriitittä.
+    const w = q('q').toLowerCase(), l = DPD_LAHIN[w];
+    return j({ summary_html: DPD[w] || '', license: {},
+      dpd_html: DPD[w] ? '' : '<h3 class="dpd">No results found.' + (l ? ' The closest matches are:</h3><br><p>' + l.join(', ') + '</p>' : '</h3>') });
+  }
   if (u.hostname === 'sanskrit-lexicon.uni-koeln.de') {
     if (/simple-search/.test(u.pathname)) return j({ result: q('key') === 'karuna' ? [{ key: 'karman', dicthwoutput: 'karman' }, { key: 'karuRa', dicthwoutput: 'karuṇa' }, { key: 'karuRA', dicthwoutput: 'karuṇā' }] : [] });
     return t(q('input') === 'slp1' && q('key') === 'karuRa' ? '<html><body><div id="CologneBasic"><h1>karuṇa</h1>' + KO_RIVI + '</div></body></html>' : "<h2>not found: '" + q('key') + "'</h2>");
@@ -1243,6 +1252,19 @@ palvelin.listen(0, async () => {
   ts = r.sx.dpd || {};
   tulos('dpd: dhammassa → tiivistelmän kohdat (otsikko kursiivina, nuolilinkit pois)', r.osiot.join() === 'dpd' &&
     ts.p.join('|') === 'dhamma 1.01 masc. nature; character|dhamma 1.03 masc. teaching; discourse; doctrine' && /dpdict\.net\/\?q=dhammassa/.test(ts.lisa), JSON.stringify(r));
+  r = await hakuMuut('paticcasamuppada');
+  ts = r.sx.dpd || {};
+  tulos('dpd: paticcasamuppada → paṭiccasamuppāda diakriitittä (lähimmistä vain taitettuna sama, ei paṭiccasamuppanna)', r.osiot.join() === 'dpd' &&
+    ts.ots.join() === 'paṭiccasamuppāda' && ts.muoto.join() === '(”paticcasamuppada” · sama toisin kirjoitettuna)' &&
+    ts.p.join('|') === 'paṭiccasamuppāda masc. arising together from a cause' && /dpdict\.net\/\?q=pa%E1%B9%AD/.test(ts.lisa) &&
+    !muutPyynnot.some(x => /dpdict.*q=paṭiccasamuppanna/.test(x)), JSON.stringify([r, muutPyynnot]));
+  r = await hakuMuut('patity');
+  tulos('dpd: patity → lähimmät patita, pity … eivät kelpaa, ei osumaa', !r.osiot.length && r.runko === 'Sanaa ei löytynyt valituista sanakirjoista.' &&
+    !muutPyynnot.some(x => /dpdict.*q=(patita|pity|pati)(\s|$|&)/.test(x)), JSON.stringify([r, muutPyynnot]));
+  r = await hakuMuut('Paṭiccasamuppāda');
+  ts = r.sx.dpd || {};
+  tulos('dpd: diakriitein kirjoitettu suoraan, ei lähimpiä eikä muotoriviä', ts.ots.join() === 'Paṭiccasamuppāda' && !ts.muoto.length &&
+    ts.p.join('|') === 'paṭiccasamuppāda masc. arising together from a cause', JSON.stringify(r));
   r = await hakuMuut('karuna');
   ts = r.sx.koln || {};
   tulos('köln: karuna → karuṇa diakriitittä (simple-search), rivit ilman sivu- ja tunnistemerkintöjä', r.osiot.join() === 'koln' && ts.ots.join() === 'karuṇa' &&
