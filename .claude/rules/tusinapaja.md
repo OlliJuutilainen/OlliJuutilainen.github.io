@@ -197,10 +197,13 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
   Muun kuin valitun salon napautus ei kierrä (käyttäjän päätös). Ensimmäinen napautus kehystää hiutaleen haalealla
   katkoviivakuusikulmiolla (13 px) ja tuo kiertonapin 34 px hiutaleesta suoraan ulospäin (kaikissa kärjissä samoin; kide on
   siksi alempana): samankokoinen kuusikulmio ja sisällä logon tyylinen aurinko ilman lukua, joka toinen säde kohti
-  kuusikulmion kulmaa. Hiiren alla hienovarainen korostus (katkoviiva kirkastuu, henkäys harmaata). Nimi piiloutuu.
+  kuusikulmion kulmaa (keskus tyhjä kehä, käyttäjän päätös). Katkoviiva 0,6 px. Hiiren alla hienovarainen korostus
+  (katkoviiva kirkastuu, henkäys harmaata). Nimi piiloutuu.
   Toinen napautus sulattaa salon muokattavaksi, ja kehykset ja nappi katoavat; kolmas peruu sulatuksen. Kiteen tyhjän
-  kohdan napautus peruu kehykset. Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi ja reunan paikkanimet
-  katoavat heti ja tulevat näkyviin vasta, kun pyörä on pysähtynyt (otsake pysyy). Valitun salon napautus sulattaa kuten ennen.
+  kohdan napautus peruu kehykset. Kiertonappi tekee salosta maailman keskuksen: nykyisen keskuksen nimi katoaa heti ja uusi
+  tulee esiin häivyttäen vähän sen jälkeen, kun pyörä on pysähtynyt (otsake pysyy). Reunan paikkanimet eivät katoa
+  (käyttäjän päätös: kaikkien samanaikainen ilmestyminen oli hassu); kierron aikana nimi häipyy vain alakärjen lähellä,
+  jossa se kulkisi Salkoni-kuvan yli. Valitun salon napautus sulattaa kuten ennen.
 - **Omaan salkoon** (käyttäjän päätös): paneelin kohokohta, iso nappi POISTUn jälkeen väljästi ennen jakoviivaa ja
   lämpötilavalintaa; avaa katselulinkin uuteen välilehteen. Vain hallintalinkillä (kuten sovellusosio). Tekstin alla tekstin levyinen
   reipas nuoli, 3 px tekstiä lyhyempi kummastakin päästä (ohut varsi ilman perää, kärkenä kapea suora kolmio: auringon
