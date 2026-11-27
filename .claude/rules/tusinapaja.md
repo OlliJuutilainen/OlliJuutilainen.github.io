@@ -268,7 +268,7 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
   (käyttäjän päätös). Siirtymä (`SIIRTYMA`) noudattaa kiteen kierron kultaisen leikkauksen käyrää (`KIERTO`), 420 ms
   (käyttäjän päätös); koko kasvaa suhteellisesti, väri ja lomakkeen häivytys samassa tahdissa, nimi SALKO·SUTKAUTUS
   syttyy pehmeästi vasta, kun avain on asettunut. Avaimen värille ei CSS-transitiota: se voittaisi animaation kaskadissa.
-  Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 0,6 s:n viiveellä vihje *SALKOSUTKAUTUKSEEN* avaimen
+  Nimet (käyttäjän päätös): nurkan avainta hiirellä osoitettaessa 1,2 s:n viiveellä (käyttäjän päätös) vihje *SALKOSUTKAUTUKSEEN* avaimen
   vasemmalla puolella (ei kosketuksella), alareuna kahvan alareunassa, jotta laatikko ei leikkaa etusivun ylärivin kirjaimia.
   Avoimessa näkymässä avaimen oikealla puolella *SALKO·SUTKAUTUS* (interpunkti ilman välilyöntejä; käyttäjän päätös) pystynä versaalina (paino 400:n ja 600:n väliltä),
   väljästi harvennettuna (`--brand`), versaalien keskikohta kahvan kuusikulmion keskikohdassa ja versaalit kehän sisäpuolen
