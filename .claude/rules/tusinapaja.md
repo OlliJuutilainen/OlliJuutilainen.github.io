@@ -150,7 +150,7 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 ## Minun oma tusinasää eli MOTS (hallintapaneeli)
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
-Sivuilla nimi kirjoitetaan auki.
+Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun oma tusinasää (MOTS)* (käyttäjän päätös).
 
 `minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
 Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
@@ -187,7 +187,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 `minun-tusinasaa.html` on myös Tusinasään julkinen etusivu: laite, jolla ei ole paneelia eikä osoitteessa linkkiä, aloittaa
 siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynnistä salkosanastolla.
 
-- Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää* -nappi, eikä
+- Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää (MOTS)* -nappi, eikä
   sovellusosiota ole etusivulla (käyttäjän päätökset).
 - Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa. Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
   dataan ja yr.no:hon (käyttäjän päätös).
