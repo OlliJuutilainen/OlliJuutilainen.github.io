@@ -162,6 +162,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   joten kääreiden purku alussa on tarpeen. EUR-Lex haastaa toistuvat haut (AWS WAF, myös curl): pesukoneen välimuistin voi täyttää
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
   Find Case Lawin skripti kirjoittaa kappalenumerot linkeiksi (piiloteksti, työkaluvihje, numeron korostus katoaa): aja `--sarja fcl` myös `--elava`lla, tulosten pitää olla samat.
+  HUDOC (`hudoc()`, opas 7.5): asiakirja on Wordista muunnettua HTML:ää ilman otsikko- ja lainausmerkintöjä, joten otsikot, lainaukset,
+  korostukset ja kansilehti luetaan asiakirjan omasta `<style>`-lohkosta (luokka → tyyli), ei sivun lasketuista tyyleistä. Lähteeksi
+  `#documentUrl`: sivun osoitteen #-osa (`eng#{"itemid":…}`) katoaa leikkeen osoitteesta. Finlex (`finlex()`): vain oikeuskäytäntö (säädökset
+  yleiselle leikkeelle, käyttäjän linjaus: luettavaa, ei tietokantoja); luokkanimissä on käännöksen tiiviste (`uKldUa_akomaNtoso`), joten
+  valitsimet ovat loppuosasta. Kumpikin on skriptisovellus: aja `--sarja hudoc` ja `--sarja finlex` aina `--elava`lla.
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
@@ -272,11 +277,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   mutta Fredrikan rinnalla *J. L. Runeberg* ja *Fredrika Runeberg* (käyttäjän päätös), alkukirjaimet ja sukunimi
   `&nbsp;`-sidottuina; haun `norm()` lukee sidotun välilyönnin tavallisena.
 - **Otsikkohaku** (käyttäjän päätös: tarkka verkko): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
-  sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt`, `otsikot-gutenberg.txt` ja `otsikot-pohjola.txt`
-  (Projekt Runeberg ja Litteraturbanken) ovat tusina-radan
+  sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt`, `otsikot-gutenberg.txt`, `otsikot-pohjola.txt`
+  (Projekt Runeberg ja Litteraturbanken) ja `otsikot-oikeus.txt` (Finlexin ennakkopäätökset) ovat tusina-radan
   `hakemisto/julkaise.js`:n tuotteita, eivät käsin muokattavia: aja se uudelleen, kun hakemisto pestään tai listan nimiä muutetaan
   (otsake on sivuston nimi täsmälleen kuten listassa). Ei Faded Pagea eikä PROPYLÄENiä. Sivu lataa ytimen vasta ensimmäisellä
-  otsikkohaulla ja Gutenbergin ja pohjoismaiset sen jälkeen yksi kerrallaan (`LISAT`; haku toimii jo niitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
+  otsikkohaulla ja Gutenbergin, pohjoismaiset ja oikeuskäytännön sen jälkeen yksi kerrallaan (`LISAT`; haku toimii jo niitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
   kymmeniätuhansia: korien luvut lasketaan yhdellä läpikäynnillä (`laskeOtsikot()`) ja järjestys lokeroimalla, ei korikohtaisesti.
   Korit rajaavat osumia (merkinnän omat aihekorit ja kieli, muuten sivuston), ja korin luku on otsikkohaun aikana otsikko-osumien määrä.
   Osumat ovat sivustoittain (käyttäjän päätös): yksi rivi sivustoa kohden (nimi ja osumien määrä), napautus avaa ja sulkee. Haku-rivi
