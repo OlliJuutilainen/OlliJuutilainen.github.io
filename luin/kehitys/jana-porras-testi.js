@@ -1,10 +1,10 @@
 // Sivutetun aikajanan vedon portaat ja napautus (luin.html janaPysakit(), janaKohde(); käyttäjän säännöt). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/jana-porras-testi.js
 // Portaiden laki: porras on sivu, ja sivulla on yksi porras. Merkkipaalut ovat tekstin alku, luvut ja osiot (myös yläindeksien
-// osiot); kohdat eivät ole portaita. Askel A = 12,5 % sivumäärästä kokonaisiksi sivuiksi pyöristettynä (puolikas ylöspäin,
-// vähintään 1). Yli 25 %:n merkkipaaluväli (viimeinen kirjan loppuun) jaetaan floor(väli / A) yhtä suureen osaan lähimmille
-// sivuille. Lisäksi viimeinen sivu, kirjanmerkit, majakka ja voimassa oleva kohta, jotka eivät vaikuta väliportaisiin.
-// Merkkipaaluton kirja: alle 12 sivua joka sivu, 12 sivua joka toinen sivu.
+// osiot); kohdat eivät ole portaita. Askel A on pienin kahden potenssi, jolla (N − 1) / A < 10 (kymmenkanta: veto
+// ensimmäiseltä sivulta viimeiselle tekee alle kymmenen hyppyä). Merkkipaaluväli (viimeinen viimeiselle sivulle) jaetaan
+// floor(väli / A) yhtä suureen osaan lähimmille sivuille. Lisäksi viimeinen sivu, kirjanmerkit, majakka ja voimassa oleva
+// kohta, joista vain viimeinen sivu on välin pää. Merkkipaaluton kirja: 10 sivua joka sivu, 11 sivua joka toinen sivu.
 // Samalla sivulla etusija: majakka, voimassa oleva kohta, merkkipaalu, kirjanmerkki, viimeinen sivu, väliporras.
 // Veto (vähintään 10 px sivusuunnassa) pysähtyy vain portaille (ei salmiakkiosumaa) eikä kirjoita mitään, kun porras ei
 // vaihdu; napautus vie mihin kohtaan tahansa, paitsi näkyvän salmiakin musteelle napautus vie salmiakin kohtaan (myös kohdan).
@@ -64,12 +64,14 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
     const o = k => Math.min(1, Math.max(0, (n.cum[k.b] + k.o) / n.total));
     const S = L.janaPysakit().map(m => ({ k: m.k, key: key(m.k) }));
     const a0 = Object.assign({}, T.ankkuri), ankkuriSivu = T.sivu, sivu = k => { L.mene(k); return T.sivu; };
-    const A = Math.max(1, Math.round(N / 8)), paalut = [0, N];
+    let A = 1;
+    while ((N - 1) / A >= 10) A *= 2;
+    const paalut = [0, Math.max(0, N - 1)];
     n.doc.toc.forEach(t => { if (t.lvl <= 2) paalut.push(sivu({ b: t.b, o: 0 })); });
     (n.kohdat || []).forEach(y => { if (y.lvl <= 2) paalut.push(sivu(y.k)); });
-    const P = [...new Set(paalut)].sort((a, b) => a - b), E = new Set(P.filter(x => x < N)), jaot = [];
+    const P = [...new Set(paalut)].sort((a, b) => a - b), E = new Set(P), jaot = [];
     for (let i = 1; i < P.length; i++) {
-      const V = P[i] - P[i - 1], m = V / N > .25 ? Math.floor(V / A) : 1;
+      const V = P[i] - P[i - 1], m = Math.max(1, Math.floor(V / A));
       if (m > 1) jaot.push(V + ' s. → ' + m);
       for (let j = 1; j < m; j++) E.add(P[i - 1] + Math.round(V * j / m));
     }
@@ -182,24 +184,25 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
   const n3 = await ankkuriX(r1);
   tulos('kirja: napautus kohdan salmiakkiin vie kohtaan', n3.k === ks.k, `kohta ${ks.k}, perillä ${n3.k}`);
 
-  // 5. Merkkipaaluton kirja: alle 12 sivua joka sivu, 12 sivua joka toinen, 20 sivua askel 3. Kappalemäärä haetaan
+  // 5. Merkkipaaluton kirja: 10 sivua joka sivu, 11 sivua joka toinen, 21 sivua joka neljäs. Kappalemäärä haetaan
   // sivumäärän mukaan. Voimassa oleva kohta tulee portaaksi muuttamatta väliportaita.
   const loyda = async N => {
     let m = Math.round(N * 3.5);
     for (let t = 0; t < 16; t++) { await avaa(ILMAN(m)); const s = await p.evaluate(() => window.__luin.tila.sivuja); if (s === N) return m; m += s < N ? 1 : -1; }
     return null;
   };
-  for (const N of [5, 11, 12, 20]) {
+  for (const N of [5, 10, 11, 12, 20, 21]) {
     const m = await loyda(N);
     if (m === null) { tulos(`ilman otsikoita ${N} sivua: tekstiä ei löytynyt`, false); continue; }
     const i = await portaat();
     console.log(`  ilman otsikoita: ${m} kappaletta, ${i.N} sivua, askel ${i.A}, portaat sivuilla ${sivulista(i.sivut)}`);
-    const odotus = { 5: '1 2 3 4 5', 11: '1 2 3 4 5 6 7 8 9 10 11', 12: '1 3 5 7 9 11 12', 20: '1 4 8 11 14 18 20' }[N];
+    const odotus = { 5: '1 2 3 4 5', 10: '1 2 3 4 5 6 7 8 9 10', 11: '1 3 5 7 9 11', 12: '1 3 5 8 10 12',
+      20: '1 3 5 7 9 12 14 16 18 20', 21: '1 5 9 13 17 21' }[N];
     tulos(`ilman otsikoita ${N} sivua`, i.sama && i.yksi && sivulista(i.sivut) === odotus, 'odotus ' + odotus);
     if (N === 12) {
       await p.evaluate(() => { const L = window.__luin; L.mene(L.sivunAlku(5)); }); await p.waitForTimeout(200);
       const h = await portaat();
-      tulos('ilman otsikoita 12 sivua, sivulla 6: väliportaat ennallaan', h.sama && sivulista(h.sivut) === '1 3 5 6 7 9 11 12', 'portaat ' + sivulista(h.sivut));
+      tulos('ilman otsikoita 12 sivua, sivulla 6: väliportaat ennallaan', h.sama && sivulista(h.sivut) === '1 3 5 6 8 10 12', 'portaat ' + sivulista(h.sivut));
     }
   }
 

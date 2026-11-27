@@ -660,10 +660,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Veto**: vierityksessä ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan). Sivutettuna **veto** pysähtyy
   vain portaille (`janaPysakit()`, laskettu kerran vetoa kohden). **Portaiden laki** (käyttäjän päätökset, koodin kommentissa):
   porras on sivu ja sivulla yksi porras (etusija majakka, haamu, merkkipaalu, kirjanmerkki, viimeinen sivu, väliporras);
-  merkkipaalut ovat alku, luvut ja osiot, **ei kohtia**; askel on 12,5 % sivumäärästä kokonaisiksi sivuiksi (puolikas ylöspäin,
-  vähintään 1: alle 12 sivua 1, 12 sivua 2); yli 25 %:n merkkipaaluväli (viimeinen kirjan loppuun, sivu N) jaetaan
-  `floor(väli / askel)` yhtä suureen osaan; viimeinen sivu, kirjanmerkit, majakka ja haamu eivät siirrä väliportaita.
-  Merkkipaaluton 12-sivuinen: joka toinen sivu. **Napautus** (alle `JANA_VETO_PX` = 10 px sivuliikettä) vie mihin kohtaan
+  merkkipaalut ovat alku, luvut ja osiot, **ei kohtia**; askel on **kymmenkanta**: pienin kahden potenssi, jolla veto ensimmäiseltä
+  sivulta viimeiselle (N − 1 sivua) tekee alle kymmenen hyppyä (1–10 sivua 1, 11–20 sivua 2, 21–40 sivua 4 …); jokainen merkkipaaluväli
+  (viimeinen viimeiselle sivulle) jaetaan `floor(väli / askel)` yhtä suureen osaan, joten mikään hyppy ei ole kahta askelta pitkä;
+  kirjanmerkit, majakka ja haamu eivät siirrä väliportaita. Merkkipaaluton 10-sivuinen: joka sivu, 11-sivuinen: joka toinen sivu. **Napautus** (alle `JANA_VETO_PX` = 10 px sivuliikettä) vie mihin kohtaan
   tahansa kuten vierityksessä, ja osuma näkyvän salmiakin musteen x-alueelle vie sen keskukseen (`janaSalmiakit`; vain napautus,
   ei veto). Muuta magneettia ei lisätä. Poikkeus kumpaankin lukutapaan: osuma piirrettyyn kirjanmerkin nauhaan vie tasan
   kirjanmerkkiin (`janaNauhat`). Liikkeessä päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran
