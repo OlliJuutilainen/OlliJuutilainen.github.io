@@ -246,7 +246,7 @@ siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynni
 
 - Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun · oma · tusinasää* -nappi, eikä
   sovellusosiota ole etusivulla (käyttäjän päätökset).
-- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja kolme seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
+- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja neljä seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
   dataan ja yr.no:hon (käyttäjän päätös); kursiivilla vain *yr.no* (käyttäjän päätös).
 - Leipäteksti on tiivis (käyttäjän päätös): riviväli 1.3 17 px:n ja 1.35 15,5 px:n teksteissä. Logo on ylätekstin anfangi,
   joten sen koko ja yläväli seuraavat ylätekstin riviväliä (laskutapa CSS-kommentissa).

@@ -636,12 +636,13 @@ if (document.fonts){
   if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitQuote);
 }
 
-/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja kolme seuraavaa (käyttäjän päätös). --- */
+/* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja neljä seuraavaa (käyttäjän päätös). --- */
 const DEMO = [
   ['11:11', '-5°', ['siniharmaata'], '—', '1 m/s', 'lounaasta', 1],
   ['klo 12', '-4°', ['harmaata'], '—', '2 m/s', 'lounaasta', 0],
   ['klo 13', '-3°', ['»'], '—', '1 m/s', 'kaakosta', 0],
-  ['klo 14', '-2°', ['»'], '—', '1 m/s', 'lännestä', 0]
+  ['klo 14', '-2°', ['»'], '—', '1 m/s', 'lännestä', 0],
+  ['klo 15', '-2°', ['auringonlasku 15:23', 'PORVARILLINEN HÄMÄRÄ'], '—', '1 m/s', 'lounaasta', 0]
 ];
 $('demo').innerHTML = DEMO.map(([t, temp, desc, rain, w, dir, white]) => {
   const time = t.startsWith('klo') ? `<span class="mini">klo</span>${t.slice(4)}` : t;
