@@ -62,7 +62,7 @@ Maa jäässä plussalla (käyttäjän päätös):
   Hetkellinen kuten lämpötila, joten luetaan rivin omalta aikaleimalta. Jos haku epäonnistuu, hiutaleet vain
   jäävät pois. `extractSeries` tunnistaa `groundtemperature`n ennen `temperature`a, joka sisältyy siihen.
 - Luku ja hiutale ovat katkeamattomassa `span`issa, koska kapea sarake katkaisisi hiutaleen omalle rivilleen.
-- **RAAKA**-tilassa hiutale on asteen merkin alla, sen musteen keskellä, ei sen perässä (käyttäjän päätös; luokka `aste`).
+- **RAAKA**-tilassa hiutale on asteen merkin alla (keskeltä karvan oikealle) ja tavallista alaindeksiä alempana, ei sen perässä (käyttäjän päätös; luokka `aste`).
   Kaukaisen maaruudun kolmio on silloin asteen merkin oikealla puolella, koska hiutaleen yläkulmassa se osuisi asteen merkkiin.
 - **Maaruutu** (käyttäjän päätös): hiutaleen maan lämpötila otetaan vain kuivalta maalta, koska rannikon ja järvien
   sekaruudussa vesi lämmittää arvoa talvella niin, että hiutale jäisi pois. `findMaaruutu` hakee `LandSeaMask`in
