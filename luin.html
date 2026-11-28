@@ -2182,7 +2182,7 @@
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
   function omaMaalaus() { return aset.maalaus !== 'selain'; }
 
-  /* ---------- kokoruutu (käyttäjän pyyntö 5.11.2026; opas 4.10) ----------
+  /* ---------- kokoruutu (käyttäjän pyyntö 5.11.2026; opas 4.9) ----------
      Mobiiliselaimen palkit vievät sivutettuna tilaa pysyvästi (Firefox piilottaa omansa vain vieritettäessä), ja Via
      piirtää alapalkkinsa Luinin alakaistan päälle. Kokoruutu piilottaa ne, mutta selain sallii sen vain käyttäjän
      napautuksesta. Ainoa ohjain on yläpalkin kulmanappi (käyttäjän päätös 5.11.2026: ei asetusta). Nappi muistaa
@@ -2190,11 +2190,15 @@
      tai näppäin vie kokoruutuun (krOdottaa), koska kokoruutu ei voi jatkua uudelleenlatauksen yli. Napista poistuminen
      kumoaa valinnan. Jos käyttäjä poistuu muuten (Androidin takaisin-ele tai veto ylhäältä alas), valinta jää, mutta
      Luin ei palaa kokoruutuun ennen seuraavaa tekstin avausta. Asentoa ei lukita (screen.orientation.lock), koska se
-     estäisi myös käyttäjän oman käännön. */
+     estäisi myös käyttäjän oman käännön.
+     Valinta muistetaan vain kosketusnäytöllä (krMuistaa, MOBIILI). Tietokoneella selaimen palkit eivät
+     vie lukutilaa, ja Esc on tarkoituksellinen poistuminen: muistettu valinta veisi seuraavan tekstin ensimmäisellä
+     napsautuksella tai näppäimellä (myös Cmd-oikotiellä) kokoruutuun. Siellä kokoruutuun pääsee vain napista. */
   var KR_EL = document.documentElement;
   var KR_TUKI = !!(KR_EL.requestFullscreen || KR_EL.webkitRequestFullscreen);
   var krOdottaa = false, krPyynto = false, alasveto = null;
   function krPaalla() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function krMuistaa() { return !!(MOBIILI && MOBIILI.matches); }
   // Hylätty pyyntö (esim. vieritysele ei kelpaa selaimelle napautukseksi) jättää krOdottaa voimaan; se nollataan vasta,
   // kun kokoruutu on päällä (krMuuttui).
   function krSisaan() {
@@ -2224,7 +2228,7 @@
   document.addEventListener('fullscreenchange', krMuuttui);
   document.addEventListener('webkitfullscreenchange', krMuuttui);
   function krAvaus(e) {
-    if (!krOdottaa || !nyt || !aset.kokoruutu || krPaalla()) return;
+    if (!krOdottaa || !nyt || !aset.kokoruutu || !krMuistaa() || krPaalla()) return;
     if (e.type === 'keydown' && /^(Shift|Control|Alt|Meta|Escape)$/.test(e.key)) return;
     // Yläpalkin nappi hoitaa kokoruudun itse.
     if (e.target.closest && e.target.closest('#kr-nappi')) return;
@@ -4432,8 +4436,9 @@
   });
   $('#kr-nappi').addEventListener('click', function () {
     krOdottaa = false;
-    aset.kokoruutu = krPaalla() ? 0 : 1; tallennaAset();
-    if (aset.kokoruutu) krSisaan(); else krUlos();
+    var on = !krPaalla();
+    if (krMuistaa()) { aset.kokoruutu = on ? 1 : 0; tallennaAset(); }
+    if (on) krSisaan(); else krUlos();
   });
   paivitaKrNappi();
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () {
@@ -4901,7 +4906,7 @@
     if (valmis) nyt.md = md;
     nyt.kuva = P.kuva(nyt.merk);
     tila.nakyma = 'lukija';
-    krOdottaa = !!aset.kokoruutu;
+    krOdottaa = !!aset.kokoruutu && krMuistaa();
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
