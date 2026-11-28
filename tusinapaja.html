@@ -130,6 +130,10 @@
   /* Maa jäässä plussalla: Tusinasään hiutale alaindeksinä lämpötilan perässä, lämpötilan värillä (käyttäjän päätös). */
   .maaJaassa{ display:inline-block; width:.5em; height:.5em; margin-left:.1em; vertical-align:-.2em; overflow:visible }
   .maaJaassaLuku{ white-space:nowrap }
+  /* RAAKA: hiutale asteen merkin alle, keskelle sen mustetta (käyttäjän päätös). Kolmio ei mahdu hiutaleen yläkulmaan
+     asteen merkin vuoksi, joten se on asteen merkin oikealla puolella. */
+  .maaJaassaLuku.aste .maaJaassa{ margin-left:-.45em }
+  .maaJaassaLuku.aste .maaVaroitus{ margin-left:-.06em }
   /* Kaukainen maaruutu (yli 5 km): pieni varoituskolmio hiutaleen oikeaan yläkulmaan; osoitus tai napautus
      näyttää huomautuksen (käyttäjän päätös). Osuma-alue on näkyvää merkkiä suurempi. */
   .maaEpavarma{ position:relative; display:inline-block; cursor:pointer; outline:none; -webkit-tap-highlight-color:transparent }
@@ -2343,7 +2347,7 @@ function renderRow(row, state){
   const tempBadgeHtml = tempBadge ? ` ${tempBadge}` : '';
   const tempNum = (temp!=null && !Number.isNaN(temp)) ? Math.round(temp)+(FEELS_LIKE?'':'°') : '–';
   /* Luku ja hiutale samaan katkeamattomaan osaan: kapea sarake katkaisisi hiutaleen omalle rivilleen (12°). */
-  const tempText = groundFrozenUnderPlus(temp, groundTemp) ? `<span class="maaJaassaLuku">${tempNum}${groundFlakeHtml()}</span>` : tempNum;
+  const tempText = groundFrozenUnderPlus(temp, groundTemp) ? `<span class="maaJaassaLuku${FEELS_LIKE ? '' : ' aste'}">${tempNum}${groundFlakeHtml()}</span>` : tempNum;
   return (
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
