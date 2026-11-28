@@ -1,7 +1,7 @@
 // Porrasvalikko (nimikkeen ja valittujen valikko, luin.html naytaPorras()). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/porras-testi.js [kuvakansio]
 // Tarkistaa: pääkohdat ULOSTUS, SISUSTUS ja HYLLYTYS kaikissa näkymissä ja alavalikkojen järjestys (lähdeviite ULOSTUKSEN ylimpänä,
-// Poista HYLLYTYKSEN alimpana punaisena); kohdat isolla alkukirjaimella ilman loppupistettä; leveällä rinnakkain oikealle (pääkohdat eivät liiku,
+// Poista HYLLYTYKSEN alimpana punaisena); ULOSTUS › Imuroi (.md, PDF, paluu ULOSTUKSEEN); kohdat isolla alkukirjaimella ilman loppupistettä; leveällä rinnakkain oikealle (pääkohdat eivät liiku,
 // laatikon leveys ei muutu alavalikkoa vaihdettaessa, aukko väliviivassa, hiirellä viipymäavaus), napin yllä avautunut kasvaa ylöspäin
 // pääkohtien pysyessä; 1280 px:n ikkunassa pitkäkin alavalikko mahtuu oikealle; ilman tilaa napin oikealla sisäkkäin, ei koskaan
 // vasemmalle; nuoli aina oikealla; kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; HYLLYTYS pinossa,
@@ -102,8 +102,8 @@ const polyinen = (page, id) => page.evaluate((id) => {
     await kuva(page, '1-paa');
     await page.click('#pop button[data-k="ali:vienti"]');
     let t1 = await tila(page);
-    tulos('ULOSTUS: lähdeviite ylimpänä, sitten kopioi, linkitä, lataa, vie merkinnät, huiluta', t1.ali === 'vienti' &&
-      t1.kohdat.map(k => k.split('=')[0]).join() === 'lisa,viite,linkita,lataa,viemerk,huiluta' &&
+    tulos('ULOSTUS: lähdeviite ylimpänä, sitten kopioi, linkitä, Imuroi, vie merkinnät, huiluta', t1.ali === 'vienti' &&
+      t1.kohdat.map(k => k.split('=')[0]).join() === 'lisa,viite,linkita,ali:imuroi,viemerk,huiluta' &&
       await page.$eval('#pop .p-ali.auki', a => a.firstElementChild.nextElementSibling.classList.contains('esi')), t1.kohdat.join(' | '));
     tulos('alavalikko avautuu oikealle, pääkohdat paikallaan', JSON.stringify(t1.paa) === JSON.stringify(t0.paa) && t1.left === t0.left && t1.right > t0.right && t1.top === t0.top,
       JSON.stringify([t0.paa, t1.paa, t0.right, t1.right]));
@@ -113,6 +113,19 @@ const polyinen = (page, id) => page.evaluate((id) => {
     });
     tulos('avoimen pääkohdan kohdalla aukko väliviivassa', aukko.tausta === aukko.paperi && aukko.oikea === '-1px' && aukko.viiva === '1px solid', JSON.stringify(aukko));
     await kuva(page, '2-vienti');
+    // ULOSTUS › Imuroi (käyttäjän pyyntö): alakategoria samassa solussa, ULOSTUS pysyy avoimena, paluu ULOSTUKSEEN.
+    const imN = await page.$eval('#pop button[data-k="ali:imuroi"]', b => { const s = b.querySelector('svg.p-nuoli'), t = b.querySelector('span'); return s.getBoundingClientRect().left > t.getBoundingClientRect().right; });
+    await page.click('#pop button[data-k="ali:imuroi"]');
+    const ti = await tila(page);
+    const avoimet = await page.$$eval('#pop .p-ots[aria-expanded="true"]', bs => bs.map(b => b.dataset.k).join());
+    tulos('Imuroi: nuoli oikealla, alla paluu, .md ja PDF; ULOSTUS avoimena', imN && ti.ali === 'imuroi' &&
+      ti.kohdat.join(' | ') === 'takaisin=Imuroi | lataa=.md | pdf=PDF' && avoimet === 'ali:vienti,ali:imuroi', ti.kohdat.join(' | ') + ' / ' + avoimet);
+    tulos('Imuroi: pääkohdat ja laatikon reunat paikallaan', JSON.stringify(ti.paa) === JSON.stringify(t0.paa) && ti.left === t1.left && ti.top === t1.top,
+      JSON.stringify([ti.paa, ti.left, ti.right, t1.left, t1.right]));
+    await kuva(page, '2b-imuroi');
+    await page.click('#pop .p-ali.auki button[data-k="takaisin"]');
+    const tp = await tila(page);
+    tulos('Imuroi: paluurivi palaa ULOSTUKSEEN', tp.ali === 'vienti', tp.ali);
     // Hiirellä viipymäavaus.
     const lb = await page.$eval('#pop button[data-k="ali:latomo"]', b => { const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
     await page.mouse.move(lb.x, lb.y - 3); await page.mouse.move(lb.x, lb.y, { steps: 3 });
@@ -134,7 +147,8 @@ const polyinen = (page, id) => page.evaluate((id) => {
     const vaara = await page.$eval('#pop button[data-k="poista"]', b => b.classList.contains('vaara') && !b.nextElementSibling);
     tulos('Poista alimpana punaisena', vaara);
     const kaikki = await page.$$eval('#pop button[data-k]:not(.p-ots):not(.p-takaisin):not(.h-viit)', bs => bs.map(b => b.textContent));
-    const huono = kaikki.filter(x => !/^[A-ZÄÖ]/.test(x) || /\.$/.test(x));
+    // .md on käyttäjän nimi (Imuroi › .md): tiedostopääte pienellä pisteineen.
+    const huono = kaikki.filter(x => x !== '.md' && (!/^[A-ZÄÖ]/.test(x) || /\.$/.test(x)));
     tulos('kohdat isolla alkukirjaimella ja ilman loppupistettä', !huono.length, huono.join(' | ') || kaikki.join(' | '));
     await kuva(page, '3-luin');
     await page.click('#pop button[data-k="poista"]');

@@ -1,4 +1,4 @@
-// Lataa md ja Linkitä tiedostoon (käyttäjän pyyntö 16.11.2026). Ajo repon juuressa:
+// Lataa md (Imuroi › .md) ja Linkitä tiedostoon (käyttäjän pyyntö 16.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]
 // Tarkistaa: nimikkeen ja valittujen valikon järjestys (porrasvalikko: Exportātiō, Latomo, Luin.; Poista alimpana); Lataa md antaa pinon tekstin tavulleen;
 // Linkitä tiedostoon hylkää virheellisen osoitteen, 404:n, verkkosivun ja eri tekstin muuttamatta mitään; hyväksyy
@@ -77,7 +77,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
 
   // 1. Järjestys.
   let j = await avaa('p-koeteksti');
-  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkita,lataa,viemerk,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
+  tulos('linkittömän valikko: linkita, Imuroi (.md, PDF), …, luin, poista', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkita,ali:imuroi,viemerk,huiluta,lataa,pdf,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'linkki-valikko.png') });
 
   // 2. Lataa md.
@@ -93,7 +93,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   await page.click('#pop button[data-k="viemerk"]');
   const vm = await page.evaluate(() => ({ ots: document.querySelector('#pop .kys').firstChild.textContent, selite: document.querySelector('#pop .kys .lk-selite').textContent,
     val: [...document.querySelectorAll('#pop button.vk')].map(b => b.textContent + '=' + b.getAttribute('aria-pressed')).join(), luokka: document.getElementById('pop').className }));
-  tulos('Vie merkinnät: Lataa .md:n alla, Huiluta laatikkoon -kohdan yllä', vmJarj === 'lisa,viite,linkita,lataa,viemerk,huiluta', vmJarj);
+  tulos('Vie merkinnät: Imuroi-kohdan alla, Huiluta laatikkoon -kohdan yllä', vmJarj === 'lisa,viite,linkita,ali:imuroi,viemerk,huiluta', vmJarj);
   tulos('Vie merkinnät: otsikko tekstitiedostoon, määrät, asetusten valinnat', vm.ots === 'Vie merkinnät tekstitiedostoon' &&
     vm.selite === '”Koeteksti”: 1 alleviivaus, 0 kirjausta ja 0 kirjanmerkkiä.' &&
     vm.val === 'Alleviivaukset=true,Kirjaukset=true,Kirjanmerkit=false,Edistymisen tilanne=false', JSON.stringify(vm));
@@ -138,7 +138,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   tulos('pinossa osoite, md.js lukee sen', l1[0].osoite === DB && await page.evaluate(m => LuinMD.parse(m).meta.osoite, md1) === DB);
   tulos('merkinnät ennallaan', JSON.stringify(await ls('luin-merkit:p-koeteksti')) === JSON.stringify(merkit0));
   j = await avaa('p-koeteksti');
-  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkki,lataa,viemerk,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
+  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkki,ali:imuroi,viemerk,huiluta,lataa,pdf,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   await page.keyboard.press('Escape');
 
   // 5. Teksti ilman etukenttää.

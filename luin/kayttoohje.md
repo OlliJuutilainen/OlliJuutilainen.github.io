@@ -164,7 +164,9 @@ Valikko mahtuu aina ruudulle. Jos se on ruutua korkeampi, se vierii sisältä, j
 - **Lähdeviite** ylimpänä. Viite on tekstin oma, tai luin kokoaa sen tiedoista Teologian tyylin mukaan (luku 10.5). Sen alla oleva kytkin *Lisää: luettu HTML-versiona* lisää viitteen perään, milloin luit tekstin ja verkosta avatulle tekstille mistä osoitteesta. Valinta muistetaan, ja se koskee myös merkintöjen viennin otsikkoa.
 - **Kopioi lähdeviite** kopioi viitteen tekstinä ja muotoiltuna, joten kursiivi säilyy esimerkiksi tekstinkäsittelyohjelmaan liitettäessä.
 - **Kopioi linkki** antaa jakolinkin verkosta avatulle tai tiedostoon linkitetylle tekstille (luku 12.1). Linkittömällä tekstillä sen paikalla on **Linkitä tiedostoon** (luku 12.2).
-- **Lataa .md** lataa tekstin Markdown-tiedostona etukenttineen. Tiedoston voi avata missä tahansa tekstieditorissa tai viedä verkkoon ja jakaa.
+- **Imuroi** antaa tekstin tiedostona. Sen alla on kaksi kohtaa:
+  - **.md** lataa tekstin Markdown-tiedostona etukenttineen. Tiedoston voi avata missä tahansa tekstieditorissa tai viedä verkkoon ja jakaa.
+  - **PDF** latoo tekstin A5-sivuiksi ja lataa sen PDF-tiedostona: alaviitteet ovat sivun alalaidassa lukimen numeroin, luvun nimi sivun ylälaidassa, ja otsikoista tulee PDF:n kirjanmerkit. Tavutus, kappalejako, tasaus, lomitettu käännös ja sisällysluettelo seuraavat lukimen asetuksia; merkintöjä PDF:ssä ei ole. Sivua pidempi alaviite on kappaleensa perässä. Pitkän kirjan ladonta voi kestää minuutteja, ja nappi kertoo edistymisen. Jos jotakin merkkiä ei ole PDF:n kirjasimissa (esimerkiksi emoji), se jää pois, ja ilmoitus kertoo, montako merkkiä puuttui.
 - **Vie merkinnät** avaa laatikon *Vie merkinnät tekstitiedostoon*: valitse alleviivaukset, kirjaukset, kirjanmerkit ja edistymisen tilanne, ja saat tekstin merkinnät Markdown-tiedostona (luku 6.9). Tekstiä ei tarvitse avata.
 - **Huiluta laatikkoon** lähettää tekstin postihuilun laatikkoon, josta se kantautuu toisten laitteittesi pinoihin (luku 9.3).
 
@@ -826,11 +828,11 @@ Jakaminen on lukimessa sivuosassa: kaikki tapahtuu pinon nimikkeen valikosta (UL
 
 ### 12.2 Linkitä tiedostoon
 
-Latomosta tai lisäosalla tuodulla tekstillä ei ole verkko-osoitetta, joten linkin paikalla on *Linkitä tiedostoon*. Lataa teksti (*Lataa .md*), vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen valikossa on *Kopioi linkki*.
+Latomosta tai lisäosalla tuodulla tekstillä ei ole verkko-osoitetta, joten linkin paikalla on *Linkitä tiedostoon*. Lataa teksti (*Imuroi* → *.md*), vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen valikossa on *Kopioi linkki*.
 
 ### 12.3 Lähdeviite ja tiedosto
 
-*Kopioi lähdeviite* kopioi viitteen muotoiltuna, ja *Lataa .md* antaa tekstin tiedostona. Merkintöjen tiedoston saa *Vie merkinnät* -kohdasta (luku 6.9).
+*Kopioi lähdeviite* kopioi viitteen muotoiltuna, ja *Imuroi* antaa tekstin tiedostona (.md tai PDF). Merkintöjen tiedoston saa *Vie merkinnät* -kohdasta (luku 6.9).
 
 ## 13. Android-sovellus
 
@@ -839,7 +841,7 @@ Luin on myös Android-sovelluksena *Luin.* (asennustiedosto https://ollijuutilai
 Sovellus tuo selaimeen verrattuna:
 
 - **Äänenvoimakkuusnapit kääntävät sivua** lukiessa (alas eteenpäin), ja pitkä painallus hyppää osioon. Pinossa, latomossa ja kirjoittaessa napit säätävät äänenvoimakkuutta.
-- **Lataukset** (*Lataa .md*, merkintöjen vienti, zip) tallentuvat kansioon `Download/Luin`.
+- **Lataukset** (*Imuroi*, merkintöjen vienti, zip) tallentuvat kansioon `Download/Luin`.
 - **Kokoruutu** piilottaa järjestelmän palkit.
 - **Ilman verkkoa** sovellus aukeaa välimuistista, jos se on avattu laitteella verkossa.
 - **Jaa → Luin.**: teksti tai .md-tiedosto latomoon tarkistettavaksi; .md-, .markdown- ja .txt-osoite, Dropbox-linkki ja jakolinkki lukimeen. Pelkkä verkkosivun osoite ei aukea, koska sivun leikkaaminen on lukimeen-lisäosan työ.

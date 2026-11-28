@@ -508,6 +508,8 @@
   .valikko.porras.rinn.alareuna .p-paa { display: flex; flex-direction: column; justify-content: flex-end; }
   .valikko.porras.rinn.ali-auki .p-paa { border-right: 1px solid var(--muste); }
   .valikko.porras.rinn .p-takaisin, .valikko.porras.mittaa .p-takaisin { display: none; }
+  /* Alakategorian (ULOSTUS › Imuroi) paluurivi näkyy myös rinnakkain: se vie yläosan alavalikkoon, ei pääkohtiin. */
+  .valikko.porras.rinn .p-ali[data-yla] > .p-takaisin, .valikko.porras.mittaa .p-ali[data-yla] > .p-takaisin { display: flex; }
   .valikko.porras.sisak.ali-auki .p-paa { display: none; }
   .valikko.porras.sisak.ali-auki .p-alat { display: block; flex: 1 1 auto; min-width: 0; }
   .valikko.porras.sisak .p-ali { display: none; }
@@ -3712,17 +3714,20 @@
     if (!e) return;
     var url = jakoLinkki(e);
     // Porrasvalikko (käyttäjän linjaus): ULOSTUS, SISUSTUS ja HYLLYTYS. Lähdeviite on ULOSTUKSEN ylimpänä, HYLLYTYKSESSÄ
-    // siirrot ja alimpana punainen Poista. Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon.
+    // siirrot ja alimpana punainen Poista. Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon. ULOSTUKSEN alakategoria
+    // Imuroi (käyttäjän nimet): .md ylempänä, sitten PDF.
     naytaPorras(b.getBoundingClientRect(), '', [
       { k: 'vienti', nimi: ULOSTUS, html: '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
         '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'Lisää: luettu HTML-versiona</button></div>' +
         '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
         (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="Merkinnät eivät siirry jaettavassa linkissä">Kopioi linkki</button>'
           : '<button type="button" data-k="linkita">Linkitä tiedostoon</button>') +
-        '<button type="button" data-k="lataa">Lataa .md</button>' +
+        porrasOts('imuroi', 'Imuroi') +
         '<button type="button" data-k="viemerk">Vie merkinnät</button>' +
         // Huiluta laatikkoon: tekstin runko toisten laitteiden pinoihin (huiluta()).
         '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
+      { k: 'imuroi', yla: 'vienti', nimi: 'Imuroi', html: '<button type="button" data-k="lataa">.md</button>' +
+        '<button type="button" data-k="pdf">PDF</button>' },
       { k: 'latomo', nimi: SISUSTUS, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
         '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
       { k: 'luin', nimi: HYLLYTYS, html: luinKohdat([e]) }
@@ -3730,6 +3735,7 @@
       var lt = luinToiminto(k, nappi, [e], b);
       if (lt !== undefined) return lt;
       if (k === 'lataa') { lataaMd(e); return; }
+      if (k === 'pdf') { imuroiPdf(e, nappi); return true; }
       if (k === 'viemerk') { vieMerkPinosta(e, b.getBoundingClientRect()); return true; }
       if (k === 'huiluta') { huiluta(e, nappi); return true; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
@@ -3763,6 +3769,81 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
     viesti('Ladattu: ' + a.download);
+  }
+  /* ---------- Imuroi › PDF (käyttäjän pyyntö) ----------
+     Tekstin PDF ilman tulostusikkunaa: luin/pdf/pdf.js latoo lukimen jäsentämän ja tavuttaman tekstin piilokehyksessä
+     sivuiksi (A5, alaviitteet sivun alalaitaan) ja kirjoittaa sivut pdf-libillä. Lataus kulkee kuten Lataa md:ssä
+     (Blob + a.click()), joten Android-kääre tallentaa sen kansioon Download/Luin. pdf.js ja kirjastot ladataan vasta nyt.
+     PDF seuraa lukimen asetuksista tavutusta, kappalejakoa, tasausta, lomitettua käännöstä ja Sisällysluetteloa; merkintöjä
+     siinä ei ole (kuten .md:ssä). Pitkä teksti latoutuu kymmeniä sekunteja, joten nappi kertoo edistymisen. */
+  var PDF_V = '1', pdfTyossa = false;
+  function imuroiPdf(e, nappi) {
+    var nayta = function (t) { if (nappi.isConnected) nappi.textContent = t; };
+    if (pdfTyossa) { nayta('PDF on jo tekeillä'); return; }
+    pdfTyossa = true;
+    nayta('Ladotaan…');
+    var nimi = (LuinMD.slug(e.title || 'teksti').slice(0, 60) || 'teksti') + '.pdf';
+    lkKirjoita(e).then(function () { return TX.lue(e.id); }).then(function (md) {
+      if (md == null) throw new Error('Tekstiä ei ole tämän laitteen pinossa.');
+      return lataaPdfJs().then(function () {
+        return LuinPdf.tee(pdfAineisto(e, md), function (p) {
+          nayta(p.vaihe === 'ladonta' ? 'Ladotaan… ' + p.sivu + ' s.' : 'Kirjoitetaan… ' + p.sivu + '/' + p.sivuja);
+        });
+      });
+    }).then(function (r) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([new Uint8Array(r.tavut)], { type: 'application/pdf' }));
+      a.download = nimi;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+      nayta('PDF imuroitu.');
+      viesti('Ladattu: ' + nimi + (r.puuttuvat ? ' (' + r.puuttuvat + ' merkkiä puuttui kirjasimesta)' : ''));
+    }).catch(function (err) {
+      nayta('PDF jäi tekemättä');
+      viesti('PDF jäi tekemättä: ' + (err && err.message || err));
+    }).then(function () { pdfTyossa = false; });
+  }
+  var pdfJs = null;
+  function lataaPdfJs() {
+    if (window.LuinPdf) return Promise.resolve();
+    if (!pdfJs) pdfJs = new Promise(function (ok, ei) {
+      var s = document.createElement('script');
+      s.src = 'luin/pdf/pdf.js?v=' + PDF_V;
+      s.onload = function () { ok(); };
+      s.onerror = function () { pdfJs = null; ei(new Error('PDF-ohjelma ei latautunut (verkko?).')); };
+      document.head.appendChild(s);
+    });
+    return pdfJs;
+  }
+  // PDF:n artikkeli kuten piirraTeksti(): jäsennys, lomitettu käännös ja tavutus erillisessä dokumentissa (ei piirretä lukimeen).
+  // merkitseAlkuteksti() ja lomitusLuokat() lukevat art- ja nyt-muuttujia, joten ne vaihdetaan hetkeksi ja palautetaan.
+  function pdfAineisto(e, md) {
+    var doc = LuinMD.parse(md), a = document.implementation.createHTMLDocument('').createElement('article');
+    a.innerHTML = doc.html;
+    $$('hr', a).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
+    $$('details', a).forEach(function (d) { d.open = true; });
+    var oliArt = art, oliNyt = nyt, oliSama = samaKirj;
+    try { art = a; nyt = { doc: doc }; merkitseAlkuteksti(); lomitusLuokat(); }
+    finally { art = oliArt; nyt = oliNyt; samaKirj = oliSama; }
+    tavutaArtikkeli(a);
+    // Sisällys sivunumeroin (Sisällysluettelo-asetus): {{TOC}}:n paikalle tai otsikkolohkon jälkeen kuten lukimessa.
+    var rivit = aset.sisallys ? sisalmysRivit(doc.toc, []).filter(function (t) { return t.text; }) : [];
+    var sis = rivit.length > 1 ? '<nav class="pdf-sis"><p class="sis-ots">Sisällys</p><ol>' + rivit.map(function (t) {
+      return '<li class="t' + t.taso + '"><span class="pdf-sis-nimi">' + esc(t.text) + '</span><span class="pdf-sivu" data-b="' + t.b + '"></span></li>';
+    }).join('') + '</ol></nav>' : '';
+    var html = a.innerHTML;
+    if (sis) html = html.indexOf('<div class="toc-paikka"></div>') >= 0 ? html.replace('<div class="toc-paikka"></div>', sis)
+      : html.indexOf('</header>') >= 0 ? html.replace('</header>', '</header>' + sis) : sis + html;
+    var k = kieliPisteet(a.textContent.slice(0, 30000), true);
+    return {
+      html: html,
+      luokat: [aset.kappale === 'sisennys' ? 'sisennys' : '', aset.tasaus === 'tasattu' ? 'tasattu' : '', aset.tavutus === 'ei' ? 'tavu-ei' : '']
+        .concat([].slice.call(a.classList)).filter(Boolean).join(' '),
+      kieli: k.p >= 3 ? k.k : '',
+      otsikko: e.title || doc.title || '',
+      tekija: e.author || doc.author || '',
+      css: $$('style').map(function (s) { return s.textContent; }).join('\n')
+    };
   }
   function asetaOsoite(md, u) {
     md = String(md).replace(/^﻿/, '').replace(/\r\n?/g, '\n');
@@ -4045,15 +4126,21 @@
   // porrasLukko: hiiren paikka alavalikon vaihtuessa. Viipymäavaus odottaa, että hiiri oikeasti liikkuu siitä, jottei hiiren
   // alle siirtynyt pääkohta (laatikko kasvoi tai siirtyi) avaa seuraavaa ketjussa.
   var PORRAS_MS = 250, porrasViive = 0, porrasHiiri = '', porrasLukko = '';
+  // Alakategoria (osa, jolla on yla): sen otsikko on yläosan kohtana (porrasOts()), alavalikko samassa ruudukon solussa kuin muut,
+  // ja paluurivi vie yläosaan myös rinnakkain (ULOSTUS › Imuroi, käyttäjän pyyntö).
+  function porrasOts(k, nimi) {
+    return '<button type="button" class="p-ots" data-k="ali:' + k + '" aria-expanded="false">' + P_NUOLI + '<span>' + nimi + '</span></button>';
+  }
   function naytaPorras(rect, esi, osat, toiminto) {
     var nappi = function (o) { return P_NUOLI + '<span>' + o.nimi + '</span></button>'; };
-    naytaPop(rect, '<div class="p-runko"><div class="p-paa">' + esi + osat.map(function (o) {
-        return '<button type="button" class="p-ots" data-k="ali:' + o.k + '" aria-expanded="false">' + nappi(o);
+    naytaPop(rect, '<div class="p-runko"><div class="p-paa">' + esi + osat.filter(function (o) { return !o.yla; }).map(function (o) {
+        return porrasOts(o.k, o.nimi);
       }).join('') + '</div><div class="p-alat">' + osat.map(function (o) {
-        return '<div class="p-ali" data-ali="' + o.k + '"><button type="button" class="p-takaisin" data-k="takaisin">' + nappi(o) + o.html + '</div>';
+        return '<div class="p-ali" data-ali="' + o.k + '"' + (o.yla ? ' data-yla="' + o.yla + '"' : '') +
+          '><button type="button" class="p-takaisin" data-k="takaisin">' + nappi(o) + o.html + '</div>';
       }).join('') + '</div></div>', 'porras', function (k, b) {
       if (k.indexOf('ali:') === 0) { avaaAli(k.slice(4)); return true; }
-      if (k === 'takaisin') { avaaAli(''); return true; }
+      if (k === 'takaisin') { avaaAli(b.closest('.p-ali').dataset.yla || ''); return true; }
       return toiminto(k, b);
     }, 'oikea');
   }
@@ -4081,14 +4168,17 @@
     }
     pop.classList.toggle('ali-auki', !!k);
     porrasLukko = porrasHiiri;
+    // Alakategorian auetessa sen yläosan pääkohta pysyy avoimena (aukko väliviivassa).
+    var ali = k && $('.p-ali[data-ali="' + k + '"]', pop), yla = ali && ali.dataset.yla || '';
     $$('.p-ali', pop).forEach(function (a) { a.classList.toggle('auki', a.dataset.ali === k); });
-    $$('.p-ots', pop).forEach(function (b) { b.setAttribute('aria-expanded', String(b.dataset.k === 'ali:' + k)); });
+    $$('.p-ots', pop).forEach(function (b) { b.setAttribute('aria-expanded', String(b.dataset.k === 'ali:' + k || !!yla && b.dataset.k === 'ali:' + yla)); });
     pop.scrollTop = 0;
     sijoitaPop();
   }
   pop.addEventListener('mouseover', function (ev) {
     clearTimeout(porrasViive);
-    var b = ev.target.closest && ev.target.closest('button.p-ots');
+    // Viipymäavaus vain pääkohdille: alakategoria (Imuroi) vaihtaisi alavalikon hiiren alta.
+    var b = ev.target.closest && ev.target.closest('.p-paa button.p-ots');
     if (!b || !pop.classList.contains('rinn') || !HIIRI() || b.getAttribute('aria-expanded') === 'true') return;
     porrasViive = setTimeout(function () {
       if (!porrasLukko && !pop.hidden && pop.contains(b) && b.matches(':hover')) avaaAli(b.dataset.k.slice(4));
@@ -5016,14 +5106,17 @@
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     merkitseAlkuteksti();
     lomitusLuokat();
-    // Liettuaksi tunnistettu kappale tavuttuu liettuan säännöin (md.js, 16.11.2026). Lyhyessä kappaleessa tekstin kieli, ellei
-    // siinä ole yhtäkään toisen kielen yleistä sanaa (liettuankielisen artikkelin Keywords-rivi: theory of parallelism).
-    if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') {
-      var tKieli = kieliPisteet(art.textContent.slice(0, 30000)).k;
-      LuinMD.tavutaDOM(art, aset.tavutus, function (l) { var v = kieliPisteet(l.textContent); return v.p >= 2 || v.p >= 1 && v.k !== tKieli ? v.k : tKieli; });
-    }
+    tavutaArtikkeli(art);
     if (talteen) nyt.valmiiksi = { html: art.innerHTML, samaKirj: samaKirj };
     piirraTeksti2();
+  }
+  // Liettuaksi tunnistettu kappale tavuttuu liettuan säännöin (md.js, 16.11.2026). Lyhyessä kappaleessa tekstin kieli, ellei
+  // siinä ole yhtäkään toisen kielen yleistä sanaa (liettuankielisen artikkelin Keywords-rivi: theory of parallelism).
+  // Sama lukimelle ja PDF:lle (pdfAineisto()).
+  function tavutaArtikkeli(el) {
+    if (aset.tavutus !== 'varovainen' && aset.tavutus !== 'tihea') return;
+    var tKieli = kieliPisteet(el.textContent.slice(0, 30000)).k;
+    LuinMD.tavutaDOM(el, aset.tavutus, function (l) { var v = kieliPisteet(l.textContent); return v.p >= 2 || v.p >= 1 && v.k !== tKieli ? v.k : tKieli; });
   }
   // Valmiin ja jäsennetyn tekstin yhteinen loppu: linkit, lohkot, kohdat, vakiosivut ja merkinnät.
   function piirraTeksti2() {
@@ -8986,7 +9079,7 @@
   TX.valmis.then(reitti);
 
   // Testejä ja kehitystä varten (ks. kehittäjän opas, tusina-rata: oppaat/luin-kehittajan-opas.md, "Testaus").
-  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaKohteet: function () { return janaKohteet(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, pdfAineisto: function (e, md) { return pdfAineisto(e, md); }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaKohteet: function () { return janaKohteet(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },

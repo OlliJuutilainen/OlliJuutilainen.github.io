@@ -277,6 +277,20 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (paketoimattoman lataus, `git pull`), ellei käytäntöä vaihdeta (käyttäjän päätös). Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
+- `luin/pdf/pdf.js` (`LuinPdf`, Imuroi › PDF, `imuroiPdf()`; selvitys ja mittaukset tusina-radan `loki/luin-pdf-ulostus-*`): lukimen
+  jäsentämä ja tavuttama teksti (`pdfAineisto()`: sama `tavutaArtikkeli()` kuin lukimessa; `merkitseAlkuteksti()` vaihtaa `art`-, `nyt`- ja
+  `samaKirj`-muuttujat hetkeksi) latoutuu piilokehyksessä Paged.js:llä ja kirjoitetaan pdf-libillä mittaamalla merkit (`Range.getClientRects`).
+  Ladataan vasta pyydettäessä, `?v=PDF_V`: nosta, kun pdf.js muuttuu. Kirjastot `luin/pdf/` versio nimessä (`LISENSSIT.md`). Asettelu ja
+  PDF käyttävät samoja kirjasimia, tai mitat eivät täsmää: `literata-pdf-*.ttf` (täysi Literata staattisina instansseina; TTF, koska fontkit
+  ei osajoukota woff2:ta) ja varakirjasin `luin-merkit.ttf` (DejaVu Sansin osajoukko Literatasta puuttuville merkeille, nimetty uudelleen
+  Bitstream Veran lisenssin vuoksi, `DejaVu-LICENSE.txt`; välilyönti ja yhdysmerkki mukana). Paged.js:n ansat, joihin ratkaisu nojaa:
+  `srcdoc` ei käy (`about:srcdoc` ei kelpaa URL:n pohjaksi, siksi `document.write`); sisarvalitsimet (`p + p`) muuttuvat matalan spesifisyyden
+  attribuuttivalitsimiksi, joten lohkojen sisennys, välit, tasaus ja display jäädytetään ennen sivutusta (`JAADYTA`; ilman displayta
+  tyyliattribuutillinen elementti on Paged.js:lle piilotettu ja sen sivunvaihto ohitetaan); sivua pidempi alaviite kaataa sivutuksen
+  (alkaa alusta, loppuu kesken), joten yli `PITKA_VIITE` sivusta on lohkona kappaleensa perässä; kirjoitin tarkistaa, että jokainen
+  `data-b`-lohko on sivuilla tasan kerran. Kirjoittimessa ligatuurin jälkimmäinen merkki saa leveydettömän laatikon (kuuluu sanaan),
+  sanan mitattu leveys on merkkiväliä (Tc) ja sanaväli venytetty välilyönti (Tz), jotta tasattu rivi pysyy tekstinpoiminnassa koossa.
+  PDF:ssä ei ole merkintöjä (kuten .md:ssä). Testi `pdf-testi.js` (vertaa myös lukimen ja PDF:n lohkotyylit).
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu kuuteen sivuun (luin.html, Latomo, Latomon ohje,
   tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
   i:n piste on Lukimeen-salmiakki (`glis()`:n `ontto`): `kuvake.svg`:n mittasuhteet, kärki versaalien
@@ -445,7 +459,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *HYLLYTYS* (käyttäjän nimet, versaalina; koodin avaimet `vienti`, `latomo`, `luin` ovat vanhoja nimiä), kukin avaa alavalikon; merkki on
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Pääkohdat ja ULOSTUKSEN ja SISUSTUKSEN kohdat ovat samat
   kaikissa näkymissä (pino, kellarin veivihyllystö, ö-mappi); vain HYLLYTYKSEN kohdat vaihtelevat näkymän mukaan (käyttäjän päätös). ULOSTUS:
-  lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
+  lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Imuroi* (alakategoria, käyttäjän nimet: *.md* ylempänä,
+  sitten *PDF*; osa `yla`-kentällä, paluurivi vie yläosaan myös rinnakkain, viipymäavaus vain pääkohdille), *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
   asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. SISUSTUS: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. HYLLYTYS (`luinKohdat()`, sijainnin mukaan, käyttäjän nimet):
   pinossa *Hyllytä* (pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota; vahvistus *Oletko aivan hylly?*,
@@ -993,6 +1008,8 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/pdf-testi.js [kuvakansio]`: Imuroi › PDF (valikko, lataus, edistyminen, A5, metatiedot,
+  kirjanmerkit, linkit, merkit kirjasimissa, lukimen lohkotyylit PDF:ssä, lomitettu käännös ei muuta avointa tekstiä; teksti pdftotextillä, jos se on).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/porras-testi.js [kuvakansio]`: porrasvalikko (rakenne, rinnakkain ja sisäkkäin, ankkurit, kierto, HYLLYTYS eri sijainneissa, pöly ja sen säilyminen siirroissa).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
