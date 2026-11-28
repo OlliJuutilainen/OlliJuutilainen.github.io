@@ -54,29 +54,29 @@
   // Viitteiden, alaviitteiden ja ristiviittausten tunnukset vertaillaan kirjainkoosta ja väleistä välittämättä.
   function norm(s) { return String(s).replace(/\s+/g, ' ').trim().toLowerCase(); }
 
-  // s[i] === '[' → vastaavan ']':n indeksi, tai -1.
-  function closeBracket(s, i) {
-    var d = 0;
-    for (var k = i; k < s.length; k++) {
+  // s[i] === '[' → vastaavan ']':n indeksi, tai -1; s[i] === '(' → vastaavan ')':n indeksi, tai -1 (osoitteen sulut: Wikipedian
+  // Foo_(bar); kappaleraja katkaisee). Parit lasketaan kerran merkkijonoa kohden pinolla (\ ohittaa seuraavan merkin): haku
+  // jokaisesta avaajasta loppuun asti teki sulkemattomista hakasulkeista neliöllisen ja korostuksen kanssa kuutiollisen
+  // (6 kt:n leike jäädytti sivun sekunneiksi). Tulos on sama kuin vasemmalta oikealle laskien. parse() antaa PARITin omaksi.
+  var PARIT = new Map();
+  function parit(s) {
+    var t = PARIT.get(s);
+    if (t) return t;
+    var hb = new Int32Array(s.length).fill(-1), hp = new Int32Array(s.length).fill(-1), sb = [], sp = [];
+    for (var k = 0; k < s.length; k++) {
       var c = s[k];
       if (c === '\\') { k++; continue; }
-      if (c === '[') d++;
-      else if (c === ']') { d--; if (d === 0) return k; }
+      if (c === '[') sb.push(k); else if (c === ']') { if (sb.length) hb[sb.pop()] = k; }
+      else if (c === '(') sp.push(k); else if (c === ')') { if (sp.length) hp[sp.pop()] = k; }
+      else if (c === '\n' && s[k + 1] === '\n') sp.length = 0;
     }
-    return -1;
+    t = { b: hb, p: hp };
+    if (PARIT.size > 5000) PARIT.clear();
+    PARIT.set(s, t);
+    return t;
   }
-  // s[i] === '(' → vastaavan ')':n indeksi, tai -1 (osoitteen sulut: Wikipedian Foo_(bar)).
-  function closeParen(s, i) {
-    var d = 0;
-    for (var k = i; k < s.length; k++) {
-      var c = s[k];
-      if (c === '\\') { k++; continue; }
-      if (c === '(') d++;
-      else if (c === ')') { d--; if (d === 0) return k; }
-      else if (c === '\n' && s[k + 1] === '\n') return -1;
-    }
-    return -1;
-  }
+  function closeBracket(s, i) { var v = parit(s).b[i]; return v === undefined ? -1 : v; }
+  function closeParen(s, i) { var v = parit(s).p[i]; return v === undefined ? -1 : v; }
 
   // Kenoviiva suojaa kaikki ASCII-välimerkit (CommonMark; MarkDownload suojaa oletuksena).
   var SUOJATTAVA = /[!-\/:-@\[-`{-~]/;
@@ -142,16 +142,20 @@
     return String(u || '').trim().split('#')[0].replace(/^https?:\/\/(www\.)?/i, '').replace(/\/index\.html?$/i, '').replace(/\/+$/, '').toLowerCase();
   }
   var SISA = '\u0002';   // tekstin omaan sivuun osoittavan linkin paikka, ratkaistaan renderöinnin lopussa (sisaisetLinkit)
-  // Paljaan osoitteen tai DOI:n loppuvälimerkit eivät kuulu siihen, sulku kuuluu, jos sille on pari.
+  // Paljaan osoitteen tai DOI:n loppuvälimerkit eivät kuulu siihen, sulku kuuluu, jos sille on pari. Sulut lasketaan kerran
+  // (laskenta joka kierroksella oli neliöllinen).
   function karsiLoppu(u) {
-    while (/[.,;:!?'"”’»…\]*_]$/.test(u) || (/\)$/.test(u) && (u.match(/\(/g) || []).length < (u.match(/\)/g) || []).length)) u = u.slice(0, -1);
+    var auki = (u.match(/\(/g) || []).length, kiinni = (u.match(/\)/g) || []).length;
+    while (/[.,;:!?'"”’»…\]*_]$/.test(u) || (u.slice(-1) === ')' && auki < kiinni)) { if (u.slice(-1) === ')') kiinni--; else if (u.slice(-1) === '(') auki--; u = u.slice(0, -1); }
     return u;
   }
 
   // Rivinsisäinen merkintä. ctx: { note(body) → html | null, br: rivinvaihto <br>:ksi, warn(msg), cite(teksti),
   // refs: { fn, link, cite, meta } (parse() täyttää), linkissa: linkin tekstissä ei linkkejä eikä alaviitteitä }
   function inline(s, ctx) {
-    var out = '', buf = '', i = 0, refs = ctx.refs || {};
+    // eiSulje: korostusmerkin (c + määrä) ensimmäinen avaaja, jolle loppumerkkiä ei löytynyt; myöhempi avaaja ei löydä sitä
+    // myöskään, joten hakua ei toisteta (toisto teki korostuksista kuutiollisia).
+    var out = '', buf = '', i = 0, refs = ctx.refs || {}, eiSulje = {};
     function flush() { out += ctx.cite ? ctx.cite(buf) : esc(buf); buf = ''; }
     function linkinTeksti(t) { return inline(t, { note: null, br: false, warn: ctx.warn, refs: refs, linkissa: true }); }
     function linkki(href, teksti) {
@@ -305,7 +309,8 @@
         var r2 = 2;
         while (s[i + r2] === c) r2++;
         if (r2 <= 3 && s[i + r2] && !/\s/.test(s[i + r2])) {
-          var ke = findClose(s, i + r2, c, r2);
+          var ke = eiSulje[c + r2] <= i ? -1 : findClose(s, i + r2, c, r2);
+          if (ke < 0 && !(eiSulje[c + r2] <= i)) eiSulje[c + r2] = i;
           if (ke > 0) {
             var sis = inline(s.slice(i + r2, ke), ctx);
             flush(); out += c === '~' ? '<del>' + sis + '</del>' : '<span class="korostus">' + sis + '</span>';
@@ -325,7 +330,8 @@
         var next = s[i + run] || ' ';
         var canOpen = !/\s/.test(next) && (c === '*' || !/[0-9A-Za-zÀ-ÿ]/.test(prev));
         if (canOpen && run <= 3) {
-          var ee = findClose(s, i + run, c, run);
+          var ee = eiSulje[c + run] <= i ? -1 : findClose(s, i + run, c, run);
+          if (ee < 0 && !(eiSulje[c + run] <= i)) eiSulje[c + run] = i;
           if (ee > 0) {
             var inner = inline(s.slice(i + run, ee), ctx);
             flush();
@@ -402,11 +408,13 @@
   // rivi. Muoto on yleistä Markdownia, joten lähde pysyy lainauksen alla muissakin ohjelmissa. Vuorosanat eivät ole
   // lähteitä: jos lainauksen muukin rivi alkaa viivalla, viimeinenkään ei ole lähde.
   var RE_LAHDE = /^[–—][ \u00a0]+\S/, RE_PAKKO = /(\\| {2,}|<br\s*\/?>\s*)$/i, RE_TYHJA_BR = /^\s*(\\|<br\s*\/?>)?\s*$/i;
-  function lahdeRivi(x) { x = x.replace(/\s*(\\|<br\s*\/?>)?\s*$/i, ''); return RE_LAHDE.test(x) && x.length <= 160; }
+  // Rivin lopun välit ja pakotettu rivinvaihto pois ilman regexin perääntymistä (pitkä välilyöntijono oli kuutiollinen).
+  function loppuPois(x) { return x.trimEnd().replace(/(\\|<br\s*\/?>)$/i, '').trimEnd(); }
+  function lahdeRivi(x) { x = loppuPois(x); return RE_LAHDE.test(x) && x.length <= 160; }
   function lainauksenLahde(kids) {
     var vika = kids[kids.length - 1];
     if (!vika || vika.t !== 'p') return null;
-    var r = vika.text.split('\n'), x = r[r.length - 1].replace(/\s*(\\|<br\s*\/?>)?\s*$/i, '').trim();
+    var r = vika.text.split('\n'), x = loppuPois(r[r.length - 1]).trim();
     if (!lahdeRivi(x)) return null;
     var muut = kids.slice(0, -1).filter(function (t) { return t.t === 'p'; }).map(function (t) { return t.text; }).concat(r.slice(0, -1));
     if (muut.some(function (m) { return m.split('\n').some(function (y) { return RE_LAHDE.test(y.trim()); }); })) return null;
@@ -675,7 +683,11 @@
   }
   /* Lohkokaava (sama kierros): lisäosa kirjoittaa numeron em-välin taakse (π~i~ = n~h~/N~h~\u2003(2)); vanhoissa PMC:n
      artikkeleissa välinä on sitovia välilyöntejä. → p.kaava: ei sisennystä, keskellä, seuraava kappale tasalaidasta. */
-  var RE_KAAVA = /(?:\u2003|\u00a0{2,}\s*)\(\d{1,3}[a-z]?\)$/;
+  // Numero em-välin tai vähintään kahden sitovan välilyönnin takana; tarkistus ilman regexin perääntymistä (NBSP-jono).
+  var RE_KAAVA = { test: function (x) {
+    var m = /\(\d{1,3}[a-z]?\)$/.exec(x); if (!m) return false;
+    var a = x.slice(0, m.index); if (a.slice(-1) === '\u2003') return true;
+    return a.slice(a.trimEnd().length).indexOf('\u00a0\u00a0') >= 0; } };
   // Merkinnän otsikkotaso (käyttäjän säännöt 10.11.2026), tasot sellaisina kuin ne näkyvät (laske, alennukset, pykälät):
   // kohta (h4) on oletus ja kuivan loppuosion (kirjallisuus, lähteet, linkit) alla aina; ilman otsikoita kohta yksin;
   // jos tekstissä on vain yhtä tasoa eikä kuivaa loppua, sama taso (pelkät osiot → osio, pelkät luvut → luku).
@@ -1171,7 +1183,8 @@
     return -1;
   }
   function valmistele(body, base) {
-    var raw = body.split('\n'), L = [], N = [], fn = {}, link = {}, cite = {}, W = [], aita = null, kommentti = false;
+    // Määritelmät prototyypittömiin olioihin: [^constructor] ja [x][#__proto__] kaatoivat jäsennyksen.
+    var raw = body.split('\n'), L = [], N = [], fn = Object.create(null), link = Object.create(null), cite = Object.create(null), W = [], aita = null, kommentti = false;
     for (var i = 0; i < raw.length; i++) {
       var l = raw[i].replace(/^[ \t]+/, function (m) { return m.replace(/\t/g, '    '); }), ln = base + i;
       if (aita) {
@@ -1287,7 +1300,9 @@
     return { t: { t: 'list', ln: items[0].ln, items: items }, i: i };
   }
 
-  function blocksOf(L, N) {
+  // syv: lainausten sisäkkäisyys; yli 64 tasoa on tekstiä (1 600 sisäkkäistä > ylivuoti pinon).
+  function blocksOf(L, N, syv) {
+    syv = syv || 0;
     var out = [], i = 0, n = L.length;
     while (i < n) {
       var l = L[i], ln = N[i];
@@ -1318,14 +1333,16 @@
       if (RE_TOC.test(l)) { out.push({ t: 'toc', ln: ln }); i++; continue; }
       if (RE_SIVU.test(l)) { out.push({ t: 'sivu', ln: ln }); i++; continue; }
       if (RE_H.test(l)) {
-        var hm = /^ {0,3}(#{1,6})\s*(.*?)\s*#*\s*$/.exec(l);
-        out.push({ t: 'h', ln: ln, lvl: hm[1].length, text: hm[2] }); i++; continue;
+        // Otsikon loppurisuaidat ja välit pois ilman regexin perääntymistä (pitkä välilyöntijono oli kuutiollinen; U+2028 kaatoi).
+        var hm = /^ {0,3}(#{1,6})([\s\S]*)$/.exec(l), hx = hm[2].trim(), he = hx.length;
+        while (he && hx[he - 1] === '#') he--;
+        out.push({ t: 'h', ln: ln, lvl: hm[1].length, text: hx.slice(0, he).trimEnd() }); i++; continue;
       }
       if (RE_HR.test(l)) { out.push({ t: 'hr', ln: ln }); i++; continue; }
-      if (RE_BQ.test(l)) {
+      if (RE_BQ.test(l) && syv < 64) {
         var q = [], qn = [];
         while (i < n && L[i].trim() && RE_BQ.test(L[i])) { q.push(L[i].replace(/^ {0,3}> ?/, '')); qn.push(N[i]); i++; }
-        out.push({ t: 'bq', ln: ln, kids: blocksOf(q, qn) }); continue;
+        out.push({ t: 'bq', ln: ln, kids: blocksOf(q, qn, syv + 1) }); continue;
       }
       if (l.indexOf('|') >= 0 && i + 1 < n && L[i + 1].indexOf('|') >= 0 && RE_EROTIN.test(L[i + 1])) {
         var tasaus = soluiksi(L[i + 1]).map(function (c) {
@@ -2146,6 +2163,7 @@
      Ilman tunnistetta kursiivikappale on tavallinen kappale (BJGP:n How this fits in). */
   var KT_NIMI = /^(?:(?:table|tab\.|figure|fig\.?|chart|graph|diagram|scheme|box|plate|map|exhibit|illustration|abbildung|abb\.|tabelle|tableau|figura|tabla|tabela|taulukko|kuva|kuvio|kaavio|рисунок|рис\.|таблица|табл\.)\s*(?:s?\d+[a-z]?(?:[.-]\d+)*|[ivxlc]+)\.?:?|\d+(?:\.\d+)?\s*(?:lentelė|pav\.|paveikslas|schema|diagrama|grafikas)\.?)(?=\s|$)/iu;
   function kuvateksti(t) {
+    if (!/^[*_]/.test(String(t).trim())) return null;
     var x = String(t).trim().replace(/\s*\\?\[(?!\^)[^\]\n]+?\\?\]$/, '').replace(/(\[\^[^\]\s]+\])+$/, '');
     var d = x.charAt(0);
     if ((d !== '*' && d !== '_') || x.charAt(1) === d || x.length < 4 || x.charAt(x.length - 1) !== d || x.charAt(x.length - 2) === '\\') return null;
@@ -2232,7 +2250,11 @@
       if (m && !ref[norm(m[1])]) ref[norm(m[1])] = m[2];
     });
     var osoite = function (u, k) { return u || ref[norm(k || '')] || ''; };
-    var otsikko = function (l) { return /^ {0,3}(#{1,6})\s+(.*?)\s*#*\s*$/.exec(l); };
+    var otsikko = function (l) {
+      var m = /^ {0,3}(#{1,6})\s(.*)$/.exec(l); if (!m) return null;
+      var x = m[2].trim(), e = x.length; while (e && x[e - 1] === '#') e--;
+      return [m[0], m[1], x.slice(0, e).trimEnd()];
+    };
     var maar = {}, osiot = [];
     function aloitus(l) {
       var m = /^ {0,3}\[(\d{1,3})\.?\](?:\(([^)\s]*)\)|\[([^\]]*)\])\s*(.*)$/.exec(l);
@@ -2337,9 +2359,9 @@
     }
   */
   function parse(src) {
-    var ed = PLAIN, edT = TIIVIS;
-    PLAIN = new Map(); TIIVIS = new Map();
-    try { return jasenna(src); } finally { PLAIN = ed; TIIVIS = edT; }
+    var ed = PLAIN, edT = TIIVIS, edP = PARIT;
+    PLAIN = new Map(); TIIVIS = new Map(); PARIT = new Map();
+    try { return jasenna(src); } finally { PLAIN = ed; TIIVIS = edT; PARIT = edP; }
   }
   function jasenna(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
@@ -2352,11 +2374,11 @@
     V.W.forEach(function (w) { res.warnings.push(w); });
     var curLn = 0;
     // xref(): ristiviittauksen rivinumero varoitusta varten (viittaus ratkaistaan vasta lopuksi).
-    var refs = { fn: V.fn, link: V.link, cite: V.cite, meta: Object.assign({}, ek.raaka, ek.meta), xref: function () { return curLn; },
+    var refs = { fn: V.fn, link: V.link, cite: V.cite, meta: Object.assign(Object.create(null), ek.raaka, ek.meta), xref: function () { return curLn; },
       lahde: /^https?:\/\//i.test(lahdeU) ? sivunAvain(lahdeU) : '' };
 
     function warn(msg, lisa) { var w = { ln: curLn, msg: msg }; for (var k in lisa) w[k] = lisa[k]; res.warnings.push(w); }
-    var b = 0, ids = {};
+    var b = 0, ids = Object.create(null);
     function uniq(id) {
       if (!ids[id]) { ids[id] = 1; return id; }
       ids[id]++;
@@ -2540,7 +2562,7 @@
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
-    var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false, jaksoAlkaa = false, kohtaEhd = [];
+    var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = Object.create(null), tocPaikka = false, jaksoAlkaa = false, kohtaEhd = [];
     // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
     (function () {
       var kohdat = [], hs = [];

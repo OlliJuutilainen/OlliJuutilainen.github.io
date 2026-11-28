@@ -672,6 +672,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   joten se ei siirrä kirjanmerkkejä eikä näy haussa. Muualla ja ilman `-`/`+`:aa (GitHubin `[!NOTE]`) lainaus on ennallaan. Avaus
   asettelee tekstin samaan kohtaan (`toggle` → `asettele(tila.ankkuri)`), eikä otsikkorivin napautus käännä sivua.
 - Regexien `\b` ei toimi ä:n perässä; käytä `(?![\p{L}\p{N}])`.
+- **md.js:n syöte on vihamielinen** (verkkoleike, postilaatikko, `#u=`): ei sisäkkäisiä tai peräkkäisiä valinnaisia kvanttoreita
+  rivin loppuun (`\s*…\s*$`, `(.*?)\s*#*\s*$` olivat kuutiollisia), ei haun toistoa jokaisesta avaajasta (`parit()`, `eiSulje`),
+  ja määritelmät prototyypittömiin olioihin (`Object.create(null)`). Kokeile uusi regex muutaman tuhannen välilyönnin rivillä.
 - **`md.js?v=<SHA-1:n alku>`**: luin.html ja Latomo lataavat md.js:n versiotunnisteella, koska Pages antaa `max-age=600`
   ja selain pitää vanhan version. Kun muutat md.js:ää (myös kommenttia), päivitä tunniste (`md-testi.js` huomauttaa unohduksesta):
   `V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html`
@@ -747,6 +750,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Kokoruutu** (opas 4.9): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös). Nappi muistaa valinnan
   (`aset.kokoruutu`); selain sallii kokoruudun vain eleestä, joten tekstin avauksen jälkeinen ensimmäinen napautus vie
   kokoruutuun (`krAvaus`). Takaisin-eleen tai alasvedon jälkeen Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita.
+  **Valinta muistetaan vain kosketusnäytöllä** (`krMuistaa()`, `MOBIILI`): tietokoneella Esc on tarkoituksellinen poistuminen, ja
+  muistettu valinta veisi seuraavan tekstin ensimmäisellä napsautuksella tai näppäimellä kokoruutuun. Siellä vain nappi vie
+  kokoruutuun, eikä se tallenna valintaa. Testi `kokoruutu-testi.js`.
 - **Palkkivara** (opas 4.9): sivutettuna kosketusnäytöllä dokumentti on `150lvh` korkea (`html.palkkivara`; pienempi vara ei piilota palkkeja Bravella, `luin/kehitys/palkkikoe.html`), jotta pystypyyhkäisy vierittää ja selain piilottaa palkkinsa. Älä palauta `body.sivutus`:n `overflow: hidden`ia sinne äläkä käytä pystyeleitä sivutettuna muuhun (paitsi kokoruudun alasveto, jolloin vara on pois); uusi näkyvä elementti sivutettuna on `position: fixed`.
 - **Palkkiopas** (pilotti, opas 4.9, `naytaPalkkiopas()`): iso pyyhkäisymerkki tekstin päällä avauksessa ja sivunkäännön valinnan jälkeen, vain kun selaimen palkit näkyvät (`100lvh` > ikkuna, ei selaimen nimeä). Kun se näkyy, leipäteksti himmenee värinä (`#palkkiopas:not([hidden]) ~ #sivu`, siksi opas on heti ennen `#sivu`a). Käyttäjän päätös: väri paletin haalea `--viiva` (himmennyksen ansiosta erottuu), neljä natsaa, **ei salmiakkeja eikä jäsentelyviivoja** (koristesalmiakit eivät ole tämän ohjelman juttu), selite enintään ison rivin levyinen (`.po-pieni` em-suhteessa). Versaali on toistaiseksi; sen poistoa harkitaan, älä poista kysymättä. Ei läpikuultavuutta, ei animaatiota, ei ota napautuksia; mikä tahansa napautus sulkee sen, tekstialueella tekemättä muuta. Älä tee siitä pientä äläkä siirrä tekstin alle kysymättä.
 - **Turvakaista** (opas 4.9): kameran loven kohdalla musta `#turva` (`--turva` = `env(safe-area-inset-top)`, varasääntönä 32 px `paivitaTurva()`), ja kaikki näkymät alkavat sen alta. Light Phone säästetään (kaista 0). Kaistan napautus avaa ja sulkee navin kuten alakaista (vain mobiili ja lukija). Uusi kiinteä elementti tai yläraja ottaa `--turva`/`turva()`:n huomioon; `viewport-fit=cover` on välttämätön, jotta selain kertoo loven.
@@ -914,6 +920,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   siistitä pois. Sääntö ja ohje ovat `luin/posti.js`:ssä, lisäosassa kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset kulkevat Durable Objectin laskurin `LuinRaja`
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikaan ei rajoita. Koodia ei kirjoiteta repoon.
+  Worker hylkää merkintäpaketin ilman `v: 1`:tä ja pyynnön, jossa on sekä teksti että merkinnät; laatikon listaus on 1000 avainta.
   Pino hakee laatikon enintään minuutin välein ja tyhjän haun jälkeen kerran uudelleen (`haePinoon()`): KV:n listaus näyttää
   edellisen minuutin sisällä luetun tilan. Ei jatkuvaa kyselyä: ilmaistasolla listauksia on 1000 päivässä, ja haku tekee kaksi. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).

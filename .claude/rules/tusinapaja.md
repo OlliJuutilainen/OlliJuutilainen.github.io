@@ -62,6 +62,8 @@ Maa jäässä plussalla (käyttäjän päätös):
   Hetkellinen kuten lämpötila, joten luetaan rivin omalta aikaleimalta. Jos haku epäonnistuu, hiutaleet vain
   jäävät pois. `extractSeries` tunnistaa `groundtemperature`n ennen `temperature`a, joka sisältyy siihen.
 - Luku ja hiutale ovat katkeamattomassa `span`issa, koska kapea sarake katkaisisi hiutaleen omalle rivilleen.
+- **RAAKA**-tilassa hiutale on asteen merkin alla (keskeltä karvan oikealle) ja tavallista alaindeksiä alempana, ei sen perässä (käyttäjän päätös; luokka `aste`).
+  Kaukaisen maaruudun kolmio on silloin asteen merkin oikealla puolella, koska hiutaleen yläkulmassa se osuisi asteen merkkiin.
 - **Maaruutu** (käyttäjän päätös): hiutaleen maan lämpötila otetaan vain kuivalta maalta, koska rannikon ja järvien
   sekaruudussa vesi lämmittää arvoa talvella niin, että hiutale jäisi pois. `findMaaruutu` hakee `LandSeaMask`in
   salon pisteestä ja renkaista 1,25–15 km (8 suuntaa) yhdellä pyynnöllä (`latlon` toistettuna), ja lähin piste,
@@ -153,9 +155,9 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 ## Minun oma tusinasää eli MOTS (hallintapaneeli)
 
 Kehitystyön virallinen lyhenne on **MOTS** (käyttäjän päätös): sääntöihin, commit-viesteihin, PR:iin ja tusina-rataan.
-Sivuilla nimi kirjoitetaan auki; poikkeus on etusivun nappi *Minun · oma · tusinasää (MOTS)* (käyttäjän päätös). Nimi on
+Sivuilla nimi kirjoitetaan auki, myös etusivun napissa *Minun · oma · tusinasää* (käyttäjän päätös). Nimi on
 interpunktein: napissa välilyöntien kanssa, paneelin otsikossa ilman (käyttäjän päätös). Napin koko teksti on kursiivilla (käyttäjän päätös). Paneelin otsikko
-(aforismi) on *MINUN·OMA·TUSINASÄÄ* ja sen alla *≈ sinun oma ”tusina-mää”*, ilman lyhenteitä (käyttäjän päätös); kapealla ruudulla
+(aforismi) on *MINUN·OMA·TUSINASÄÄ* ja sen alla *sinun oma ”tusina-mää”*, ilman ≈-merkkiä ja lyhenteitä (käyttäjän päätös); kapealla ruudulla
 `fitQuote()` pienentää sen palstaan (koko em-mitoin, ei rivitystä). Logo on paneelissa samankokoinen kuin etusivulla, jossa
 sen koko tulee rivivälistä (käyttäjän päätös); aforismin paikka sekä avainnäkymän avain ja nimi mitoitetaan logosta.
 
@@ -244,9 +246,9 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 `minun-tusinasaa.html` on myös Tusinasään julkinen etusivu: laite, jolla ei ole paneelia eikä osoitteessa linkkiä, aloittaa
 siitä, ja paneelissa logo vie sinne. Sisältö ja mitat ovat mallin ensikäynnistä salkosanastolla.
 
-- Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun oma tusinasää (MOTS)* -nappi, eikä
+- Palaavalla (laitteella paneeli) paalutuskappaleen ja *Aloita paalutus* -napin tilalla on *Minun · oma · tusinasää* -nappi, eikä
   sovellusosiota ole etusivulla (käyttäjän päätökset).
-- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja kolme seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
+- Esimerkkinäkymä on mallin tallennetut rivit (`DEMO`), ei elävää dataa: nyt-rivi ja neljä seuraavaa (käyttäjän päätös). Datalähderivillä linkit Ilmatieteen laitoksen avoimeen
   dataan ja yr.no:hon (käyttäjän päätös); kursiivilla vain *yr.no* (käyttäjän päätös).
 - Leipäteksti on tiivis (käyttäjän päätös): riviväli 1.3 17 px:n ja 1.35 15,5 px:n teksteissä. Logo on ylätekstin anfangi,
   joten sen koko ja yläväli seuraavat ylätekstin riviväliä (laskutapa CSS-kommentissa).

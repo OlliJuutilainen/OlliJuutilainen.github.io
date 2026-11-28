@@ -363,7 +363,7 @@ Kun hyppäät tekstissä kauas, paluureitti katoaa helposti. Siksi hypyn lähtö
 
 ### 5.7 Kokoruutu ja selaimen palkit
 
-**Kokoruutu.** Yläpalkin kulmanappi kiekon vasemmalla puolella vie kokoruutuun, jossa selaimen omat palkit ovat piilossa. Luin muistaa valinnan: kun avaat tekstin seuraavan kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman käyttäjän elettä. Samasta napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivutettuna ruudun yläosasta alas vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen.
+**Kokoruutu.** Yläpalkin kulmanappi kiekon vasemmalla puolella vie kokoruutuun, jossa selaimen omat palkit ovat piilossa. Luin muistaa valinnan: kun avaat tekstin seuraavan kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman käyttäjän elettä. Samasta napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivutettuna ruudun yläosasta alas vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen. Tietokoneella Luin ei muista valintaa: kokoruutuun pääsee vain napista, ja siitä poistuu napista tai Esc-näppäimellä.
 
 **Turvakaista.** Puhelimessa, jonka etukamera on näytön yläreunassa, ruudun yläreunaan jää kokoruudussa musta kaista, jotta kamera ei peitä tekstiä. Kaistan napautus avaa ja sulkee palkit.
 

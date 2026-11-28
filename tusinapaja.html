@@ -128,15 +128,19 @@
   /* TK-otsake on SADE- ja TUULEE-otsakkeita selvästi pienempi ja hiukan alempana: ei samanarvoinen sarakeotsikko (käyttäjän päätös). */
   .hdr .tk{ font-size:9px; transform:translateY(2px) }
   /* Maa jäässä plussalla: Tusinasään hiutale alaindeksinä lämpötilan perässä, lämpötilan värillä (käyttäjän päätös). */
-  .maaJaassa{ display:inline-block; width:.6em; height:.6em; margin-left:.1em; vertical-align:-.2em; overflow:visible }
+  .maaJaassa{ display:inline-block; width:.5em; height:.5em; margin-left:.1em; vertical-align:-.2em; overflow:visible }
   .maaJaassaLuku{ white-space:nowrap }
+  /* RAAKA: hiutale asteen merkin alle, keskeltä karvan oikealle ja alemmas (käyttäjän päätös). Kolmio ei mahdu hiutaleen yläkulmaan
+     asteen merkin vuoksi, joten se on asteen merkin oikealla puolella. */
+  .maaJaassaLuku.aste .maaJaassa{ margin-left:-.41em; vertical-align:-.32em }
+  .maaJaassaLuku.aste .maaVaroitus{ margin-left:-.06em }
   /* Kaukainen maaruutu (yli 5 km): pieni varoituskolmio hiutaleen oikeaan yläkulmaan; osoitus tai napautus
      näyttää huomautuksen (käyttäjän päätös). Osuma-alue on näkyvää merkkiä suurempi. */
   .maaEpavarma{ position:relative; display:inline-block; cursor:pointer; outline:none; -webkit-tap-highlight-color:transparent }
   .maaEpavarma::after{ content:''; position:absolute; inset:-10px -8px -8px -4px }
   .maaEpavarma:focus-visible{ outline:1px dotted currentColor; outline-offset:2px }
   /* Kolmio ei kasvata leveyttä (marginaalit kumoavat sen): kapea sarake ei muuten riittäisi lukemalle 12°. */
-  .maaVaroitus{ display:inline-block; width:.4em; height:.4em; margin:0 -.12em 0 -.28em; vertical-align:.44em; overflow:visible }
+  .maaVaroitus{ display:inline-block; width:.4em; height:.4em; margin:0 -.12em 0 -.28em; vertical-align:.34em; overflow:visible }
   .maaHuomautus{ position:absolute; z-index:10; max-width:min(280px, calc(100vw - 32px)); box-sizing:border-box;
     padding:8px 10px; border:1px solid var(--color-border); border-radius:4px; background:var(--color-bg);
     color:var(--color-soft); font-size:13px; line-height:1.4; letter-spacing:.2px; font-style:normal;
@@ -2343,7 +2347,7 @@ function renderRow(row, state){
   const tempBadgeHtml = tempBadge ? ` ${tempBadge}` : '';
   const tempNum = (temp!=null && !Number.isNaN(temp)) ? Math.round(temp)+(FEELS_LIKE?'':'°') : '–';
   /* Luku ja hiutale samaan katkeamattomaan osaan: kapea sarake katkaisisi hiutaleen omalle rivilleen (12°). */
-  const tempText = groundFrozenUnderPlus(temp, groundTemp) ? `<span class="maaJaassaLuku">${tempNum}${groundFlakeHtml()}</span>` : tempNum;
+  const tempText = groundFrozenUnderPlus(temp, groundTemp) ? `<span class="maaJaassaLuku${FEELS_LIKE ? '' : ' aste'}">${tempNum}${groundFlakeHtml()}</span>` : tempNum;
   return (
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
