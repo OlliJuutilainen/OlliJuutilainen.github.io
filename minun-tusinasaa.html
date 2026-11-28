@@ -638,10 +638,10 @@ if (document.fonts){
 
 /* --- Etusivun esimerkkinäkymä: mallin tallennetut rivit, nyt-rivi ja kolme seuraavaa (käyttäjän päätös). --- */
 const DEMO = [
-  ['13:30', '0°', ['sinistä'], '—', '4 m/s', 'luoteesta', 1],
-  ['klo 14', '0°', ['sangen sinistä'], '—', '4 m/s', 'pohjoisesta', 0],
-  ['klo 15', '0°', ['auringonlasku 15:28', 'PORVARILLINEN HÄMÄRÄ'], '—', '4 m/s', 'luoteesta', 0],
-  ['klo 16', '-1°', ['NAUTTINEN HÄMÄRÄ (16:23)'], '—', '5 m/s', 'pohjoisesta', 0]
+  ['11:11', '-5°', ['siniharmaata'], '—', '1 m/s', 'lounaasta', 1],
+  ['klo 12', '-4°', ['harmaata'], '—', '2 m/s', 'lounaasta', 0],
+  ['klo 13', '-3°', ['»'], '—', '1 m/s', 'kaakosta', 0],
+  ['klo 14', '-2°', ['»'], '—', '1 m/s', 'lännestä', 0]
 ];
 $('demo').innerHTML = DEMO.map(([t, temp, desc, rain, w, dir, white]) => {
   const time = t.startsWith('klo') ? `<span class="mini">klo</span>${t.slice(4)}` : t;
